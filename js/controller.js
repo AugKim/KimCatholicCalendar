@@ -3435,5 +3435,755 @@ window.onload = function() {
     updateHeaderTodayInfo(); 
     renderCalendar();
     HeaderCollapseManager.init();
-    document.onkeydown = function(evt) { if (evt.keyCode == 27) closeModal(); };
+    document.onkeydown = function(evt) { 
+        if (evt.keyCode == 27) {
+            closeModal();
+            closeExportModal();
+        }
+    };
 };
+
+// ============================================================================
+// EXPORT FUNCTIONS - Xuất lịch ra JSON/PDF
+// ============================================================================
+
+let exportRange = 'year'; // 'month', 'year', 'custom'
+
+function showExportOptions() {
+    const modal = document.getElementById('exportModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        // Set current month in custom inputs
+        const currentMonth = new Date().getMonth() + 1;
+        document.getElementById('exportFromMonth').value = currentMonth;
+    }
+}
+
+function closeExportModal() {
+    const modal = document.getElementById('exportModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+function setExportRange(range) {
+    exportRange = range;
+    
+    // Update button styles
+    document.querySelectorAll('.export-range-btn').forEach(btn => {
+        btn.classList.remove('active', 'border-blue-500', 'bg-blue-50', 'text-blue-700');
+        btn.classList.add('border-gray-200');
+    });
+    
+    const activeBtn = document.getElementById(`exportRange${range.charAt(0).toUpperCase() + range.slice(1)}`);
+    if (activeBtn) {
+        activeBtn.classList.add('active', 'border-blue-500', 'bg-blue-50', 'text-blue-700');
+        activeBtn.classList.remove('border-gray-200');
+    }
+    
+    // Show/hide custom inputs
+    const customInputs = document.getElementById('customRangeInputs');
+    if (customInputs) {
+        if (range === 'custom') {
+            customInputs.classList.remove('hidden');
+        } else {
+            customInputs.classList.add('hidden');
+        }
+    }
+}
+
+function getExportDateRange() {
+    const today = new Date();
+    let fromMonth, toMonth;
+    
+    switch (exportRange) {
+        case 'month':
+            fromMonth = today.getMonth() + 1;
+            toMonth = fromMonth;
+            break;
+        case 'custom':
+            fromMonth = parseInt(document.getElementById('exportFromMonth').value);
+            toMonth = parseInt(document.getElementById('exportToMonth').value);
+            break;
+        case 'year':
+        default:
+            fromMonth = 1;
+            toMonth = 12;
+            break;
+    }
+    
+    return { fromMonth, toMonth };
+}
+
+function generateCalendarData() {
+    const { fromMonth, toMonth } = getExportDateRange();
+    const litData = getLiturgicalData(currentYear);
+    const includeReadings = document.getElementById('exportIncludeReadings')?.checked || false;
+    const includeSaints = document.getElementById('exportIncludeSaints')?.checked || true;
+    const includeLunar = document.getElementById('exportIncludeLunar')?.checked || true;
+    
+    // Metadata
+    const exportData = {
+        metadata: {
+            title: `Lịch Phụng Vụ Công Giáo Năm ${currentYear}`,
+            year: currentYear,
+            exportedAt: new Date().toISOString(),
+            range: {
+                from: `${currentYear}-${String(fromMonth).padStart(2, '0')}-01`,
+                to: `${currentYear}-${String(toMonth).padStart(2, '0')}-${new Date(currentYear, toMonth, 0).getDate()}`
+            },
+            liturgicalCycle: {
+                sundayCycle: `Năm ${getLiturgicalCycle(new Date(currentYear, 0, 1), litData)}`,
+                weekdayCycle: currentYear % 2 === 0 ? "Năm Chẵn" : "Năm Lẻ"
+            }
+        },
+        months: []
+    };
+    
+    // Generate data for each month
+    for (let month = fromMonth; month <= toMonth; month++) {
+        const monthData = {
+            month: month,
+            name: MONTHS_VI[month - 1],
+            days: []
+        };
+        
+        const daysInMonth = new Date(currentYear, month, 0).getDate();
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(currentYear, month - 1, day);
+            const info = getDayInfo(date, litData);
+            const dayCode = getLiturgicalDayCode(date, litData);
+            
+            const dayData = {
+                date: `${currentYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+                dayOfWeek: DAYS_FULL_VI[date.getDay()],
+                celebration: info.special || info.celebration || getDetailedLiturgicalWeek(date, litData),
+                rank: info.rankCode || 'NGAY_THUONG',
+                color: info.color?.replace('bg-lit-', '') || 'green',
+                season: info.season,
+                code: dayCode
+            };
+            
+            // Lunar date
+            if (includeLunar && typeof LUNAR_CALENDAR !== 'undefined') {
+                const lunar = LUNAR_CALENDAR.getLunarDate(date);
+                if (lunar) {
+                    dayData.lunar = {
+                        day: lunar.day,
+                        month: lunar.month,
+                        year: lunar.year,
+                        isLeapMonth: lunar.isLeapMonth || false
+                    };
+                }
+            }
+            
+            // Saints
+            if (includeSaints && info.saints && info.saints.length > 0) {
+                dayData.saints = info.saints.map(s => ({
+                    name: s.name,
+                    rank: s.rank,
+                    color: s.color?.replace('bg-lit-', '')
+                }));
+            }
+            
+            // Commemorations
+            if (info.commemorations && info.commemorations.length > 0) {
+                dayData.commemorations = info.commemorations.map(c => c.name || c);
+            }
+            
+            // Reading references
+            if (includeReadings) {
+                // Lấy chu kỳ năm phụng vụ
+                const cycle = getLiturgicalCycle(date, litData);
+                const weekdayCycle = currentYear % 2 === 1 ? "1" : "2";
+                const dayOfWeek = date.getDay();
+                
+                // Tìm bài đọc từ tất cả nguồn
+                let readingData = null;
+                
+                // Chúa Nhật: tìm trong READINGS_SUNDAY với cycle
+                if (dayOfWeek === 0) {
+                    const result = findReadingFromAllSources(dayCode, cycle);
+                    if (result && result.data) {
+                        readingData = result.data;
+                    }
+                } else {
+                    // Ngày thường: kiểm tra mùa
+                    const season = parseInt(dayCode.substring(0, 1));
+                    if (season === 5) {
+                        // Mùa Thường Niên: tìm theo năm lẻ/chẵn
+                        if (weekdayCycle === "1" && typeof READINGS_ORDINARY_Y1 !== 'undefined') {
+                            readingData = READINGS_ORDINARY_Y1[dayCode];
+                        } else if (typeof READINGS_ORDINARY_Y2 !== 'undefined') {
+                            readingData = READINGS_ORDINARY_Y2[dayCode];
+                        }
+                    } else {
+                        // Các mùa khác
+                        if (typeof READINGS_SEASONAL !== 'undefined') {
+                            readingData = READINGS_SEASONAL[dayCode];
+                        }
+                    }
+                    
+                    // Fallback: tìm từ tất cả nguồn
+                    if (!readingData) {
+                        const result = findReadingFromAllSources(dayCode);
+                        if (result && result.data) {
+                            readingData = result.data;
+                        }
+                    }
+                }
+                
+                if (readingData) {
+                    dayData.readings = {
+                        code: dayCode,
+                        references: {
+                            reading1: readingData.firstReading?.excerpt || readingData.BD1_ref || null,
+                            psalm: readingData.psalms?.excerpt || readingData.DC_ref || null,
+                            reading2: readingData.secondReading?.excerpt || readingData.BD2_ref || null,
+                            gospel: readingData.gospel?.excerpt || readingData.TM_ref || null
+                        }
+                    };
+                }
+            }
+            
+            // Discipline notes
+            const discipline = getLiturgicalDiscipline(date, litData);
+            if (discipline && (discipline.fast || discipline.abstinence || discipline.obligation)) {
+                dayData.discipline = {
+                    fast: discipline.fast || false,
+                    abstinence: discipline.abstinence || false,
+                    obligation: discipline.obligation || false,
+                    note: discipline.note || null
+                };
+            }
+            
+            monthData.days.push(dayData);
+        }
+        
+        exportData.months.push(monthData);
+    }
+    
+    return exportData;
+}
+
+function exportCalendar(format) {
+    const data = generateCalendarData();
+    const { fromMonth, toMonth } = getExportDateRange();
+    
+    let filename;
+    if (fromMonth === toMonth) {
+        filename = `lich-phung-vu-${currentYear}-thang-${String(fromMonth).padStart(2, '0')}`;
+    } else if (fromMonth === 1 && toMonth === 12) {
+        filename = `lich-phung-vu-${currentYear}`;
+    } else {
+        filename = `lich-phung-vu-${currentYear}-thang-${fromMonth}-den-${toMonth}`;
+    }
+    
+    if (format === 'json') {
+        exportToJSON(data, filename);
+    } else if (format === 'pdf') {
+        exportToPDF(data, filename);
+    }
+    
+    closeExportModal();
+}
+
+function exportToJSON(data, filename) {
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    // Show success message
+    showExportNotification('JSON đã được tải xuống!', 'success');
+}
+
+function exportToPDF(data, filename) {
+    // Create a printable HTML document
+    const printWindow = window.open('', '_blank');
+    
+    // Color mapping for liturgical colors
+    const colorMap = {
+        'green': '#16a34a',
+        'purple': '#9333ea',
+        'white': '#eab308',
+        'red': '#dc2626',
+        'rose': '#ec4899'
+    };
+    
+    // Color background mapping
+    const colorBgMap = {
+        'green': '#f0fdf4',
+        'purple': '#faf5ff',
+        'white': '#fefce8',
+        'red': '#fef2f2',
+        'rose': '#fdf2f8'
+    };
+    
+    // Rank labels
+    const rankLabels = {
+        'TRONG': 'Lễ Trọng',
+        'KINH': 'Lễ Kính',
+        'NHO': 'Lễ Nhớ',
+        'NHOKB': 'Lễ Nhớ (KB)',
+        'CHUA_NHAT': 'Chúa Nhật',
+        'NGAY_THUONG': ''
+    };
+    
+    // Month names in Vietnamese
+    const monthNamesVN = [
+        'Tháng Giêng', 'Tháng Hai', 'Tháng Ba', 'Tháng Tư',
+        'Tháng Năm', 'Tháng Sáu', 'Tháng Bảy', 'Tháng Tám',
+        'Tháng Chín', 'Tháng Mười', 'Tháng Mười Một', 'Tháng Mười Hai'
+    ];
+    
+    let htmlContent = `
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>${data.metadata.title}</title>
+    <style>
+        @page { 
+            size: A4; 
+            margin: 12mm 10mm;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .month-section { page-break-inside: avoid; }
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Segoe UI', 'Arial', sans-serif; 
+            font-size: 9pt; 
+            line-height: 1.35;
+            color: #1f2937;
+            background: #f8fafc;
+        }
+        
+        /* Container to limit width */
+        .page-container {
+            max-width: 210mm; /* A4 width */
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+        }
+        @media screen {
+            .page-container {
+                max-width: 800px;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+        }
+        
+        /* Header */
+        .header { 
+            text-align: center; 
+            padding: 20px 0 15px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+        }
+        .header h1 { 
+            font-size: 22pt; 
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .header .subtitle { 
+            font-size: 10pt; 
+            opacity: 0.9;
+        }
+        .header .cycle {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 11pt;
+            font-weight: 600;
+        }
+        
+        /* Print button */
+        .print-controls {
+            text-align: center;
+            padding: 15px;
+            background: #f8fafc;
+            margin-bottom: 15px;
+            border-radius: 10px;
+        }
+        .print-btn {
+            padding: 12px 40px;
+            font-size: 14px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+            transition: transform 0.2s;
+        }
+        .print-btn:hover { transform: translateY(-2px); }
+        
+        /* Month Section */
+        .month-section { 
+            margin-bottom: 20px;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .month-header { 
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            color: white;
+            padding: 12px 20px;
+            font-size: 14pt;
+            font-weight: 700;
+        }
+        
+        /* Table */
+        table { 
+            width: 100%; 
+            border-collapse: collapse;
+        }
+        th { 
+            background: #f1f5f9; 
+            padding: 8px 6px;
+            font-weight: 600;
+            text-align: left;
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td { 
+            padding: 6px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+        tr:hover { background: #f8fafc; }
+        
+        /* Columns */
+        .col-date { width: 70px; text-align: center; }
+        .col-celebration { }
+        .col-readings { width: 180px; }
+        .col-lunar { width: 55px; text-align: center; }
+        
+        /* Date cell */
+        .date-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .day-name { font-size: 7pt; color: #64748b; text-transform: uppercase; }
+        .day-num { 
+            font-size: 14pt; 
+            font-weight: 700; 
+            line-height: 1.2;
+        }
+        .color-bar {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 3px;
+        }
+        
+        /* Celebration */
+        .celebration-main { 
+            font-weight: 600; 
+            font-size: 9pt;
+            color: #1f2937;
+        }
+        .rank-badge { 
+            display: inline-block;
+            font-size: 6.5pt; 
+            color: #fff;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-left: 5px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+        .rank-trong { background: #dc2626; }
+        .rank-kinh { background: #f59e0b; }
+        .rank-nho { background: #22c55e; }
+        .rank-nhokb { background: #6b7280; }
+        
+        .saints-line { 
+            font-size: 7.5pt; 
+            color: #64748b; 
+            font-style: italic; 
+            margin-top: 2px;
+        }
+        .discipline-line { 
+            font-size: 7pt; 
+            color: #7c3aed; 
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        
+        /* Readings */
+        .readings-cell {
+            font-size: 7.5pt;
+            color: #475569;
+            line-height: 1.4;
+        }
+        .reading-item {
+            display: flex;
+            margin-bottom: 1px;
+        }
+        .reading-label {
+            color: #94a3b8;
+            width: 25px;
+            flex-shrink: 0;
+        }
+        .reading-ref {
+            font-weight: 500;
+            color: #1e40af;
+        }
+        
+        /* Lunar */
+        .lunar-date {
+            font-size: 9pt;
+            color: #dc2626;
+            font-weight: 500;
+        }
+        .lunar-new { 
+            background: #fef2f2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+        
+        /* Special rows */
+        .row-sunday { background: #fef2f2; }
+        .row-solemnity { background: #fef3c7; }
+        .row-feast { background: #f0fdf4; }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            font-size: 8pt;
+            color: #94a3b8;
+            padding: 15px;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 10px;
+        }
+        
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 8pt;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<div class="page-container">
+    <div class="header">
+        <h1>✝ ${data.metadata.title}</h1>
+        <div class="subtitle">Giáo Hội Công Giáo Việt Nam</div>
+        <div class="cycle">${data.metadata.liturgicalCycle.sundayCycle} • ${data.metadata.liturgicalCycle.weekdayCycle}</div>
+    </div>
+    
+    <div class="content-wrapper" style="padding: 0 15px;">
+    
+    <div class="print-controls no-print">
+        <button class="print-btn" onclick="window.print()">
+            🖨️ In hoặc Lưu PDF
+        </button>
+        <p style="margin-top: 10px; font-size: 12px; color: #64748b;">
+            Nhấn Ctrl+P (hoặc Cmd+P trên Mac) → Chọn "Save as PDF"
+        </p>
+    </div>
+    
+    <div class="legend no-print">
+        <div class="legend-item"><div class="legend-color" style="background: #16a34a;"></div> Thường Niên</div>
+        <div class="legend-item"><div class="legend-color" style="background: #9333ea;"></div> Mùa Vọng/Chay</div>
+        <div class="legend-item"><div class="legend-color" style="background: #eab308;"></div> Lễ Trọng</div>
+        <div class="legend-item"><div class="legend-color" style="background: #dc2626;"></div> Tử Đạo</div>
+    </div>
+`;
+    
+    // Generate month tables
+    data.months.forEach(month => {
+        const monthName = monthNamesVN[month.month - 1] || month.name;
+        
+        htmlContent += `
+    <div class="month-section">
+        <div class="month-header">${monthName} năm ${data.metadata.year}</div>
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-date">Ngày</th>
+                    <th class="col-celebration">Cử Hành Phụng Vụ</th>
+                    <th class="col-readings">Bài Đọc</th>
+                    <th class="col-lunar">Âm</th>
+                </tr>
+            </thead>
+            <tbody>
+`;
+        
+        month.days.forEach(day => {
+            const date = new Date(day.date);
+            const dayNum = date.getDate();
+            const isSunday = date.getDay() === 0;
+            const isSolemnity = day.rank === 'TRONG';
+            const isFeast = day.rank === 'KINH';
+            
+            let rowClass = '';
+            if (isSolemnity) rowClass = 'row-solemnity';
+            else if (isFeast) rowClass = 'row-feast';
+            else if (isSunday) rowClass = 'row-sunday';
+            
+            const colorHex = colorMap[day.color] || '#16a34a';
+            const rankLabel = rankLabels[day.rank] || '';
+            let rankClass = 'rank-badge ';
+            if (day.rank === 'TRONG') rankClass += 'rank-trong';
+            else if (day.rank === 'KINH') rankClass += 'rank-kinh';
+            else if (day.rank === 'NHO') rankClass += 'rank-nho';
+            else if (day.rank === 'NHOKB') rankClass += 'rank-nhokb';
+            
+            // Lunar date
+            let lunarStr = '';
+            if (day.lunar) {
+                const lunarText = `${day.lunar.day}/${day.lunar.month}`;
+                lunarStr = day.lunar.day === 1 
+                    ? `<span class="lunar-new">${lunarText}</span>` 
+                    : lunarText;
+            }
+            
+            // Saints
+            let saintsStr = '';
+            if (day.saints && day.saints.length > 0) {
+                saintsStr = `<div class="saints-line">↳ ${day.saints.map(s => s.name).join('; ')}</div>`;
+            }
+            
+            // Discipline
+            let disciplineStr = '';
+            if (day.discipline) {
+                const parts = [];
+                if (day.discipline.fast) parts.push('Ăn chay');
+                if (day.discipline.abstinence) parts.push('Kiêng thịt');
+                if (day.discipline.obligation) parts.push('Lễ buộc');
+                if (parts.length > 0) {
+                    disciplineStr = `<div class="discipline-line">⚠ ${parts.join(' • ')}</div>`;
+                }
+            }
+            
+            // Readings
+            let readingsStr = '';
+            if (day.readings && day.readings.references) {
+                const refs = day.readings.references;
+                if (refs.reading1) readingsStr += `<div class="reading-item"><span class="reading-label">I:</span><span class="reading-ref">${refs.reading1}</span></div>`;
+                if (refs.psalm) readingsStr += `<div class="reading-item"><span class="reading-label">Đc:</span><span class="reading-ref">${refs.psalm}</span></div>`;
+                if (refs.reading2) readingsStr += `<div class="reading-item"><span class="reading-label">II:</span><span class="reading-ref">${refs.reading2}</span></div>`;
+                if (refs.gospel) readingsStr += `<div class="reading-item"><span class="reading-label">TM:</span><span class="reading-ref">${refs.gospel}</span></div>`;
+            }
+            
+            // Short day name
+            const shortDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+            const dayName = shortDays[date.getDay()];
+            
+            htmlContent += `
+                <tr class="${rowClass}">
+                    <td class="col-date">
+                        <div class="date-wrapper">
+                            <span class="day-name">${dayName}</span>
+                            <span class="day-num">${String(dayNum).padStart(2, '0')}</span>
+                            <div class="color-bar" style="background: ${colorHex};"></div>
+                        </div>
+                    </td>
+                    <td class="col-celebration">
+                        <span class="celebration-main">${day.celebration}</span>
+                        ${rankLabel ? `<span class="${rankClass}">${rankLabel}</span>` : ''}
+                        ${saintsStr}
+                        ${disciplineStr}
+                    </td>
+                    <td class="col-readings">
+                        <div class="readings-cell">${readingsStr || '<span style="color:#cbd5e1;">—</span>'}</div>
+                    </td>
+                    <td class="col-lunar">
+                        <span class="lunar-date">${lunarStr}</span>
+                    </td>
+                </tr>
+`;
+        });
+        
+        htmlContent += `
+            </tbody>
+        </table>
+    </div>
+`;
+    });
+    
+    htmlContent += `
+    <div class="footer">
+        ✝ Lịch Phụng Vụ Công Giáo • Xuất ngày ${new Date().toLocaleDateString('vi-VN')} • lichphungvu.com
+    </div>
+    
+    </div><!-- end content-wrapper -->
+</div><!-- end page-container -->
+</body>
+</html>
+`;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    // Show notification
+    showExportNotification('Đã mở trang in PDF. Chọn "Lưu dạng PDF" để lưu file.', 'success');
+}
+
+function showExportNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-xl shadow-lg z-50 flex items-center gap-3 transform transition-all duration-300 translate-y-2 opacity-0`;
+    
+    if (type === 'success') {
+        notification.classList.add('bg-green-500', 'text-white');
+        notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+    } else {
+        notification.classList.add('bg-blue-500', 'text-white');
+        notification.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-y-2', 'opacity-0');
+    }, 10);
+    
+    // Remove after 3s
+    setTimeout(() => {
+        notification.classList.add('translate-y-2', 'opacity-0');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
