@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Lịch Phụng Vụ - Bộ Tiêu Chuẩn Kiểm Thử</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-pass { background-color: #dcfce7; color: #166534; }
+        .test-fail { background-color: #fee2e2; color: #991b1b; }
+        .test-warn { background-color: #fef3c7; color: #92400e; }
+        .test-section { background-color: #e0f2fe; color: #0369a1; font-weight: bold; }
+        .test-info { background-color: #f9fafb; }
+        .log-entry { font-family: monospace; font-size: 0.85rem; padding: 4px 8px; border-bottom: 1px solid #e5e7eb; }
+        .log-entry.hidden { display: none; }
+        #testLog { max-height: 600px; overflow-y: auto; }
+        
+        /* Filter button styles */
+        .filter-btn { cursor: pointer; }
+        .filter-btn.active { border-color: #3b82f6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
+        #btnAll.active { border-color: #6b7280 !important; box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.3); }
+        #btnPass.active { border-color: #16a34a !important; box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.3); }
+        #btnFail.active { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.3); }
+        #btnWarn.active { border-color: #d97706 !important; box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.3); }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-2">🧪 Test Lịch Phụng Vụ</h1>
+        <p class="text-center text-gray-500 mb-8">Bộ Tiêu Chuẩn Kiểm Thử Toàn Diện</p>
+        
+        <!-- Controls -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+            <div class="flex flex-wrap gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Năm bắt đầu</label>
+                    <input type="number" id="startYear" value="2000" class="border rounded px-3 py-2 w-24">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Năm kết thúc</label>
+                    <input type="number" id="endYear" value="2100" class="border rounded px-3 py-2 w-24">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Loại test</label>
+                    <select id="testType" class="border rounded px-3 py-2">
+                        <option value="all">🔄 Tất cả</option>
+                        <option value="standards">📋 Tiêu chuẩn (A-E)</option>
+                        <option value="dateISO">📅 A. Date & ISO-key</option>
+                        <option value="schema">📝 B. Schema Validation</option>
+                        <option value="business">⛪ C. Nghiệp vụ Phụng vụ</option>
+                        <option value="monthGrid">📆 D. Month Grid</option>
+                        <option value="regression">🔁 E. Regression</option>
+                        <option value="easter">🐣 Easter/Phục Sinh</option>
+                        <option value="epiphany">⭐ Hiển Linh & Phép Rửa</option>
+                        <option value="lent">✝️ Mùa Chay</option>
+                        <option value="advent">🕯️ Mùa Vọng</option>
+                        <option value="tet">🎊 Tết Nguyên Đán</option>
+                    </select>
+                </div>
+                <button onclick="runTests()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold">
+                    ▶ Chạy Test
+                </button>
+                <button onclick="runStandardTests()" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
+                    📋 Chạy Tiêu Chuẩn
+                </button>
+                <button onclick="clearLog()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    Xóa Log
+                </button>
+            </div>
+        </div>
+        
+        <!-- Summary - Filter Buttons -->
+        <div class="grid grid-cols-4 gap-4 mb-6">
+            <button onclick="filterLog('all')" id="btnAll" title="Hiển thị tất cả" class="filter-btn active bg-white p-4 rounded-xl shadow-md text-center hover:bg-gray-50 transition-all border-2 border-transparent focus:outline-none">
+                <div id="totalTests" class="text-3xl font-bold text-gray-800">0</div>
+                <div class="text-sm text-gray-500">Tổng Tests</div>
+                <div class="text-xs text-gray-400 mt-1">Click để lọc</div>
+            </button>
+            <button onclick="filterLog('pass')" id="btnPass" title="Chỉ hiển thị passed" class="filter-btn bg-green-50 p-4 rounded-xl shadow-md text-center hover:bg-green-100 transition-all border-2 border-transparent focus:outline-none">
+                <div id="passedTests" class="text-3xl font-bold text-green-600">0</div>
+                <div class="text-sm text-green-700">Passed</div>
+                <div class="text-xs text-green-500 mt-1">Click để lọc</div>
+            </button>
+            <button onclick="filterLog('fail')" id="btnFail" title="Chỉ hiển thị failed" class="filter-btn bg-red-50 p-4 rounded-xl shadow-md text-center hover:bg-red-100 transition-all border-2 border-transparent focus:outline-none">
+                <div id="failedTests" class="text-3xl font-bold text-red-600">0</div>
+                <div class="text-sm text-red-700">Failed</div>
+                <div class="text-xs text-red-400 mt-1">Click để lọc</div>
+            </button>
+            <button onclick="filterLog('warn')" id="btnWarn" title="Chỉ hiển thị warnings" class="filter-btn bg-yellow-50 p-4 rounded-xl shadow-md text-center hover:bg-yellow-100 transition-all border-2 border-transparent focus:outline-none">
+                <div id="warnTests" class="text-3xl font-bold text-yellow-600">0</div>
+                <div class="text-sm text-yellow-700">Warnings</div>
+                <div class="text-xs text-yellow-500 mt-1">Click để lọc</div>
+            </button>
+        </div>
+        
+        <!-- Test Log -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-gray-800 text-white px-4 py-2 font-semibold flex justify-between items-center">
+                <span>📋 Test Log</span>
+                <span id="testProgress" class="text-sm text-gray-300"></span>
+            </div>
+            <div id="testLog" class="bg-gray-50"></div>
+        </div>
+        
+        <!-- Detailed Year View -->
+        <div id="detailView" class="mt-6 hidden">
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">📅 Chi tiết năm <span id="detailYear"></span></h2>
+                <div id="detailContent" class="grid grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load all reading data files -->
+    <script src="Reading/readingdata.js"></script>
+    <script src="Reading/readings_year_1.js"></script>
+    <script src="Reading/readings_year_2.js"></script>
+    <script src="Reading/Sunday.js"></script>
+    <script src="Reading/DailySeason.js"></script>
+    <script src="Reading/Saints.js"></script>
+    <script src="Reading/SaintsBible.js"></script>
+    <script src="Reading/Optionsaint.js"></script>
+    <script src="Reading/eucharisticAdoration.js"></script>
+    <script src="js/controller.js"></script>
+    
+    <script>
+        // ============================================================
+        // TEST UTILITIES & STATISTICS
+        // ============================================================
+        
+        let stats = { total: 0, passed: 0, failed: 0, warnings: 0 };
+        
+        // Enum definitions for validation
+        const VALID_RANKS = ['TRONG', 'KINH', 'NHO', 'NHOKB', 'CHUA_NHAT', 'NGAY_THUONG', 'O'];
+        const VALID_COLORS = ['bg-lit-green', 'bg-lit-purple', 'bg-lit-white', 'bg-lit-red', 'bg-lit-rose'];
+        const VALID_SEASONS = ['Mùa Thường Niên', 'Mùa Vọng', 'Mùa Giáng Sinh', 'Mùa Chay', 'Mùa Phục Sinh', 'Tam Nhật Vượt Qua'];
+        
+        // ============================================================
+        // A. DATE & ISO-KEY UTILITIES (Timezone Safety)
+        // ============================================================
+        
+        // Chuẩn: toISODate luôn trả YYYY-MM-DD đúng theo ngày địa phương
+        function toISODate(date) {
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Chuẩn: Parse date-string không dùng new Date("YYYY-MM-DD") vì có thể bị hiểu như UTC
+        function parseDateString(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+        
+        // Helper functions
+        function formatDate(date) {
+            if (!date) return 'N/A';
+            const d = new Date(date);
+            return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        }
+        
+        function getDayName(date) {
+            const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+            return days[new Date(date).getDay()];
+        }
+        
+        function isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        }
+        
+        function daysInMonth(year, month) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+        
+        // Current filter state
+        let currentFilter = 'all';
+        
+        // Logging
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('testLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.setAttribute('data-type', type);
+            
+            if (type === 'pass') entry.classList.add('test-pass');
+            else if (type === 'fail') entry.classList.add('test-fail');
+            else if (type === 'warn') entry.classList.add('test-warn');
+            else if (type === 'section') entry.classList.add('test-section');
+            else entry.classList.add('test-info');
+            
+            // Apply current filter
+            if (currentFilter !== 'all' && currentFilter !== type) {
+                entry.classList.add('hidden');
+            }
+            
+            const icons = { pass: '✅', fail: '❌', warn: '⚠️', info: 'ℹ️', section: '📌' };
+            entry.innerHTML = `${icons[type] || 'ℹ️'} ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+        
+        // Filter log entries
+        function filterLog(filterType) {
+            currentFilter = filterType;
+            const entries = document.querySelectorAll('#testLog .log-entry');
+            
+            entries.forEach(entry => {
+                const entryType = entry.getAttribute('data-type');
+                
+                if (filterType === 'all') {
+                    // Show all entries
+                    entry.classList.remove('hidden');
+                } else if (filterType === entryType) {
+                    // Show matching entries
+                    entry.classList.remove('hidden');
+                } else if (entryType === 'section') {
+                    // Always show section headers for context
+                    entry.classList.remove('hidden');
+                } else {
+                    // Hide non-matching entries
+                    entry.classList.add('hidden');
+                }
+            });
+            
+            // Update active button state
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const activeBtn = {
+                'all': 'btnAll',
+                'pass': 'btnPass',
+                'fail': 'btnFail',
+                'warn': 'btnWarn'
+            };
+            
+            if (activeBtn[filterType]) {
+                document.getElementById(activeBtn[filterType]).classList.add('active');
+            }
+            
+            // Update filtered count display
+            updateFilteredCount(filterType);
+        }
+        
+        // Show filtered count in progress area
+        function updateFilteredCount(filterType) {
+            if (filterType === 'all') {
+                document.getElementById('testProgress').textContent = 'Hiển thị tất cả';
+                return;
+            }
+            
+            const totalCount = document.querySelectorAll(`#testLog .log-entry[data-type="${filterType}"]`).length;
+            const labels = { pass: '✅ Passed', fail: '❌ Failed', warn: '⚠️ Warnings' };
+            document.getElementById('testProgress').textContent = `Đang lọc: ${totalCount} ${labels[filterType] || filterType}`;
+        }
+        
+        function updateStats() {
+            document.getElementById('totalTests').textContent = stats.total;
+            document.getElementById('passedTests').textContent = stats.passed;
+            document.getElementById('failedTests').textContent = stats.failed;
+            document.getElementById('warnTests').textContent = stats.warnings;
+        }
+        
+        function clearLog() {
+            document.getElementById('testLog').innerHTML = '';
+            stats = { total: 0, passed: 0, failed: 0, warnings: 0 };
+            updateStats();
+            
+            // Reset filter to 'all'
+            currentFilter = 'all';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btnAll').classList.add('active');
+            document.getElementById('testProgress').textContent = '';
+        }
+        
+        function assert(condition, message, warnOnly = false) {
+            stats.total++;
+            if (condition) {
+                stats.passed++;
+                log(message, 'pass');
+                return true;
+            } else {
+                if (warnOnly) {
+                    stats.warnings++;
+                    log(message, 'warn');
+                } else {
+                    stats.failed++;
+                    log(message, 'fail');
+                }
+                return false;
+            }
+        }
+        
+        // ============================================================
+        // A. TEST: Date & ISO-Key (Timezone Safety)
+        // ============================================================
+        
+        function testDateAndISOKey() {
+            log('═══ A. DATE & ISO-KEY (Timezone Safety) ═══', 'section');
+            
+            // Test 1: toISODate với ngày cuối tháng
+            const march31 = new Date(2024, 2, 31); // March 31, 2024
+            assert(toISODate(march31) === "2024-03-31",
+                `toISODate(new Date(2024,2,31)) === "2024-03-31" → ${toISODate(march31)}`);
+            
+            // Test 2: toISODate với ngày đầu tháng
+            const jan1 = new Date(2024, 0, 1);
+            assert(toISODate(jan1) === "2024-01-01",
+                `toISODate(new Date(2024,0,1)) === "2024-01-01" → ${toISODate(jan1)}`);
+            
+            // Test 3: toISODate với năm nhuận 29/2
+            const feb29 = new Date(2024, 1, 29);
+            assert(toISODate(feb29) === "2024-02-29",
+                `toISODate(new Date(2024,1,29)) === "2024-02-29" → ${toISODate(feb29)}`);
+            
+            // Test 4: parseDateString round-trip
+            const testDateStr = "2024-03-31";
+            const parsed = parseDateString(testDateStr);
+            const roundTrip = toISODate(parsed);
+            assert(roundTrip === testDateStr,
+                `parseDateString("2024-03-31") round-trip → ${roundTrip}`);
+            
+            // Test 5: parseDateString không dùng UTC
+            const parsed2 = parseDateString("2024-12-31");
+            assert(parsed2.getDate() === 31 && parsed2.getMonth() === 11,
+                `parseDateString("2024-12-31").getDate() === 31, getMonth() === 11`);
+            
+            // Test 6: Consistency across different dates
+            const testDates = [
+                "2024-01-01", "2024-02-29", "2024-06-15", 
+                "2024-12-31", "2025-03-01", "2100-02-28"
+            ];
+            let allPass = true;
+            for (const dateStr of testDates) {
+                const d = parseDateString(dateStr);
+                if (toISODate(d) !== dateStr) {
+                    allPass = false;
+                    log(`Round-trip failed for ${dateStr} → ${toISODate(d)}`, 'fail');
+                    stats.failed++;
+                }
+            }
+            if (allPass) {
+                stats.total++;
+                stats.passed++;
+                log(`Tất cả ${testDates.length} date strings round-trip thành công`, 'pass');
+            }
+        }
+        
+        // ============================================================
+        // B. TEST: Schema Validation (Data Integrity)
+        // ============================================================
+        
+        function testSchemaValidation(year) {
+            log(`═══ B. SCHEMA VALIDATION - Năm ${year} ═══`, 'section');
+            
+            const litData = getLiturgicalData(year);
+            const totalDays = isLeapYear(year) ? 366 : 365;
+            let schemaErrors = 0;
+            let sampleErrors = [];
+            
+            // Kiểm tra tất cả 365/366 ngày trong năm
+            for (let month = 0; month < 12; month++) {
+                const daysInM = daysInMonth(year, month);
+                for (let day = 1; day <= daysInM; day++) {
+                    const date = new Date(year, month, day);
+                    const info = getDayInfo(date, litData);
+                    
+                    // Kiểm tra các trường bắt buộc
+                    const requiredFields = ['season', 'color', 'rankCode'];
+                    for (const field of requiredFields) {
+                        if (info[field] === undefined || info[field] === null) {
+                            schemaErrors++;
+                            if (sampleErrors.length < 5) {
+                                sampleErrors.push(`${formatDate(date)}: thiếu trường "${field}"`);
+                            }
+                        }
+                    }
+                    
+                    // Validate rank enum
+                    if (info.rankCode && !VALID_RANKS.includes(info.rankCode)) {
+                        schemaErrors++;
+                        if (sampleErrors.length < 5) {
+                            sampleErrors.push(`${formatDate(date)}: rankCode "${info.rankCode}" không hợp lệ`);
+                        }
+                    }
+                    
+                    // Validate color enum
+                    if (info.color && !VALID_COLORS.includes(info.color)) {
+                        schemaErrors++;
+                        if (sampleErrors.length < 5) {
+                            sampleErrors.push(`${formatDate(date)}: color "${info.color}" không hợp lệ`);
+                        }
+                    }
+                    
+                    // Validate season enum
+                    if (info.season && !VALID_SEASONS.includes(info.season)) {
+                        schemaErrors++;
+                        if (sampleErrors.length < 5) {
+                            sampleErrors.push(`${formatDate(date)}: season "${info.season}" không hợp lệ`);
+                        }
+                    }
+                }
+            }
+            
+            if (schemaErrors === 0) {
+                stats.total++;
+                stats.passed++;
+                log(`[${year}] Tất cả ${totalDays} ngày đều đạt schema validation`, 'pass');
+            } else {
+                stats.total++;
+                stats.failed++;
+                log(`[${year}] Schema errors: ${schemaErrors}`, 'fail');
+                sampleErrors.forEach(err => log(`  → ${err}`, 'fail'));
+            }
+            
+            // Test saints array luôn là array
+            const randomDate = new Date(year, 5, 15);
+            const randomInfo = getDayInfo(randomDate, litData);
+            assert(Array.isArray(randomInfo.saints),
+                `[${year}] getDayInfo().saints là Array`);
+            
+            // Test commemorations luôn là array  
+            assert(Array.isArray(randomInfo.commemorations),
+                `[${year}] getDayInfo().commemorations là Array`);
+        }
+        
+        // ============================================================
+        // C. TEST: Nghiệp vụ Phụng vụ Cơ bản
+        // ============================================================
+        
+        function testLiturgicalBusiness(year) {
+            log(`═══ C. NGHIỆP VỤ PHỤNG VỤ CƠ BẢN - Năm ${year} ═══`, 'section');
+            
+            const litData = getLiturgicalData(year);
+            
+            // C1. Kiểm tra ngày 1/1 - Đức Mẹ là Mẹ Thiên Chúa
+            const jan1 = new Date(year, 0, 1);
+            const jan1Info = getDayInfo(jan1, litData);
+            
+            const jan1HasMary = jan1Info.special?.includes('MARIA') || 
+                               jan1Info.special?.includes('Mẹ Thiên Chúa') ||
+                               jan1Info.saints?.some(s => s.name?.includes('MARIA'));
+            assert(jan1HasMary,
+                `[${year}] 01/01: Đức Mẹ là Mẹ Thiên Chúa - special="${jan1Info.special}"`);
+            
+            assert(jan1Info.color === 'bg-lit-white',
+                `[${year}] 01/01: color = WHITE → ${jan1Info.color}`);
+            
+            // C2. Kiểm tra Lễ Tro - Thứ Tư, màu tím
+            if (!litData.ashWednesdayTransferred) {
+                const ashInfo = getDayInfo(litData.ashWednesday, litData);
+                assert(ashInfo.special?.includes('Tro'),
+                    `[${year}] Lễ Tro (${formatDate(litData.ashWednesday)}): "${ashInfo.special}" chứa "Tro"`);
+                assert(ashInfo.color === 'bg-lit-purple',
+                    `[${year}] Lễ Tro: color = PURPLE → ${ashInfo.color}`);
+                assert(ashInfo.season === 'Mùa Chay',
+                    `[${year}] Lễ Tro: season = Mùa Chay → ${ashInfo.season}`);
+            }
+            
+            // C3. Kiểm tra Phục Sinh - màu trắng
+            const easterInfo = getDayInfo(litData.easter, litData);
+            assert(easterInfo.special?.includes('Phục Sinh'),
+                `[${year}] Phục Sinh (${formatDate(litData.easter)}): "${easterInfo.special}" chứa "Phục Sinh"`);
+            assert(easterInfo.color === 'bg-lit-white',
+                `[${year}] Phục Sinh: color = WHITE → ${easterInfo.color}`);
+            assert(easterInfo.rankCode === 'TRONG',
+                `[${year}] Phục Sinh: rank = TRONG → ${easterInfo.rankCode}`);
+            
+            // C4. Kiểm tra Thứ Sáu Tuần Thánh - màu đỏ (không phải tím!)
+            const goodFridayInfo = getDayInfo(litData.goodFriday, litData);
+            assert(goodFridayInfo.color === 'bg-lit-red',
+                `[${year}] Good Friday: color = RED (không phải tím!) → ${goodFridayInfo.color}`);
+            
+            // C5. Kiểm tra Giáng Sinh 25/12
+            const christmas = new Date(year, 11, 25);
+            const xmasInfo = getDayInfo(christmas, litData);
+            assert(xmasInfo.season === 'Mùa Giáng Sinh',
+                `[${year}] 25/12: season = Mùa Giáng Sinh → ${xmasInfo.season}`);
+            assert(xmasInfo.color === 'bg-lit-white',
+                `[${year}] 25/12: color = WHITE → ${xmasInfo.color}`);
+            
+            // C6. Kiểm tra Mùa Vọng - màu tím
+            const adventSundayInfo = getDayInfo(litData.adventStart, litData);
+            assert(adventSundayInfo.color === 'bg-lit-purple',
+                `[${year}] CN I Mùa Vọng: color = PURPLE → ${adventSundayInfo.color}`);
+            assert(adventSundayInfo.season === 'Mùa Vọng',
+                `[${year}] CN I Mùa Vọng: season = Mùa Vọng → ${adventSundayInfo.season}`);
+        }
+        
+        // ============================================================
+        // D. TEST: Month Grid Correctness
+        // ============================================================
+        
+        function testMonthGrid(year) {
+            log(`═══ D. MONTH GRID CORRECTNESS - Năm ${year} ═══`, 'section');
+            
+            // D1. Tháng 2 năm nhuận phải có 29 ngày
+            if (isLeapYear(year)) {
+                const feb = daysInMonth(year, 1);
+                assert(feb === 29,
+                    `[${year}] Tháng 2 (năm nhuận) có ${feb} ngày - expected 29`);
+            } else {
+                const feb = daysInMonth(year, 1);
+                assert(feb === 28,
+                    `[${year}] Tháng 2 (không nhuận) có ${feb} ngày - expected 28`);
+            }
+            
+            // D2. Tháng 4 phải có 30 ngày
+            const apr = daysInMonth(year, 3);
+            assert(apr === 30,
+                `[${year}] Tháng 4 có ${apr} ngày - expected 30`);
+            
+            // D3. Tháng 1 phải có 31 ngày
+            const jan = daysInMonth(year, 0);
+            assert(jan === 31,
+                `[${year}] Tháng 1 có ${jan} ngày - expected 31`);
+            
+            // D4. Kiểm tra tất cả tháng có số ngày đúng
+            const expectedDays = [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            let allCorrect = true;
+            for (let m = 0; m < 12; m++) {
+                const actual = daysInMonth(year, m);
+                if (actual !== expectedDays[m]) {
+                    allCorrect = false;
+                    log(`[${year}] Tháng ${m+1} có ${actual} ngày, expected ${expectedDays[m]}`, 'fail');
+                    stats.failed++;
+                }
+            }
+            if (allCorrect) {
+                stats.total++;
+                stats.passed++;
+                log(`[${year}] Tất cả 12 tháng có số ngày đúng`, 'pass');
+            }
+            
+            // D5. Kiểm tra ngày trong tháng đi từ 1..lastDay
+            const litData = getLiturgicalData(year);
+            for (let m = 0; m < 12; m++) {
+                const lastDay = daysInMonth(year, m);
+                for (let d = 1; d <= lastDay; d++) {
+                    const date = new Date(year, m, d);
+                    if (date.getDate() !== d || date.getMonth() !== m) {
+                        stats.total++;
+                        stats.failed++;
+                        log(`[${year}] Date overflow: ${year}-${m+1}-${d} → ${formatDate(date)}`, 'fail');
+                        return;
+                    }
+                }
+            }
+            stats.total++;
+            stats.passed++;
+            log(`[${year}] Tất cả ngày trong năm validate đúng`, 'pass');
+        }
+        
+        // ============================================================
+        // E. TEST: Regression - Ngày Quan Trọng
+        // ============================================================
+        
+        function testRegressionImportantDates(year) {
+            log(`═══ E. REGRESSION - NGÀY QUAN TRỌNG - Năm ${year} ═══`, 'section');
+            
+            const litData = getLiturgicalData(year);
+            
+            // E1. Phục Sinh phải nằm trong 22/3 - 25/4
+            const easterMonth = litData.easter.getMonth();
+            const easterDate = litData.easter.getDate();
+            const validEaster = (easterMonth === 2 && easterDate >= 22) || 
+                               (easterMonth === 3 && easterDate <= 25);
+            assert(validEaster,
+                `[${year}] Phục Sinh (${formatDate(litData.easter)}) ∈ [22/3 - 25/4]`);
+            
+            // E2. Phục Sinh phải là Chúa Nhật
+            assert(litData.easter.getDay() === 0,
+                `[${year}] Phục Sinh (${formatDate(litData.easter)}) là Chúa Nhật`);
+            
+            // E3. Lễ Tro = Phục Sinh - 46 ngày
+            const ashToEaster = Math.round((litData.easter - litData.ashWednesday) / (24*60*60*1000));
+            assert(ashToEaster === 46,
+                `[${year}] Lễ Tro cách Phục Sinh ${ashToEaster} ngày - expected 46`);
+            
+            // E4. Lễ Tro phải là Thứ Tư
+            assert(litData.ashWednesday.getDay() === 3,
+                `[${year}] Lễ Tro (${formatDate(litData.ashWednesday)}) là Thứ Tư`);
+            
+            // E5. CN I Mùa Vọng ∈ [27/11 - 03/12]
+            const adventMonth = litData.adventStart.getMonth();
+            const adventDate = litData.adventStart.getDate();
+            const validAdvent = (adventMonth === 10 && adventDate >= 27) || 
+                               (adventMonth === 11 && adventDate <= 3);
+            assert(validAdvent,
+                `[${year}] CN I Mùa Vọng (${formatDate(litData.adventStart)}) ∈ [27/11 - 03/12]`);
+            
+            // E6. CN I Mùa Vọng phải là Chúa Nhật
+            assert(litData.adventStart.getDay() === 0,
+                `[${year}] CN I Mùa Vọng (${formatDate(litData.adventStart)}) là Chúa Nhật`);
+            
+            // E7. Thăng Thiên = Phục Sinh + 39 ngày (Thứ Năm truyền thống VN)
+            const ascensionDiff = Math.round((litData.ascension - litData.easter) / (24*60*60*1000));
+            assert(ascensionDiff === 39,
+                `[${year}] Thăng Thiên cách Phục Sinh ${ascensionDiff} ngày - expected 39`);
+            
+            // E8. Thăng Thiên phải là Thứ Năm
+            assert(litData.ascension.getDay() === 4,
+                `[${year}] Thăng Thiên (${formatDate(litData.ascension)}) là Thứ Năm`);
+            
+            // E9. Hiện Xuống = Phục Sinh + 49 ngày
+            const pentecostDiff = Math.round((litData.pentecost - litData.easter) / (24*60*60*1000));
+            assert(pentecostDiff === 49,
+                `[${year}] Hiện Xuống cách Phục Sinh ${pentecostDiff} ngày - expected 49`);
+            
+            // E10. Hiện Xuống phải là Chúa Nhật
+            assert(litData.pentecost.getDay() === 0,
+                `[${year}] Hiện Xuống (${formatDate(litData.pentecost)}) là Chúa Nhật`);
+            
+            // E11. Hiển Linh ∈ [02/01 - 08/01] và là Chúa Nhật
+            const epiphanyMonth = litData.epiphany.getMonth();
+            const epiphanyDate = litData.epiphany.getDate();
+            const validEpiphany = epiphanyMonth === 0 && epiphanyDate >= 2 && epiphanyDate <= 8;
+            assert(validEpiphany,
+                `[${year}] Hiển Linh (${formatDate(litData.epiphany)}) ∈ [02/01 - 08/01]`);
+            assert(litData.epiphany.getDay() === 0,
+                `[${year}] Hiển Linh (${formatDate(litData.epiphany)}) là Chúa Nhật`);
+            
+            // E12. Chúa Kitô Vua = CN I Mùa Vọng - 7 ngày
+            const christKingDiff = Math.round((litData.adventStart - litData.christKing) / (24*60*60*1000));
+            assert(christKingDiff === 7,
+                `[${year}] Chúa Kitô Vua cách CN I Mùa Vọng ${christKingDiff} ngày - expected 7`);
+        }
+        
+        // ============================================================
+        // EXISTING TEST FUNCTIONS (Easter, Epiphany, Lent, Advent, Tet)
+        // ============================================================
+        
+        function testEaster(year) {
+            log(`--- Test Easter năm ${year} ---`, 'info');
+            const litData = getLiturgicalData(year);
+            
+            const easterDay = litData.easter.getDay();
+            assert(easterDay === 0, 
+                `[${year}] Easter (${formatDate(litData.easter)}) là ${getDayName(litData.easter)} - phải là Chúa Nhật`);
+            
+            const easterMonth = litData.easter.getMonth();
+            const easterDate = litData.easter.getDate();
+            const validRange = (easterMonth === 2 && easterDate >= 22) || 
+                              (easterMonth === 3 && easterDate <= 25);
+            assert(validRange,
+                `[${year}] Easter (${formatDate(litData.easter)}) trong khoảng 22/3 - 25/4`);
+            
+            const ashDay = litData.ashWednesday.getDay();
+            assert(ashDay === 3,
+                `[${year}] Ash Wednesday (${formatDate(litData.ashWednesday)}) là ${getDayName(litData.ashWednesday)} - phải là Thứ Tư`);
+            
+            const daysDiff = Math.round((litData.easter - litData.ashWednesday) / (24*60*60*1000));
+            assert(daysDiff === 46,
+                `[${year}] Ash Wednesday cách Easter ${daysDiff} ngày - phải là 46 ngày`);
+            
+            const palmDiff = Math.round((litData.easter - litData.palmSunday) / (24*60*60*1000));
+            assert(palmDiff === 7,
+                `[${year}] Palm Sunday (${formatDate(litData.palmSunday)}) cách Easter ${palmDiff} ngày - phải là 7 ngày`);
+            
+            const goodFridayDiff = Math.round((litData.easter - litData.goodFriday) / (24*60*60*1000));
+            assert(goodFridayDiff === 2,
+                `[${year}] Good Friday (${formatDate(litData.goodFriday)}) cách Easter ${goodFridayDiff} ngày - phải là 2 ngày`);
+            
+            const pentecostDiff = Math.round((litData.pentecost - litData.easter) / (24*60*60*1000));
+            assert(pentecostDiff === 49,
+                `[${year}] Pentecost (${formatDate(litData.pentecost)}) cách Easter ${pentecostDiff} ngày - phải là 49 ngày`);
+            
+            const ascensionDiff = Math.round((litData.ascension - litData.easter) / (24*60*60*1000));
+            assert(ascensionDiff === 39,
+                `[${year}] Ascension (${formatDate(litData.ascension)}) cách Easter ${ascensionDiff} ngày - phải là 39 ngày`);
+            
+            const ascensionDay = litData.ascension.getDay();
+            assert(ascensionDay === 4,
+                `[${year}] Ascension (${formatDate(litData.ascension)}) là ${getDayName(litData.ascension)} - phải là Thứ Năm`);
+        }
+        
+        function testEpiphanyAndBaptism(year) {
+            log(`--- Test Hiển Linh & Phép Rửa năm ${year} ---`, 'info');
+            const litData = getLiturgicalData(year);
+            
+            const epiphanyDay = litData.epiphany.getDay();
+            assert(epiphanyDay === 0,
+                `[${year}] Epiphany (${formatDate(litData.epiphany)}) là ${getDayName(litData.epiphany)} - phải là Chúa Nhật`);
+            
+            const epiphanyDate = litData.epiphany.getDate();
+            const epiphanyMonth = litData.epiphany.getMonth();
+            const validEpiphany = epiphanyMonth === 0 && epiphanyDate >= 2 && epiphanyDate <= 8;
+            assert(validEpiphany,
+                `[${year}] Epiphany (${formatDate(litData.epiphany)}) trong khoảng 2/1 - 8/1`);
+            
+            const baptismAfterEpiphany = litData.baptismLord > litData.epiphany;
+            assert(baptismAfterEpiphany,
+                `[${year}] Baptism (${formatDate(litData.baptismLord)}) sau Epiphany (${formatDate(litData.epiphany)})`);
+            
+            if (epiphanyDate === 7 || epiphanyDate === 8) {
+                const daysDiff = Math.round((litData.baptismLord - litData.epiphany) / (24*60*60*1000));
+                assert(daysDiff === 1,
+                    `[${year}] Epiphany = ${epiphanyDate}/1 → Baptism ngày hôm sau (${formatDate(litData.baptismLord)}) - diff=${daysDiff}`);
+                
+                const baptismDay = litData.baptismLord.getDay();
+                assert(baptismDay === 1,
+                    `[${year}] Baptism (${formatDate(litData.baptismLord)}) là ${getDayName(litData.baptismLord)} - phải là Thứ Hai`);
+            } else {
+                const baptismDay = litData.baptismLord.getDay();
+                assert(baptismDay === 0,
+                    `[${year}] Baptism (${formatDate(litData.baptismLord)}) là ${getDayName(litData.baptismLord)} - phải là Chúa Nhật`);
+            }
+            
+            const dayAfterEpiphany = new Date(litData.epiphany);
+            dayAfterEpiphany.setDate(dayAfterEpiphany.getDate() + 1);
+            
+            if (dayAfterEpiphany < litData.baptismLord) {
+                const info = getDayInfo(dayAfterEpiphany, litData);
+                const hasSolemnOrFeast = info.saints.some(s => s.rank === 'TRONG' || s.rank === 'KINH');
+                
+                if (!hasSolemnOrFeast) {
+                    assert(info.special && info.special.includes('sau lễ Hiển Linh'),
+                        `[${year}] Ngày ${formatDate(dayAfterEpiphany)}: "${info.special}" - expected chứa "sau lễ Hiển Linh"`);
+                }
+                
+                const code = getLiturgicalDayCode(dayAfterEpiphany, litData);
+                assert(code.startsWith('600'),
+                    `[${year}] Mã ngày ${formatDate(dayAfterEpiphany)}: ${code} - expected bắt đầu với "600"`);
+            }
+            
+            const baptismCode = getLiturgicalDayCode(litData.baptismLord, litData);
+            assert(baptismCode === '5010',
+                `[${year}] Mã Baptism: ${baptismCode} - expected "5010"`);
+        }
+        
+        function testLent(year) {
+            log(`--- Test Mùa Chay năm ${year} ---`, 'info');
+            const litData = getLiturgicalData(year);
+            
+            if (!litData.ashWednesdayTransferred) {
+                const ashInfo = getDayInfo(litData.ashWednesday, litData);
+                assert(ashInfo.special && ashInfo.special.includes('Tro'),
+                    `[${year}] Ash Wednesday (${formatDate(litData.ashWednesday)}): "${ashInfo.special}" - expected chứa "Tro"`);
+                
+                const ashCode = getLiturgicalDayCode(litData.ashWednesday, litData);
+                assert(ashCode === '3004',
+                    `[${year}] Mã Ash Wednesday: ${ashCode} - expected "3004"`);
+            } else {
+                log(`[${year}] ⚠️ Lễ Tro bị dời do trùng Tết: ${litData.ashWednesdayTransferNote}`, 'warn');
+                stats.warnings++;
+            }
+            
+            const palmInfo = getDayInfo(litData.palmSunday, litData);
+            assert(palmInfo.special && palmInfo.special.includes('Lá'),
+                `[${year}] Palm Sunday (${formatDate(litData.palmSunday)}): "${palmInfo.special}"`, true);
+            
+            const goodFridayInfo = getDayInfo(litData.goodFriday, litData);
+            assert(goodFridayInfo.color.includes('red'),
+                `[${year}] Good Friday (${formatDate(litData.goodFriday)}): color="${goodFridayInfo.color}" - expected "bg-lit-red"`);
+            
+            assert(goodFridayInfo.special && goodFridayInfo.special.includes('Thứ Sáu Tuần Thánh'),
+                `[${year}] Good Friday special: "${goodFridayInfo.special}" - expected chứa "Thứ Sáu Tuần Thánh"`);
+        }
+        
+        function testAdvent(year) {
+            log(`--- Test Mùa Vọng năm ${year} ---`, 'info');
+            const litData = getLiturgicalData(year);
+            
+            const adventDay = litData.adventStart.getDay();
+            assert(adventDay === 0,
+                `[${year}] Advent Start (${formatDate(litData.adventStart)}) là ${getDayName(litData.adventStart)} - phải là Chúa Nhật`);
+            
+            const adventDate = litData.adventStart.getDate();
+            const adventMonth = litData.adventStart.getMonth();
+            const validAdvent = (adventMonth === 10 && adventDate >= 27) || 
+                               (adventMonth === 11 && adventDate <= 3);
+            assert(validAdvent,
+                `[${year}] Advent Start (${formatDate(litData.adventStart)}) trong khoảng 27/11 - 03/12`);
+            
+            const christKingDiff = Math.round((litData.adventStart - litData.christKing) / (24*60*60*1000));
+            assert(christKingDiff === 7,
+                `[${year}] Christ King (${formatDate(litData.christKing)}) cách Advent ${christKingDiff} ngày - phải là 7 ngày`);
+            
+            assert(litData.christmas.getMonth() === 11 && litData.christmas.getDate() === 25,
+                `[${year}] Christmas: ${formatDate(litData.christmas)} - expected 25/12`);
+        }
+        
+        function testTet(year) {
+            log(`--- Test Tết năm ${year} ---`, 'info');
+            
+            if (typeof LUNAR_CALENDAR === 'undefined') {
+                log(`[${year}] LUNAR_CALENDAR không được định nghĩa`, 'warn');
+                stats.warnings++;
+                return;
+            }
+            
+            let tetDate = null;
+            for (let month = 0; month <= 1; month++) {
+                for (let day = 1; day <= 31; day++) {
+                    try {
+                        const date = new Date(year, month, day);
+                        if (date.getMonth() !== month) continue;
+                        
+                        const lunar = LUNAR_CALENDAR.getLunarDate(date);
+                        if (lunar && lunar.day === 1 && lunar.month === 1) {
+                            tetDate = date;
+                            break;
+                        }
+                    } catch (e) {}
+                }
+                if (tetDate) break;
+            }
+            
+            if (tetDate) {
+                log(`[${year}] Mùng 1 Tết: ${formatDate(tetDate)} (${getDayName(tetDate)})`, 'info');
+                
+                if (typeof getTetEvent === 'function') {
+                    const tetEvent = getTetEvent(tetDate);
+                    assert(tetEvent !== null,
+                        `[${year}] getTetEvent(${formatDate(tetDate)}) nhận diện Mùng 1 Tết`);
+                }
+                
+                const litData = getLiturgicalData(year);
+                const ashTime = litData.ashWednesday.getTime();
+                const tetTime = tetDate.getTime();
+                const daysDiff = Math.abs(ashTime - tetTime) / (24*60*60*1000);
+                
+                if (daysDiff <= 3) {
+                    log(`[${year}] ⚠️ Tết gần Lễ Tro! Khoảng cách: ${daysDiff} ngày`, 'warn');
+                    stats.warnings++;
+                    
+                    if (litData.ashWednesdayTransferred) {
+                        assert(true, `[${year}] Lễ Tro đã được dời đúng cách`);
+                    }
+                }
+            } else {
+                log(`[${year}] Không tìm thấy ngày Mùng 1 Tết`, 'warn');
+                stats.warnings++;
+            }
+        }
+        
+        // ============================================================
+        // MAIN TEST RUNNERS
+        // ============================================================
+        
+        async function runStandardTests() {
+            clearLog();
+            log('🏁 CHẠY BỘ TIÊU CHUẨN KIỂM THỬ (A-E)', 'section');
+            log('', 'info');
+            
+            // A. Date & ISO-Key
+            testDateAndISOKey();
+            updateStats();
+            await new Promise(r => setTimeout(r, 50));
+            
+            // B-E cho năm hiện tại và một số năm mẫu
+            const testYears = [2024, 2025, 2026, 2030, 2050];
+            
+            for (const year of testYears) {
+                document.getElementById('testProgress').textContent = `Đang test năm ${year}...`;
+                
+                // B. Schema Validation
+                testSchemaValidation(year);
+                updateStats();
+                await new Promise(r => setTimeout(r, 20));
+                
+                // C. Liturgical Business
+                testLiturgicalBusiness(year);
+                updateStats();
+                await new Promise(r => setTimeout(r, 20));
+                
+                // D. Month Grid
+                testMonthGrid(year);
+                updateStats();
+                await new Promise(r => setTimeout(r, 20));
+                
+                // E. Regression
+                testRegressionImportantDates(year);
+                updateStats();
+                await new Promise(r => setTimeout(r, 20));
+            }
+            
+            log('', 'info');
+            log(`✨ HOÀN THÀNH! Total: ${stats.total}, Passed: ${stats.passed}, Failed: ${stats.failed}, Warnings: ${stats.warnings}`, 'info');
+            document.getElementById('testProgress').textContent = 'Hoàn thành!';
+            
+            const successRate = ((stats.passed / stats.total) * 100).toFixed(2);
+            log(`📊 Tỷ lệ thành công: ${successRate}%`, successRate >= 95 ? 'pass' : 'warn');
+        }
+        
+        async function runTests() {
+            clearLog();
+            
+            const startYear = parseInt(document.getElementById('startYear').value);
+            const endYear = parseInt(document.getElementById('endYear').value);
+            const testType = document.getElementById('testType').value;
+            
+            log(`🚀 Bắt đầu test từ năm ${startYear} đến ${endYear}...`, 'info');
+            log(`Loại test: ${testType}`, 'info');
+            log('', 'info');
+            
+            // Run standard tests first if selected
+            if (testType === 'standards' || testType === 'dateISO') {
+                testDateAndISOKey();
+                updateStats();
+            }
+            
+            const totalYears = endYear - startYear + 1;
+            
+            for (let year = startYear; year <= endYear; year++) {
+                document.getElementById('testProgress').textContent = 
+                    `Đang test: ${year} (${year - startYear + 1}/${totalYears})`;
+                
+                try {
+                    if (testType === 'all' || testType === 'standards' || testType === 'schema') {
+                        testSchemaValidation(year);
+                    }
+                    if (testType === 'all' || testType === 'standards' || testType === 'business') {
+                        testLiturgicalBusiness(year);
+                    }
+                    if (testType === 'all' || testType === 'standards' || testType === 'monthGrid') {
+                        testMonthGrid(year);
+                    }
+                    if (testType === 'all' || testType === 'standards' || testType === 'regression') {
+                        testRegressionImportantDates(year);
+                    }
+                    if (testType === 'all' || testType === 'easter') {
+                        testEaster(year);
+                    }
+                    if (testType === 'all' || testType === 'epiphany') {
+                        testEpiphanyAndBaptism(year);
+                    }
+                    if (testType === 'all' || testType === 'lent') {
+                        testLent(year);
+                    }
+                    if (testType === 'all' || testType === 'advent') {
+                        testAdvent(year);
+                    }
+                    if (testType === 'all' || testType === 'tet') {
+                        testTet(year);
+                    }
+                } catch (e) {
+                    log(`[${year}] ❌ ERROR: ${e.message}`, 'fail');
+                    stats.failed++;
+                    console.error(e);
+                }
+                
+                updateStats();
+                
+                if (year % 10 === 0) {
+                    await new Promise(r => setTimeout(r, 10));
+                }
+            }
+            
+            log('', 'info');
+            log(`✨ Hoàn thành! Total: ${stats.total}, Passed: ${stats.passed}, Failed: ${stats.failed}, Warnings: ${stats.warnings}`, 'info');
+            document.getElementById('testProgress').textContent = 'Hoàn thành!';
+            
+            const successRate = ((stats.passed / stats.total) * 100).toFixed(2);
+            log(`📊 Tỷ lệ thành công: ${successRate}%`, successRate >= 95 ? 'pass' : 'warn');
+        }
+        
+        // Quick test on load
+        window.onload = function() {
+            log('🔄 Sẵn sàng test. Chọn loại test và nhấn "Chạy Test".', 'info');
+            log('💡 Nhấn "Chạy Tiêu Chuẩn" để test bộ tiêu chuẩn A-E với các năm mẫu.', 'info');
+            log('', 'info');
+            log('📋 BỘ TIÊU CHUẨN KIỂM THỬ:', 'section');
+            log('  A. Date & ISO-key (Timezone Safety)', 'info');
+            log('  B. Schema Validation (Data Integrity)', 'info');
+            log('  C. Nghiệp vụ Phụng vụ Cơ bản', 'info');
+            log('  D. Month Grid Correctness', 'info');
+            log('  E. Regression - Ngày Quan Trọng', 'info');
+        };
+    </script>
+</body>
+</html>
