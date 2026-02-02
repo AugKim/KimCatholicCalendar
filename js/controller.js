@@ -3224,6 +3224,13 @@ function openModal(date, info) {
     const vigilFullData = allReadings.find(i => i.type === 'vigil')?.data;
     const vigilFullInfo = allReadings.find(i => i.type === 'vigil')?.vigilInfo;
 
+    const sanctoralOptionData = (() => {
+        if (typeof OptionsaintReadings !== 'undefined' && OptionsaintReadings[specialCode]) {
+            return { data: OptionsaintReadings[specialCode], code: specialCode };
+        }
+        return null;
+    })();
+
     const movableSpecialData = (() => {
         if (typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[code]) {
             return { data: READINGS_SPECIAL[code], code };
@@ -3234,6 +3241,8 @@ function openModal(date, info) {
         return null;
     })();
 
+    const sanctoralFullDataResolved = sanctoralFullData || sanctoralOptionData?.data;
+    const sanctoralCodeResolved = sanctoralOptionData?.code || sanctoralCode;
     const specialFullDataResolved = specialFullData || movableSpecialData?.data;
     const specialCodeResolved = movableSpecialData?.code || specialCode;
 
@@ -3248,7 +3257,7 @@ function openModal(date, info) {
     };
 
     const seasonalSummaryResolved = seasonalSummary || buildSummaryFromFull(seasonalFullData);
-    const sanctoralSummaryResolved = sanctoralSummary || buildSummaryFromFull(sanctoralFullData);
+    const sanctoralSummaryResolved = sanctoralSummary || buildSummaryFromFull(sanctoralFullDataResolved);
     const specialSummaryResolved = specialSummary || buildSummaryFromFull(specialFullDataResolved);
     const tetSummaryResolved = tetSummary || buildSummaryFromFull(tetFullData);
     
@@ -3362,12 +3371,12 @@ function openModal(date, info) {
         defaultLabel = 'Thánh Lễ Tết';
     }
     // 2. Kiểm tra _winnerKey từ Precedence Engine
-    else if (info._winnerKey === 'SANCTORAL' && sanctoralFullData) {
+    else if (info._winnerKey === 'SANCTORAL' && sanctoralFullDataResolved) {
         defaultReadingSource = 'sanctoral';
         defaultLabel = 'Lễ Kính Thánh';
     }
     // 3. Lễ Trọng/Kính của thánh (S/F type)
-    else if (info.saints.length > 0 && ['S', 'F'].includes(info.saints[0].type) && sanctoralFullData) {
+    else if (info.saints.length > 0 && ['S', 'F'].includes(info.saints[0].type) && sanctoralFullDataResolved) {
         defaultReadingSource = 'sanctoral';
         defaultLabel = 'Lễ Kính Thánh';
     }
@@ -3389,8 +3398,8 @@ function openModal(date, info) {
 
     if (modalCode) {
         let displayCode = code;
-        if (defaultReadingSource === 'sanctoral' && sanctoralFullData) {
-            displayCode = sanctoralCode;
+        if (defaultReadingSource === 'sanctoral' && sanctoralFullDataResolved) {
+            displayCode = sanctoralCodeResolved;
         } else if (defaultReadingSource === 'special' && specialFullDataResolved) {
             displayCode = specialCodeResolved;
         } else if (defaultReadingSource === 'tet' && tetCode) {
@@ -3411,7 +3420,7 @@ function openModal(date, info) {
     </button>`;
     
     // Tab Sanctoral (nếu có)
-    if (sanctoralSummary || sanctoralFullData) {
+    if (sanctoralSummary || sanctoralFullDataResolved) {
         const isSanctoralActive = defaultReadingSource === 'sanctoral';
         const saintName = info.saints.length > 0 ? info.saints[0].name : 'Lễ kính';
         tabsHtml += `<button id="btn-sanctoral" class="reading-tab tab-sanctoral ${isSanctoralActive ? 'active' : ''}">
@@ -3499,7 +3508,7 @@ function openModal(date, info) {
     };
     
     setupTabClick('btn-seasonal', seasonalFullData, 'seasonal', seasonalSummaryResolved, 'Mùa Phụng Vụ');
-    setupTabClick('btn-sanctoral', sanctoralFullData, 'sanctoral', sanctoralSummaryResolved, 'Lễ Kính Thánh');
+    setupTabClick('btn-sanctoral', sanctoralFullDataResolved, 'sanctoral', sanctoralSummaryResolved, 'Lễ Kính Thánh');
     setupTabClick('btn-special', specialFullDataResolved, 'special', specialSummaryResolved, 'Lễ Riêng');
     setupTabClick('btn-tet', tetFullData, 'tet', tetSummaryResolved, 'Thánh Lễ Tết');
 
@@ -3514,8 +3523,8 @@ function openModal(date, info) {
             }
             break;
         case 'sanctoral':
-            if (sanctoralFullData) {
-                renderReadingsContent(sanctoralFullData, 'sanctoral');
+            if (sanctoralFullDataResolved) {
+                renderReadingsContent(sanctoralFullDataResolved, 'sanctoral');
                 updateReadingRefs(sanctoralSummaryResolved);
             }
             break;
@@ -4029,11 +4038,17 @@ function generateCalendarData() {
                     const dd = String(date.getDate()).padStart(2, '0');
                     const mm = String(date.getMonth() + 1).padStart(2, '0');
                     const sanctoralCode = `7${dd}${mm}`;
+                    const sanctoralOptionCode = `8${dd}${mm}`;
                     
                     if (typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[sanctoralCode]) {
                         readingData = READINGS_SPECIAL[sanctoralCode];
                         readingSource = 'sanctoral';
                         usedCode = sanctoralCode;
+                    } else if (typeof OptionsaintReadings !== 'undefined' && OptionsaintReadings[sanctoralOptionCode]) {
+                        readingData = OptionsaintReadings[sanctoralOptionCode];
+                        readingSource = 'option';
+                        usedCode = sanctoralOptionCode;
+                        dayData.readingNote = 'Bài đọc Lễ Kính';
                     }
                 }
                 
