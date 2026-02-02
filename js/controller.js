@@ -3224,6 +3224,19 @@ function openModal(date, info) {
     const vigilFullData = allReadings.find(i => i.type === 'vigil')?.data;
     const vigilFullInfo = allReadings.find(i => i.type === 'vigil')?.vigilInfo;
 
+    const movableSpecialData = (() => {
+        if (typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[code]) {
+            return { data: READINGS_SPECIAL[code], code };
+        }
+        if (typeof OptionsaintReadings !== 'undefined' && OptionsaintReadings[code]) {
+            return { data: OptionsaintReadings[code], code };
+        }
+        return null;
+    })();
+
+    const specialFullDataResolved = specialFullData || movableSpecialData?.data;
+    const specialCodeResolved = movableSpecialData?.code || specialCode;
+
     const buildSummaryFromFull = (data) => {
         if (!data) return null;
         return {
@@ -3236,7 +3249,7 @@ function openModal(date, info) {
 
     const seasonalSummaryResolved = seasonalSummary || buildSummaryFromFull(seasonalFullData);
     const sanctoralSummaryResolved = sanctoralSummary || buildSummaryFromFull(sanctoralFullData);
-    const specialSummaryResolved = specialSummary || buildSummaryFromFull(specialFullData);
+    const specialSummaryResolved = specialSummary || buildSummaryFromFull(specialFullDataResolved);
     const tetSummaryResolved = tetSummary || buildSummaryFromFull(tetFullData);
     
     // === CẬP NHẬT HIỂN THỊ LỄ VỌNG (nếu có) ===
@@ -3359,7 +3372,7 @@ function openModal(date, info) {
         defaultLabel = 'Lễ Kính Thánh';
     }
     // 3b. Lễ Nhớ (ưu tiên nếu có bài đọc riêng)
-    else if ((info.rankCode === 'NHO' || info.rankCode === 'NHOKB') && (sanctoralFullData || specialFullData)) {
+    else if ((info.rankCode === 'NHO' || info.rankCode === 'NHOKB') && (sanctoralFullData || specialFullDataResolved)) {
         if (sanctoralFullData) {
             defaultReadingSource = 'sanctoral';
             defaultLabel = 'Lễ Nhớ';
@@ -3369,7 +3382,7 @@ function openModal(date, info) {
         }
     }
     // 4. Special feast (nếu có và ưu tiên)
-    else if (specialFullData && info.special) {
+    else if (specialFullDataResolved && info.special) {
         defaultReadingSource = 'special';
         defaultLabel = 'Lễ Riêng';
     }
@@ -3378,8 +3391,8 @@ function openModal(date, info) {
         let displayCode = code;
         if (defaultReadingSource === 'sanctoral' && sanctoralFullData) {
             displayCode = sanctoralCode;
-        } else if (defaultReadingSource === 'special' && specialFullData) {
-            displayCode = specialCode;
+        } else if (defaultReadingSource === 'special' && specialFullDataResolved) {
+            displayCode = specialCodeResolved;
         } else if (defaultReadingSource === 'tet' && tetCode) {
             displayCode = tetCode;
         }
@@ -3408,7 +3421,7 @@ function openModal(date, info) {
     }
     
     // Tab Special (nếu có)
-    if (specialSummary || specialFullData) {
+    if (specialSummary || specialFullDataResolved) {
         const isSpecialActive = defaultReadingSource === 'special';
         tabsHtml += `<button id="btn-special" class="reading-tab tab-special ${isSpecialActive ? 'active' : ''}">
             <i class="fas fa-star text-purple-600"></i> Lễ riêng
@@ -3487,7 +3500,7 @@ function openModal(date, info) {
     
     setupTabClick('btn-seasonal', seasonalFullData, 'seasonal', seasonalSummaryResolved, 'Mùa Phụng Vụ');
     setupTabClick('btn-sanctoral', sanctoralFullData, 'sanctoral', sanctoralSummaryResolved, 'Lễ Kính Thánh');
-    setupTabClick('btn-special', specialFullData, 'special', specialSummaryResolved, 'Lễ Riêng');
+    setupTabClick('btn-special', specialFullDataResolved, 'special', specialSummaryResolved, 'Lễ Riêng');
     setupTabClick('btn-tet', tetFullData, 'tet', tetSummaryResolved, 'Thánh Lễ Tết');
 
     // === DEFAULT RENDER - Dựa trên defaultReadingSource đã xác định từ Precedence ===
@@ -3507,8 +3520,8 @@ function openModal(date, info) {
             }
             break;
         case 'special':
-            if (specialFullData) {
-                renderReadingsContent(specialFullData, 'special');
+            if (specialFullDataResolved) {
+                renderReadingsContent(specialFullDataResolved, 'special');
                 updateReadingRefs(specialSummaryResolved);
             }
             break;

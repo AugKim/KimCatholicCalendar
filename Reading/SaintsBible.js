@@ -2208,5 +2208,26 @@
         "content": "Khi ấy, các môn đệ đến bên Chúa Giêsu mà hỏi rằng: “Thưa Thầy, ai là kẻ lớn nhất trong Nước Trời?” Chúa Giêsu gọi một trẻ nhỏ lại, đặt nó giữa các ông mà phán rằng: “Thật, Thầy bảo thật các con: nếu các con không hoá nên như trẻ nhỏ, các con sẽ không được vào Nước Trời. Vậy ai hạ mình xuống như trẻ nhỏ này, người ấy là kẻ lớn nhất trong Nước Trời. Và kẻ nào đón nhận một trẻ nhỏ như thế này vì danh Thầy, tức là đón nhận Thầy. Các con hãy coi chừng, đừng khinh rẻ một ai trong những kẻ bé mọn này, vì Thầy bảo các con, thiên thần của chúng trên trời hằng chiêm ngưỡng thánh nhan Cha Thầy, Ðấng ngự trên trời”.",
         "end": "Ðó là lời Chúa"
       }
+    },
+    "5441": {
+      "firstReading": {
+        "excerpt": "Is 61, 9-11",
+        "info": "“Tâm hồn tôi sẽ vui mừng trong Chúa”.",
+        "title": "Trích sách Tiên tri I-sa-i-a.",
+        "content": "",
+        "end": ""
+      },
+      "psalms": {
+        "excerpt": "1 Sm 2, 1. 4-5. 6-7. 8abcd",
+        "response": "Ðáp: Tâm hồn tôi sẽ vui mừng trong Chúa.",
+        "verses": []
+      },
+      "gospel": {
+        "excerpt": "Lc 2, 41-51",
+        "info": "“Mẹ Người cất giữ mọi điều ấy trong lòng”.",
+        "title": "Tin Mừng Chúa Giê-su Ki-tô theo Thánh Lu-ca.",
+        "content": "",
+        "end": ""
+      }
     }
 };
