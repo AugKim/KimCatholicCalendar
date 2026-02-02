@@ -16,7 +16,7 @@ const CACHE = {
     // LocalStorage key prefix
     STORAGE_PREFIX: 'liturgical_cache_',
     // Cache version để invalidate khi có update
-    VERSION: '1.0.0',
+    VERSION: '1.0.1',
     
     // Lấy từ memory cache
     get(type, key) {
@@ -1223,15 +1223,12 @@ function getCategoryWeight(celebrationInfo) {
 }
 
 // Legacy function - giữ lại để tương thích (số nhỏ hơn = ưu tiên cao hơn)
-function getRankPriority(rankCode) {
-    // Chuyển đổi từ rank code cũ sang precedence rank mới
-    // Số nhỏ hơn = ưu tiên cao hơn, nên ta đảo ngược logic
+function getRankPriority(rankCode, date = null, litData = null) {
+    // Chuyển đổi từ rank code sang precedence rank (số nhỏ hơn = ưu tiên cao hơn)
     const tempInfo = { rankCode: rankCode };
-    const dummyDate = new Date();
-    const dummyLitData = getLiturgicalData(dummyDate.getFullYear());
-    const precedence = getPrecedenceRank(tempInfo, dummyDate, dummyLitData);
-    // Trả về giá trị ngược lại để tương thích với code cũ (số cao = ưu tiên cao)
-    return 100 - precedence;
+    const targetDate = date || new Date();
+    const targetLitData = litData || getLiturgicalData(targetDate.getFullYear());
+    return getPrecedenceRank(tempInfo, targetDate, targetLitData);
 }
 
 // Xác định loại ngày phụng vụ đặc biệt
@@ -1719,6 +1716,7 @@ function getDayInfo(date, litData) {
             result.textColor = "text-lit-purple";
             result.rankCode = 'NGAY_THUONG';
             result.ashWednesdayNote = litData.ashWednesdayTransferNote;
+            result._forceTemporal = true;
         }
         if (dTime === t(litData.ashWednesdayCelebration)) {
             // Ngày cử hành Lễ Tro thực tế (Mùng 4 Tết)
@@ -1879,7 +1877,10 @@ function getDayInfo(date, litData) {
             // === ĐẶC BIỆT: Ngày sau lễ Hiển Linh ===
             // Nếu là ngày sau Hiển Linh và lễ thánh chỉ là tùy chọn (NHOKB/O), 
             // giữ temporal làm chính, thánh làm phụ
-            if (result._isAfterEpiphany && (saint.rank === 'NHOKB' || saint.rank === 'O')) {
+            if (result._forceTemporal) {
+                // Giữ cử hành chính là temporal (ví dụ: ngày bắt đầu Mùa Chay khi Lễ Tro dời)
+                // Saint đã được thêm vào result.saints, sẽ hiển thị như secondary
+            } else if (result._isAfterEpiphany && (saint.rank === 'NHOKB' || saint.rank === 'O')) {
                 // Không override special - giữ "Thứ X sau lễ Hiển Linh"
                 // Saint đã được thêm vào result.saints, sẽ hiển thị như secondary
                 // Continue without running precedence engine
@@ -1933,7 +1934,7 @@ function getDayInfo(date, litData) {
         
         if (tetResolution && tetResolution.celebrate) {
             // So sánh rank để quyết định cử hành chính
-            const currentRank = getRankPriority(result.rankCode);
+            const currentRank = getRankPriority(result.rankCode, date, litData);
             const tetRank = tetResolution.rank;
             
             // Tết được cử hành nếu có rank cao hơn hoặc bằng
