@@ -3987,7 +3987,28 @@ function generateCalendarData() {
                     }
                 }
                 
-                // === ƯU TIÊN 3: Bài đọc theo mùa/ngày (temporal) ===
+                // === ƯU TIÊN 3: Lễ Nhớ các Thánh (optional memorial) ===
+                // Nếu là lễ nhớ và có bài đọc riêng, ưu tiên hiển thị
+                if (!readingData && (info.rankCode === 'NHO' || info.rankCode === 'NHOKB')) {
+                    const dd = String(date.getDate()).padStart(2, '0');
+                    const mm = String(date.getMonth() + 1).padStart(2, '0');
+                    const memorialCode = `7${dd}${mm}`;
+                    const memorialOptionCode = `8${dd}${mm}`;
+                    
+                    if (typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[memorialCode]) {
+                        readingData = READINGS_SPECIAL[memorialCode];
+                        readingSource = 'sanctoral';
+                        usedCode = memorialCode;
+                        dayData.readingNote = 'Bài đọc Lễ Nhớ';
+                    } else if (typeof OptionsaintReadings !== 'undefined' && OptionsaintReadings[memorialOptionCode]) {
+                        readingData = OptionsaintReadings[memorialOptionCode];
+                        readingSource = 'option';
+                        usedCode = memorialOptionCode;
+                        dayData.readingNote = 'Bài đọc Lễ Nhớ (tùy chọn)';
+                    }
+                }
+
+                // === ƯU TIÊN 4: Bài đọc theo mùa/ngày (temporal) ===
                 if (!readingData) {
                     // Chúa Nhật: tìm trong READINGS_SUNDAY với cycle
                     if (dayOfWeek === 0) {
@@ -4047,21 +4068,24 @@ function generateCalendarData() {
                     }
                 }
                 
-                // === ƯU TIÊN 5: Lễ Nhớ các Thánh (optional memorial) ===
-                // Nếu vẫn không có và là lễ nhớ, thử tìm bài đọc tùy chọn
+                // === ƯU TIÊN 5: Lễ Nhớ (fallback) ===
+                // Nếu chưa có dữ liệu và là lễ nhớ, thử lại từ nguồn tùy chọn (đảm bảo không bỏ sót)
                 if (!readingData && (info.rankCode === 'NHO' || info.rankCode === 'NHOKB')) {
                     const dd = String(date.getDate()).padStart(2, '0');
                     const mm = String(date.getMonth() + 1).padStart(2, '0');
                     const memorialCode = `7${dd}${mm}`;
+                    const memorialOptionCode = `8${dd}${mm}`;
                     
                     if (typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[memorialCode]) {
                         readingData = READINGS_SPECIAL[memorialCode];
                         readingSource = 'sanctoral';
                         usedCode = memorialCode;
-                    } else if (typeof OptionsaintReadings !== 'undefined' && OptionsaintReadings[memorialCode]) {
-                        readingData = OptionsaintReadings[memorialCode];
+                        dayData.readingNote = 'Bài đọc Lễ Nhớ';
+                    } else if (typeof OptionsaintReadings !== 'undefined' && OptionsaintReadings[memorialOptionCode]) {
+                        readingData = OptionsaintReadings[memorialOptionCode];
                         readingSource = 'option';
-                        usedCode = memorialCode;
+                        usedCode = memorialOptionCode;
+                        dayData.readingNote = 'Bài đọc Lễ Nhớ (tùy chọn)';
                     }
                 }
                 
