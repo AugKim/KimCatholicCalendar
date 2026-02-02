@@ -3223,6 +3223,21 @@ function openModal(date, info) {
     const tetFullData = allReadings.find(i => i.type === 'tet')?.data;
     const vigilFullData = allReadings.find(i => i.type === 'vigil')?.data;
     const vigilFullInfo = allReadings.find(i => i.type === 'vigil')?.vigilInfo;
+
+    const buildSummaryFromFull = (data) => {
+        if (!data) return null;
+        return {
+            reading1: data.firstReading?.excerpt || data.BD1_ref || null,
+            psalm: data.psalms?.excerpt || data.DC_ref || null,
+            reading2: data.secondReading?.excerpt || data.BD2_ref || null,
+            gospel: data.gospel?.excerpt || data.TM_ref || null
+        };
+    };
+
+    const seasonalSummaryResolved = seasonalSummary || buildSummaryFromFull(seasonalFullData);
+    const sanctoralSummaryResolved = sanctoralSummary || buildSummaryFromFull(sanctoralFullData);
+    const specialSummaryResolved = specialSummary || buildSummaryFromFull(specialFullData);
+    const tetSummaryResolved = tetSummary || buildSummaryFromFull(tetFullData);
     
     // === CẬP NHẬT HIỂN THỊ LỄ VỌNG (nếu có) ===
     if (vigilInfo && vigilInfo.hasVigil) {
@@ -3343,10 +3358,32 @@ function openModal(date, info) {
         defaultReadingSource = 'sanctoral';
         defaultLabel = 'Lễ Kính Thánh';
     }
+    // 3b. Lễ Nhớ (ưu tiên nếu có bài đọc riêng)
+    else if ((info.rankCode === 'NHO' || info.rankCode === 'NHOKB') && (sanctoralFullData || specialFullData)) {
+        if (sanctoralFullData) {
+            defaultReadingSource = 'sanctoral';
+            defaultLabel = 'Lễ Nhớ';
+        } else {
+            defaultReadingSource = 'special';
+            defaultLabel = 'Lễ Nhớ (tùy chọn)';
+        }
+    }
     // 4. Special feast (nếu có và ưu tiên)
     else if (specialFullData && info.special) {
         defaultReadingSource = 'special';
         defaultLabel = 'Lễ Riêng';
+    }
+
+    if (modalCode) {
+        let displayCode = code;
+        if (defaultReadingSource === 'sanctoral' && sanctoralFullData) {
+            displayCode = sanctoralCode;
+        } else if (defaultReadingSource === 'special' && specialFullData) {
+            displayCode = specialCode;
+        } else if (defaultReadingSource === 'tet' && tetCode) {
+            displayCode = tetCode;
+        }
+        modalCode.innerText = displayCode;
     }
     
     // Tạo tabs chọn nguồn bài đọc
@@ -3448,10 +3485,10 @@ function openModal(date, info) {
         }
     };
     
-    setupTabClick('btn-seasonal', seasonalFullData, 'seasonal', seasonalSummary, 'Mùa Phụng Vụ');
-    setupTabClick('btn-sanctoral', sanctoralFullData, 'sanctoral', sanctoralSummary, 'Lễ Kính Thánh');
-    setupTabClick('btn-special', specialFullData, 'special', specialSummary, 'Lễ Riêng');
-    setupTabClick('btn-tet', tetFullData, 'tet', tetSummary, 'Thánh Lễ Tết');
+    setupTabClick('btn-seasonal', seasonalFullData, 'seasonal', seasonalSummaryResolved, 'Mùa Phụng Vụ');
+    setupTabClick('btn-sanctoral', sanctoralFullData, 'sanctoral', sanctoralSummaryResolved, 'Lễ Kính Thánh');
+    setupTabClick('btn-special', specialFullData, 'special', specialSummaryResolved, 'Lễ Riêng');
+    setupTabClick('btn-tet', tetFullData, 'tet', tetSummaryResolved, 'Thánh Lễ Tết');
 
     // === DEFAULT RENDER - Dựa trên defaultReadingSource đã xác định từ Precedence ===
     console.log(`📖 Nguồn bài đọc mặc định: ${defaultReadingSource} (${defaultLabel})`);
@@ -3460,26 +3497,26 @@ function openModal(date, info) {
         case 'tet':
             if (tetFullData) {
                 renderReadingsContent(tetFullData, 'tet');
-                updateReadingRefs(tetSummary);
+                updateReadingRefs(tetSummaryResolved);
             }
             break;
         case 'sanctoral':
             if (sanctoralFullData) {
                 renderReadingsContent(sanctoralFullData, 'sanctoral');
-                updateReadingRefs(sanctoralSummary);
+                updateReadingRefs(sanctoralSummaryResolved);
             }
             break;
         case 'special':
             if (specialFullData) {
                 renderReadingsContent(specialFullData, 'special');
-                updateReadingRefs(specialSummary);
+                updateReadingRefs(specialSummaryResolved);
             }
             break;
         case 'seasonal':
         default:
             if (seasonalFullData) {
                 renderReadingsContent(seasonalFullData, 'seasonal');
-                updateReadingRefs(seasonalSummary);
+                updateReadingRefs(seasonalSummaryResolved);
             } else {
                 document.getElementById('modalReadingsSection')?.classList.add('hidden');
                 document.getElementById('noReadingMsg')?.classList.remove('hidden');
@@ -3493,7 +3530,7 @@ function openModal(date, info) {
     if (contentEl && contentEl.innerHTML.trim() === '') {
         if (seasonalFullData) {
             renderReadingsContent(seasonalFullData, 'seasonal');
-            updateReadingRefs(seasonalSummary);
+            updateReadingRefs(seasonalSummaryResolved);
             document.querySelectorAll('.reading-tab').forEach(el => el.classList.remove('active'));
             document.getElementById('btn-seasonal')?.classList.add('active');
         }
