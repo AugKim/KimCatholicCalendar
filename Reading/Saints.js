@@ -172,7 +172,7 @@ const SAINTS_DATA = [
         { date: '05/10', type: 'O', feast: 'Thánh Maria Faustina Kôwalska, trinh nữ (Tr).' },
         { date: '06/10', type: 'O', feast: 'Thánh Brunô, linh mục (Tr).' },
         { date: '07/10', type: 'M', feast: 'Đức Mẹ Mân Côi.', chasuble: 'Tr' },
-        { date: '09/10', type: 'O', feast: 'Thánh Đianysio, giám mục, và các bạn, tử đạo (Đ). Thánh Gioan Lêônarđo, linh mục (Tr).' },
+        { date: '09/10', type: 'O', feast: 'Thánh Đianysio, giám mục, và các bạn, tử đạo (Đ). Thánh Gioan Lêônarđo, linh mục (Tr). Thánh John Henry Newman, tiến sĩ Hội Thánh (Tr)' },
         { date: '11/10', type: 'O', feast: 'Thánh Gioan XXIII, giáo hoàng (Tr).' },
         { date: '14/10', type: 'O', feast: 'Thánh Callistô I, giáo hoàng, tử đạo (Đ).' },
         { date: '15/10', type: 'M', feast: 'Thánh Têrêsa Giêsu (Avila), trinh nữ, tiến sĩ Hội Thánh.', chasuble: 'Tr' },

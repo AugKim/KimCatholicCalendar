@@ -956,15 +956,30 @@
                     }
                 }
                 
-                // 8. Các mã đặc biệt khác: 2030, 6001-6006, 8441
+                // 8. Các mã đặc biệt khác: 2030, 6000, 6001-6006, 8441, 2003, 2010, 3037/3047/3057, 5450, 224122
                 if (codeNum === 2030) {
                     return { valid: true, type: 'Lễ Hiển Linh', format: '2030' };
+                }
+                if (codeNum === 6000) {
+                    return { valid: true, type: 'Lễ Hiển Linh (Sunday.js)', format: '6000' };
                 }
                 if (codeNum >= 6001 && codeNum <= 6006) {
                     return { valid: true, type: 'Sau Lễ Hiển Linh', format: '600x' };
                 }
                 if (codeNum === 8441) {
                     return { valid: true, type: 'Trái Tim Vô Nhiễm Mẹ', format: '8441' };
+                }
+                if (codeNum === 2003 || codeNum === 2010) {
+                    return { valid: true, type: 'Mùa Giáng Sinh (mã đặc biệt)', format: '20xx' };
+                }
+                if (codeNum === 3037 || codeNum === 3047 || codeNum === 3057) {
+                    return { valid: true, type: 'Mùa Chay (CN - mã đặc biệt)', format: '30x7' };
+                }
+                if (codeNum === 5450) {
+                    return { valid: true, type: 'Lễ Hiển Dung (CN đặc biệt)', format: '5450' };
+                }
+                if (codeNum === 224122) {
+                    return { valid: true, type: 'Lễ Vọng Giáng Sinh (ban chiều)', format: '224122' };
                 }
                 
                 return { valid: false, type: 'Không xác định', format: 'N/A' };

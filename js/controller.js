@@ -3076,7 +3076,7 @@ function updateHeaderTodayInfo() {
         let cycleText = `Năm ${cycle}`;
         // Thêm năm lẻ/chẵn cho ngày thường Mùa Thường Niên
         if (info.season === "Mùa Thường Niên" && today.getDay() !== 0) {
-            cycleText += ` • ${weekdayCycle === "1" ? "Năm lẻ" : "Năm chẵn"}`;
+            cycleText += ` - ${weekdayCycle === "1" ? "Năm lẻ" : "Năm chẵn"}`;
         }
         headerCycle.innerText = cycleText;
     }
@@ -3117,6 +3117,7 @@ function updateHeaderTodayInfo() {
     
     if (headerSecondary) {
         let secondaryCelebrations = [];
+        const primaryName = (info.special || "").trim();
         
         // Thu thập thánh/lễ nhớ không phải cử hành chính
         if (info.saints.length > 0) {
@@ -3124,6 +3125,7 @@ function updateHeaderTodayInfo() {
                 // Bỏ qua nếu đã là cử hành chính
                 if (idx === 0 && ['S', 'F'].includes(saint.type) && !info.special) return;
                 if (!['S', 'F'].includes(saint.type)) {
+                    if (primaryName && saint.name && saint.name.trim() === primaryName) return;
                     secondaryCelebrations.push(saint.name);
                 }
             });
@@ -3133,7 +3135,10 @@ function updateHeaderTodayInfo() {
         if (info.commemorations && info.commemorations.length > 0) {
             info.commemorations.forEach(c => {
                 const name = c.special || c.name || c.key;
-                if (name) secondaryCelebrations.push(name);
+                if (name) {
+                    if (primaryName && name.trim() === primaryName) return;
+                    secondaryCelebrations.push(name);
+                }
             });
         }
         
@@ -3711,9 +3716,41 @@ function renderCalendar() {
             // Hiển thị lễ nhớ/commemorations (tránh lặp tên)
             let secondaryItems = [];
             const secondarySet = new Set();
+            const maxSecondaryLen = 34;
+            const shortenSecondaryName = (name) => {
+                if (!name) return "";
+                let s = name.replace(/^Thánh\s+/i, 'T. ')
+                            .replace(/^Đức Mẹ\s+/i, 'ĐM. ')
+                            .replace(/\s+/g, ' ')
+                            .trim();
+                const parenMatch = s.match(/\([^)]+\)\s*$/);
+                const paren = parenMatch ? parenMatch[0].trim() : "";
+                let base = s.replace(/\([^)]+\)\s*$/, '').trim();
+                if (base.length > maxSecondaryLen) {
+                    if (base.includes(',')) {
+                        base = base.split(',')[0].trim();
+                    } else if (base.includes('–')) {
+                        base = base.split('–')[0].trim();
+                    } else if (base.includes('-')) {
+                        base = base.split('-')[0].trim();
+                    }
+                }
+                let result = paren ? `${base} ${paren}`.trim() : base;
+                if (result.length > maxSecondaryLen) {
+                    const words = result.split(' ');
+                    let clipped = "";
+                    for (const w of words) {
+                        const next = clipped ? `${clipped} ${w}` : w;
+                        if (next.length > maxSecondaryLen) break;
+                        clipped = next;
+                    }
+                    result = clipped ? `${clipped}...` : result.slice(0, maxSecondaryLen);
+                }
+                return result.trim();
+            };
             const addSecondary = (name, opacity, marginTop) => {
                 if (!name) return;
-                const shortName = name.replace("Thánh ", "T.").replace("Đức Mẹ ", "ĐM.");
+                const shortName = shortenSecondaryName(name);
                 if (secondarySet.has(shortName)) return;
                 secondarySet.add(shortName);
                 secondaryItems.push({ text: shortName, opacity, marginTop });
@@ -3738,15 +3775,12 @@ function renderCalendar() {
                 });
             }
             
-            if (secondaryItems.length > 2) {
-                const overflowCount = secondaryItems.length - 2;
-                secondaryItems = secondaryItems.slice(0, 2);
-                secondaryItems.push({ text: `+${overflowCount} lễ khác`, opacity: 0.6, marginTop: 1 });
+            if (secondaryItems.length > 0) {
+                const extraCount = secondaryItems.length - 1;
+                const first = secondaryItems[0];
+                const lineText = extraCount > 0 ? `${first.text} +${extraCount}` : first.text;
+                html += `<span class="day-label secondary-saint" style="opacity: ${first.opacity}; display: block; margin-top: ${first.marginTop}px;">${lineText}</span>`;
             }
-            
-            secondaryItems.forEach(item => {
-                html += `<span class="day-label secondary-saint" style="font-size: 0.7em; opacity: ${item.opacity}; display: block; margin-top: ${item.marginTop}px;">${item.text}</span>`;
-            });
             
             // Hiển thị lịch âm (Âm lịch Việt Nam)
             if (dayInfo.lunar) {
@@ -3776,6 +3810,21 @@ function renderCalendar() {
             
             dayEl.innerHTML = html;
             dayEl.onclick = () => openModal(date, info);
+
+            // Gắn class để điều chỉnh line-clamp theo độ dài/độ nhiều nội dung
+            if (secondaryItems.length > 0) {
+                dayEl.classList.add('has-secondary');
+            }
+            const primaryText = (dayInfo.dayLabelText || "")
+                .replace(/<[^>]*>/g, "")
+                .replace(/\s+/g, " ")
+                .trim();
+            if (primaryText.length >= 34) {
+                dayEl.classList.add('long-primary');
+            }
+            if (date.getDay() === 0) {
+                dayEl.classList.add('is-sunday');
+            }
             
             // Thêm tooltip events (hover và long-press)
             dayEl.addEventListener('mouseenter', (e) => {
@@ -3815,6 +3864,11 @@ function renderCalendar() {
             });
             
             daysGrid.appendChild(dayEl);
+        }
+        // Bổ sung ô trống để tháng luôn đủ 6 hàng (42 ô)
+        const totalCells = firstDayOfMonth + daysInMonth;
+        for (let i = totalCells; i < 42; i++) {
+            daysGrid.appendChild(document.createElement('div'));
         }
         monthDiv.appendChild(daysGrid);
         grid.appendChild(monthDiv);
@@ -3889,9 +3943,16 @@ function openModal(date, info) {
         if (date.getDay() === 0) rankCode = 'CN';
     }
     
-    // Thêm subtitle nếu có cử hành phụ (sẽ được cập nhật sau nếu có lễ vọng)
-    if (infoFromCore.saints.length > 0 && !['S', 'F'].includes(infoFromCore.saints[0].type) && !infoFromCore.special) {
-        celebrationSubtitle = `Có thể kính nhớ: ${infoFromCore.saints[0].name}`;
+    // Thêm subtitle nếu có cử hành phụ (tránh trùng với cử hành chính)
+    const primaryNameForSubtitle = (infoFromCore.special || "").trim();
+    const optionalSaint = infoFromCore.saints.find(s => {
+        if (['S', 'F'].includes(s.type)) return false;
+        if (!s.name) return false;
+        const saintName = s.name.trim();
+        return !primaryNameForSubtitle || saintName !== primaryNameForSubtitle;
+    });
+    if (optionalSaint) {
+        celebrationSubtitle = `Có thể kính nhớ: ${optionalSaint.name}`;
     }
     
     // Kiểm tra lễ vọng từ dayInfo
@@ -3995,11 +4056,13 @@ function openModal(date, info) {
     const secondarySection = document.getElementById('modalSecondaryCelebrations');
     const secondaryContent = document.getElementById('modalSecondaryContent');
     const secondaryCelebrations = [];
+    const primaryNameForSecondary = (infoFromCore.special || "").trim();
     
     // Thu thập cử hành phụ từ saints và commemorations
     if (infoFromCore.saints.length > 0) {
         infoFromCore.saints.forEach((s, idx) => {
             if (idx > 0 || (!['S', 'F'].includes(s.type) && !infoFromCore.special)) {
+                if (primaryNameForSecondary && s.name && s.name.trim() === primaryNameForSecondary) return;
                 secondaryCelebrations.push({
                     name: s.name,
                     rank: s.rank,
@@ -4010,8 +4073,10 @@ function openModal(date, info) {
     }
     if (infoFromCore.commemorations && infoFromCore.commemorations.length > 0) {
         infoFromCore.commemorations.forEach(c => {
+            const name = (c.special || c.name || c.key || 'Không rõ');
+            if (primaryNameForSecondary && name.trim() === primaryNameForSecondary) return;
             secondaryCelebrations.push({
-                name: c.special || c.name || c.key || 'Không rõ',
+                name,
                 type: 'commemoration'
             });
         });
@@ -4816,7 +4881,7 @@ const HeaderCollapseManager = {
         // Cycle text
         let cycleText = `Năm ${cycle}`;
         if (info.season === "Mùa Thường Niên" && today.getDay() !== 0) {
-            cycleText += ` • ${weekdayCycle === "1" ? "Lẻ" : "Chẵn"}`;
+            cycleText += ` - ${weekdayCycle === "1" ? "Năm lẻ" : "Năm chẵn"}`;
         }
         
         // Update compact elements
@@ -4850,6 +4915,7 @@ window.onload = function() {
     renderCalendar();
     HeaderCollapseManager.init();
     initCalendarFontControls();
+    initThemeToggle();
     document.onkeydown = function(evt) { 
         if (evt.keyCode == 27) {
             closeModal();
@@ -4890,6 +4956,37 @@ function initCalendarFontControls() {
         btnInc.onclick = () => {
             const current = parseFloat(getComputedStyle(root).getPropertyValue('--cell-font-scale')) || 1;
             applyScale(current + step);
+        };
+    }
+}
+
+// === Theme Toggle (Light/Dark) ===
+function initThemeToggle() {
+    const storageKey = 'calendarThemeMode';
+    const btn = document.getElementById('toggleTheme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const saved = localStorage.getItem(storageKey);
+    const initial = saved || (prefersDark ? 'dark' : 'light');
+
+    const applyTheme = (mode) => {
+        const isDark = mode === 'dark';
+        document.body.classList.toggle('dark-mode', isDark);
+        if (btn) {
+            btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+            btn.setAttribute('aria-label', isDark ? 'Tắt giao diện tối' : 'Bật giao diện tối');
+            btn.innerHTML = isDark
+                ? '<i class="fas fa-sun"></i><span>Giao diện sáng</span>'
+                : '<i class="fas fa-moon"></i><span>Giao diện tối</span>';
+        }
+        localStorage.setItem(storageKey, isDark ? 'dark' : 'light');
+    };
+
+    applyTheme(initial);
+
+    if (btn) {
+        btn.onclick = () => {
+            const isDark = document.body.classList.contains('dark-mode');
+            applyTheme(isDark ? 'light' : 'dark');
         };
     }
 }
