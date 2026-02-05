@@ -651,6 +651,116 @@
       "end": "Ðó là lời Chúa"
     }
   },
+  "224122": {
+    "firstReading": {
+      "excerpt": "Is 62, 1-5",
+      "info": "“Ngươi đẹp lòng Chúa”.",
+      "title": "Trích sách Tiên tri Isaia.",
+      "content": "Vì Sion, tôi sẽ không im tiếng, và vì Giêrusalem, tôi sẽ không nghỉ ngơi cho đến khi Đấng công chính xuất hiện như ánh sáng, Đấng Cứu độ Sion đến như ngọn đuốc sáng ngời.\rMọi dân tộc sẽ thấy Người là Đấng công chính của ngươi, và mọi đế vương sẽ thấy vinh hiển Người. Chính Chúa sẽ đặt cho ngươi một tên mới. Ngươi sẽ là triều thiên vinh hiển trong tay Chúa, và vương miện quyền bính trong tay Thiên Chúa ngươi. ngươi sẽ không còn gọi là kẻ bị ruồng bỏ, và đất ngươi sẽ không còn gọi là chốn hoang vu. Ngươi sẽ được gọi là “kẻ Ta ưa thích”, và đất ngươi sẽ được gọi là đất có dân cư, vì ngươi đẹp lòng Thiên Chúa và đất ngươi sẽ có dân cư.\r(Như) thanh niên sẽ ở cùng trinh nữ, con cái ngươi sẽ ở trong ngươi; (như) người chồng sẽ vui mừng vì vợ, Thiên Chúa ngươi cũng sẽ vui mừng vì ngươi.",
+      "end": "Ðó là lời Chúa"
+    },
+    "psalms": {
+      "excerpt": "Tv 88, 4-5. 16-17. 27 và 29",
+      "response": "Ðáp: Lạy Chúa, con sẽ ca ngợi tình thương của Chúa tới muôn đời (x. c. 2a).",
+      "verses": [
+        "1) Ta đã ký minh ước cùng người Ta tuyển lựa, Ta đã thề cùng Đavít là tôi tớ của Ta rằng: “Cho tới muôn đời Ta bảo tồn miêu duệ của ngươi, và Ta thiết lập ngai báu ngươi qua muôn thế hệ”. – Đáp.",
+        "2) Phúc thay dân tộc biết hân hoan, lạy Chúa, họ tiến thân trong ánh sáng nhan Ngài. Họ luôn luôn mừng rỡ vì danh Chúa, và tự hào vì đức công minh Ngài. – Đáp.",
+        "3) Chính người sẽ thưa cùng Ta: “Chúa là Cha con, là Thiên Chúa và Đá Tảng cứu độ của con”. Đời đời Ta sẽ dành cho người lòng sủng ái, và lời ước Ta ký với người sẽ được mãi mãi duy trì. – Đáp."
+      ]
+    },
+    "secondReading": {
+      "excerpt": "Cv 13, 16-17. 22-25",
+      "info": "“Thánh Phaolô làm chứng về Chúa Kitô, con vua Đavít”.",
+      "title": "Trích sách Tông đồ Công vụ.",
+      "content": "Phaolô đến Antiôkia thuộc Pisiđia, vào hội đường, đứng lên, giơ tay ra hiệu cho mọi người yên lặng rồi nói: “Hỡi người Israel và những kẻ kính sợ Thiên Chúa, hãy nghe đây. Thiên Chúa Israel đã chọn Tổ phụ chúng ta, Người đã thăng tiến dân Người khi họ còn cư ngụ trong nước Ai-cập, và Người ra tay mạnh mẽ đưa cha ông chúng ta ra khỏi nước ấy.\r“Sau khi loại bỏ Saolê, Chúa đã đặt Đavít lên làm vua dân Người, để chứng nhận điều đó, chính Người đã phán: ‘Ta đã gặp được Đavít, con của Giêsê, người vừa ý Ta, người sẽ thi hành mọi ý muốn của Ta’.\r“Bởi dòng dõi Đavít, theo lời hứa, Thiên Chúa ban cho Israel Đức Giêsu làm Đấng Cứu Độ, Đấng mà Gioan đã báo trước, khi ông đến rao giảng phép rửa thống hối cho toàn dân Israel. Khi Gioan hoàn tất hành trình, ông tuyên bố: ‘Tôi không phải là người mà anh em lầm tưởng; nhưng đây, Người sẽ đến sau tôi mà tôi không đáng cởi dây giày dưới chân Người'”.",
+      "end": "Ðó là lời Chúa"
+    },
+    "alleluia": {
+      "verse": " ",
+      "content": "Alleluia, alleluia! – Ngày mai tội lỗi trần gian sẽ được xoá bỏ, và Đấng Cứu Thế sẽ ngự trị trên chúng ta. – Alleluia."
+    },
+    "gospel": {
+      "excerpt": "Mt 1, 1-25 (bài dài; hoặc 1, 18-25)",
+      "info": "“Dòng dõi Chúa Giêsu Kitô, con vua Đavít”.",
+      "title": "Tin Mừng Chúa Giêsu Kitô theo Thánh Matthêu.",
+      "content": "Sách gia phả của Chúa Giêsu Kitô, con vua Đavít, con của Abraham. Abraham sinh Isaac; Isaac sinh Giacóp; Giacóp sinh Giuđa và các anh em người. Giuđa sinh Phares và Zara bởi bà Thamar; Phares sinh Esrom; Esrom sinh Aram; Aram sinh Aminadab; Aminadab sinh Naasson; Naasson sinh Salmon; Salmon sinh Booz do bà Rahab; Booz sinh Giobed do bà Rút. Giobed sinh Giêsê; Giêsê sinh vua Đavít.\rĐavít sinh Salomon do bà vợ của Uria; Salomon sinh Robo-am; Roboam sinh Abia; Abia sinh Asa; Asa sinh Giosaphát; Giosaphát sinh Gioram; Gioram sinh Ozia; Ozia sinh Gioatham; Gioatham sinh Achaz; Achaz sinh Ezekia; Ezekia sinh Manas-se; Manasse sinh Amos; Amos sinh Giosia; Giosia sinh Giêconia và các em trong thời lưu đày ở Babylon.\rSau thời lưu đày ở Babylon, Giêconia sinh Salathiel; Salathiel sinh Zorababel; Zorababel sinh Abiud; Abiud sinh Eliakim; Eliakim sinh Azor; Azor sinh Sađoc; Sađoc sinh Akim; Akim sinh Eliud; Eliud sinh Eleazar; Eleazar sinh Mathan; Mathan sinh Giacóp; Giacóp sinh Giuse, là bạn của Maria, mẹ của Chúa Giêsu gọi là Đức Kitô.\rVậy, từ Abraham đến Đavít có tất cả mười bốn đời, từ Đavít đến cuộc lưu đày ở Babylon có mười bốn đời, và từ cuộc lưu đày ở Babylon cho đến Chúa Kitô có mười bốn đời.\rChúa Kitô giáng sinh trong hoàn cảnh sau đây: Mẹ Người là Maria đính hôn với Giuse, trước khi về chung sống với nhau, bà đã thụ thai bởi phép Chúa Thánh Thần. Giuse, bạn của bà là người công chính, không muốn tố cáo bà, nên định tâm lìa bỏ bà cách kín đáo. Nhưng đang khi định tâm như vậy, thì thiên thần hiện đến cùng ông trong giấc mơ và bảo:\r“Hỡi Giuse con vua Đavít, đừng ngại nhận Maria về nhà làm bạn mình, vì Maria mang thai là bởi phép Chúa Thánh Thần; bà sẽ hạ sinh một con trai mà ông đặt tên là Giêsu, vì chính Người sẽ cứu dân mình khỏi tội”. Tất cả sự kiện này đã được thực hiện để làm trọn lời Chúa dùng miệng tiên tri phán xưa rằng: “Này đây một trinh nữ sẽ thụ thai, hạ sinh một con trai, người ta sẽ gọi tên con trẻ là Emmanuel, nghĩa là Thiên Chúa-ở-cùng-chúng-ta”.\rKhi tỉnh dậy, Giuse đã thực hiện như lời thiên thần Chúa truyền. Ông tiếp nhận bạn mình, nhưng không ăn ở với nhau, cho đến khi Maria sinh con trai đầu lòng, thì Giuse đặt tên con trẻ là Giêsu.",
+      "end": "Ðó là lời Chúa"
+    }
+  },
+  "22512D": {
+    "firstReading": {
+      "excerpt": "Is 9, 2-4. 6-7 (Hr 1-3. 5-6)",
+      "info": "“Chúa ban Con của Người cho chúng ta”.",
+      "title": "Trích sách Tiên tri Isaia.",
+      "content": "Dân tộc bước đi trong u tối, đã nhìn thấy sự sáng chứa chan. Sự sáng đã bừng lên trên những người cư ngụ miền thâm u sự chết.\rChúa đã làm cho dân tộc nên vĩ đại, há chẳng làm vĩ đại niềm vui? Họ sẽ vui mừng trước nhan Chúa, như thiên hạ mừng vui trong mùa gặt lúa, như những người thắng trận hân hoan vì chiến lợi phẩm, khi đem của chiếm được về phân chia.\rVì cái ách nặng nề trên người nó, cái gông nằm trên vai nó, cái vương trượng quyền của kẻ áp bức. Chúa sẽ nghiền nát ra, như trong ngày chiến thắng Mađian. [Bởi lẽ mọi chiếc giày đi lộp cộp của kẻ chiến thắng, mọi chiếc áo nhuộm thắm máu đào sẽ bị đốt đi và trở nên mồi nuôi lửa.]\rBởi lẽ một hài nhi đã sinh ra cho chúng ta, và một người con đã được ban tặng chúng ta. Người đã gánh nhận vương quyền trên vai, và thiên hạ sẽ gọi tên Người là “Cố Vấn Kỳ Diệu, Thiên Chúa Huy Hoàng, Người Cha Muôn Thuở, Ông Vua Thái Bình”. Người sẽ mở rộng vương quyền, và cảnh thái bình sẽ vô tận; Người sẽ ngự trên ngai vàng của Ðavít, và trong vương quốc Người, để củng cố và tăng cường, trong sự công minh chính trực, ngay tự bây giờ và cho đến muôn đời. Lòng ghen yêu của Chúa thiên binh sẽ thực thi điều đó.",
+      "end": "Ðó là lời Chúa"
+    },
+    "psalms": {
+      "excerpt": "Tv 95, 1-2a. 2b-3. 11-12. 13",
+      "response": "Ðáp: Hôm nay Ðấng Cứu Thế đã giáng sinh cho chúng ta, Người là Ðức Kitô, Chúa chúng ta",
+      "verses": [
+        "Xướng: Hãy ca mừng Thiên Chúa bài ca mới, hãy ca mừng Thiên Chúa đi, toàn thể địa cầu. Hãy ca mừng Thiên Chúa, hãy chúc tụng danh Người.",
+        "Xướng: Ngày ngày hãy loan truyền ơn Người cứu độ. Hãy tường thuật vinh quang Chúa giữa chư dân, và phép lạ Người ở nơi vạn quốc.",
+        "Xướng: Trời xanh hãy vui mừng và địa cầu hãy hân hoan. Biển khơi và muôn vật trong đó hãy reo lên. Ðồng nội và muôn loài trong đó hãy mừng vui. Các rừng cây hãy vui tươi hớn hở.",
+        "Xướng: Trước nhan Thiên Chúa: vì Người ngự tới, vì Người ngự tới cai quản địa cầu. Người sẽ cai quản địa cầu cách công minh và chư dân cách chân thành."
+      ]
+    },
+    "secondReading": {
+      "excerpt": "Tt 2, 11-14",
+      "info": "“Ân sủng của Chúa đã đến với mọi người”.",
+      "title": "Trích thư Thánh Phao-lô Tông đồ gửi cho Titô.",
+      "content": "Ân sủng của Thiên Chúa, Ðấng Cứu Ðộ chúng ta, đã xuất hiện cho mọi người, dạy chúng ta từ bỏ gian tà và những dục vọng trần tục, để sống tiết độ, công minh và đạo đức ở đời này, khi trông đợi niềm hy vọng hạnh phúc và cuộc xuất hiện sự vinh quang của Ðức Giêsu Kitô là Thiên Chúa cao cả và là Ðấng Cứu Ðộ chúng ta. Người đã hiến thân cho chúng ta để cứu chuộc chúng ta khỏi mọi điều gian ác, luyện sạch chúng ta thành một dân tộc xứng đáng của Người, một dân tộc nhiệt tâm làm việc thiện.",
+      "end": "Ðó là lời Chúa"
+    },
+    "alleluia": {
+      "verse": "Lc 2, 10-11",
+      "content": "Alleluia, alleluia! – Ta báo cho anh em một tin mừng: Hôm nay Ðấng Cứu Thế, là Chúa Kitô, đã giáng sinh cho chúng ta. – Alleluia."
+    },
+    "gospel": {
+      "excerpt": "Lc 2, 1-14",
+      "info": "“Hôm nay Ðấng Cứu Thế đã giáng sinh cho chúng ta”.",
+      "title": "Tin Mừng Chúa Giêsu Kitô theo Thánh Luca.",
+      "content": "Khi hoàng đế Augustô ra chiếu chỉ, truyền kiểm tra dân số trong toàn quốc. Cuộc kiểm tra đầu tiên được thực hiện trong thời Quirinô làm tổng trấn xứ Syria. Mọi người đều đi khai hộ khẩu, mỗi người về quê quán mình. Bởi bởi dòng tộc Ðavít, nên Giuse từ thành Nadarét, xứ Galilê, lên thành Bêlem, xứ Giuđa, là quê hương của Ðavít, để khai hộ khẩu cùng với Maria, là vợ mình, đang mang thai. Trong khi hai người ở đó, thì đến ngày Maria sinh con trai đầu lòng, và quấn tã đặt nằm trong máng cỏ, vì nhà trọ không còn chỗ.\rTrong vùng lân cận, có những người chăn chiên trú ngoài đồng và thức đêm canh giữ bầy vật. Một Thiên Thần Chúa hiện đến đứng bên họ và vinh quang Chúa chiếu tỏa chung quanh, khiến họ rất sợ hãi. Nhưng thiên thần bảo họ: “Ðừng sợ; này tôi báo tin mừng cho các người là một niềm vui lớn lao cho toàn dân: Hôm nay Ðấng Cứu Thế đã giáng sinh cho các ngươi trong thành Ðavít, và Người là Ðức Ki-tô Chúa. Dấu chỉ để các ngươi nhận biết Người là: các ngươi sẽ gặp thấy Hài Nhi bọc trong khăn và nằm trong máng cỏ”.\rVà tức thì có cùng Thiên Thần một đoàn binh thiên quốc tấu chúc Thiên Chúa rằng: “Vinh danh Thiên Chúa trên các tầng trời, và bình an dưới thế cho người thiện tâm”.",
+      "end": "Ðó là lời Chúa"
+    }
+  },
+  "22512R": {
+    "firstReading": {
+      "excerpt": "Is 52, 7-10",
+      "info": "“Khắp cùng bờ cõi trái đất sẽ nhìn thấy ơn cứu độ của Thiên Chúa chúng ta”.",
+      "title": "Trích sách Tiên tri Isaia.",
+      "content": "Ðẹp thay trên các núi, những bước chân người báo tin vui, công bố bình an, loan tin hạnh phúc, công bố ơn cứu độ, và nói với Sion rằng: “Thiên Chúa ngươi là Vua hiển trị!”.\rHãy reo hò vui sướng, hỡi những điêu tàn đổ nát của Giêrusalem, vì Thiên Chúa đã an ủi và cứu thoát Giêrusalem, Thiên Chúa đã tỏ lộ cánh tay thánh trước mặt chư dân, và mọi cùng bờ cõi trái đất sẽ nhìn thấy ơn cứu độ của Thiên Chúa chúng ta.",
+      "end": "Ðó là lời Chúa"
+    },
+    "psalms": {
+      "excerpt": "Tv 97, 1. 2-3ab. 3cd-4. 5-6",
+      "response": "Ðáp: Khắp nơi bờ cõi địa cầu đã nhìn thấy ơn cứu độ của Thiên Chúa chúng ta",
+      "verses": [
+        "Xướng: Hãy ca mừng Thiên Chúa bài ca mới, vì Người đã thực hiện những kỳ công. Tay hữu Người đã chiến thắng, và cánh tay thánh của Người đã đem lại ơn cứu độ.",
+        "Xướng: Chúa đã biểu dương ơn cứu độ của Người, và trước mặt chư dân, Người đã tỏ ra đức công minh Người. Người đã nhớ lại lòng nhân ái và đức trung tín đối với nhà Israel.",
+        "Xướng: Toàn thể địa cầu đã nhìn thấy ơn cứu độ của Thiên Chúa chúng ta. Hãy reo hò mừng Chúa, hỡi toàn thể địa cầu, hãy vui mừng ca hát.",
+        "Xướng: Hãy đàn ca mừng Chúa trên cây cầm, trên cây cầm vừa đàn vừa hát. Hãy hoà âm cùng với kèn và tiếng ống, trước thiên nhan Ðức Vua là Chúa."
+      ]
+    },
+    "secondReading": {
+      "excerpt": "Dt 1, 1-6",
+      "info": "“Chúa đã phán dạy chúng ta qua người Con”.",
+      "title": "Trích thư gửi tín hữu Do-thái.",
+      "content": "Thuở xưa, Thiên Chúa nhiều lần nhiều cách đã phán dạy cha ông qua các tiên tri. Nay, vào thời sau hết này, Người lại phán dạy chúng ta qua Người Con. Người Con là Ðấng mà Thiên Chúa đã đặt làm người thừa hưởng mọi sự, cũng là Ðấng mà Thiên Chúa đã dựng nên vũ trụ. Người Con là phản ánh của vinh quang Thiên Chúa và là hình ảnh trung thực của bản thể Người. Người dùng lời quyền năng của mình mà duy trì vạn vật. Sau khi làm xong việc tẩy rửa tội lỗi, Người ngự bên hữu Ðấng uy quyền trên trời cao, và còn cao trọng hơn các thiên thần, vì Người đã được thừa hưởng một danh cao trọng hơn danh các thiên thần.",
+      "end": "Ðó là lời Chúa"
+    },
+    "alleluia": {
+      "verse": " ",
+      "content": "Alleluia, alleluia! – Ngày thánh đã dọi ánh sáng trên chúng ta. Hỡi các dân, hãy tới thờ lạy Chúa, vì hôm nay ánh sáng chan hoà đã toả xuống trên địa cầu. – Alleluia."
+    },
+    "gospel": {
+      "excerpt": "Ga 1, 1-18 (hoặc 1-5. 9-14)",
+      "info": "“Ngôi Lời đã hoá thành nhục thể, và Người đã cư ngụ giữa chúng ta”.",
+      "title": "Bắt đầu Tin Mừng Chúa Giêsu Kitô theo Thánh Gioan.",
+      "content": "Từ nguyên thuỷ đã có Ngôi Lời, và Ngôi Lời vẫn ở với Thiên Chúa, và Ngôi Lời vẫn là Thiên Chúa. Người vẫn ở với Thiên Chúa ngay từ nguyên thuỷ.\rMọi vật đều do Người làm nên, và không có Người, thì chẳng có vật nào đã được dựng nên.\rÐiều đã được tạo thành nơi Người là sự sống, và sự sống là ánh sáng cho loài người. Ánh sáng chiếu giãi trong tối tăm, và tối tăm không diệt được ánh sáng.\rCó một người được Thiên Chúa sai đến, tên là Gioan. Ông đến để chứng minh, ông chứng minh về ánh sáng, để mọi người nhờ ông mà tin. Ông không phải là ánh sáng, nhưng ông đến để làm chứng về ánh sáng.\rNgôi Lời là ánh sáng thật, ánh sáng đến trong thế gian và soi sáng mọi người. Người ở trong thế gian, và thế gian đã nhờ Người mà có, nhưng thế gian đã không nhận biết Người. Người đã đến nhà mình, nhưng người nhà không nhận biết Người.\rNhưng những ai tiếp nhận Người, thì Người ban cho họ quyền trở nên con Thiên Chúa. Ðó là những người tin vào danh Người, họ không do máu huyết, không do dục vọng của xác thịt, không do ý muốn của người đàn ông, nhưng do Thiên Chúa mà sinh ra.\rVà Ngôi Lời đã hoá thành nhục thể, và Người đã cư ngụ giữa chúng ta. Chúng tôi đã nhìn thấy vinh quang của Người, vinh quang của Con Một bởi Chúa Cha, đầy ân sủng và chân lý.\rGioan làm chứng về Người, ông tuyên bố rằng: “Ðây Ðấng mà tôi nói: Người đến sau tôi mà đã vượt trước tôi, vì Người có trước tôi”.\rVà tất cả chúng ta đã nhận được sự viên mãn của Người, và ơn này đến ơn khác.\rBởi vì lề luật đã ban hành do Môsê, còn ân sủng và chân lý thì nhờ Ðức Giêsu Kitô mà có.\rKhông ai nhìn thấy Thiên Chúa, nhưng chính Con Một Chúa, Ðấng ở trong lòng Chúa Cha, đã mạc khải cho chúng ta.",
+      "end": "Ðó là lời Chúa"
+    }
+  },
   "70001": {
     "firstReading": {
       "excerpt": "st 1, 14-18",
@@ -2151,7 +2261,7 @@
   },
   "8441": {
     "firstReading": {
-      "excerpt": "I Is 61, 9-11",
+      "excerpt": "Is 61, 9-11",
       "info": "“Tôi hớn hở vui mừng trong Chúa”.",
       "title": "Trích sách tiên tri Isaia",
       "content": "Dòng dõi chúng sẽ được nổi danh giữa các dân tộc; miêu duệ chúng sẽ được biết đến giữa chư dân. Tất cả những ai thấy họ, đều nhận biết họ là dòng dõi được Chúa chúc phúc. Tôi hớn hở vui mừng trong Chúa, và lòng tôi hoan hỉ trong Chúa tôi, vì Người đã mặc cho tôi áo phần rỗi và choàng áo công chính cho tôi, như tân lang đầu đội triều thiên, như tân nương trang sức bằng ngọc bảo. Như đất đâm chồi, như vườn nảy lộc, Chúa cũng làm phát sinh công chính và lời ca tụng trước mặt muôn dân. ",
