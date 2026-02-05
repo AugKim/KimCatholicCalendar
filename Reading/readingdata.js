@@ -1179,15 +1179,15 @@ const READINGS_DATA = [
     "code": 5001,
     "year": "A",
     "reading1": "Cv 2,1-11",
-    "psalm": "Tv 104,1.24.29-30.31.34",
+    "psalm": "Tv 104",
     "gospel": "Ga 20,19-23",
-    "reading2": "1 Cr 12,37.12-13"
+    "reading2": "1 Cr 12,3b-7.12-13"
   },
   {
     "code": 5001,
     "year": "B",
     "reading1": "Cv 2,1-11",
-    "psalm": "Tv 104,1.24.29-30.31.34",
+    "psalm": "Tv 104",
     "gospel": "Ga 15,26-27; 16,12-15",
     "reading2": "Gl 5,16-25"
   },
@@ -1195,15 +1195,15 @@ const READINGS_DATA = [
     "code": 5001,
     "year": "C",
     "reading1": "Cv 2,1-11",
-    "psalm": "Tv 104,1.24.29-30.31.34",
-    "gospel": "Ga 14,14-16.23 26",
+    "psalm": "Tv 104",
+    "gospel": "Ga 14,15-16.23b-26",
     "reading2": "Rm 8,8-17"
   },
   {
     "code": 5002,
     "year": "A",
-    "reading1": "Xh 34,46.8-9",
-    "psalm": "Đn 3,52.53.54.55",
+    "reading1": "Xh 34,4b-6.8-9",
+    "psalm": "Đn 3",
     "gospel": "Ga 3,16-18",
     "reading2": "2 Cr 13,11-13"
   },
@@ -1211,7 +1211,7 @@ const READINGS_DATA = [
     "code": 5002,
     "year": "B",
     "reading1": "Đnl 4,32-34.39-40",
-    "psalm": "Tv 33,4-5.6.9.18-19.20.22",
+    "psalm": "Tv 33",
     "gospel": "Mt 28,16-20",
     "reading2": "Rm 8,14-17"
   },
@@ -1219,15 +1219,15 @@ const READINGS_DATA = [
     "code": 5002,
     "year": "C",
     "reading1": "Cn 8,22-31",
-    "psalm": "Tv 8,4-5.6-7.8-9",
+    "psalm": "Tv 8",
     "gospel": "Ga 16,12-15",
     "reading2": "Rm 5,1-5"
   },
   {
     "code": 5003,
     "year": "A",
-    "reading1": "Đnl 8,2-3.14-16",
-    "psalm": "Tv 147,12-13.14-15.19-20",
+    "reading1": "Đnl 8,2-3.14b-16a",
+    "psalm": "Tv 147",
     "gospel": "Ga 6,51-58",
     "reading2": "1 Cr 10,16-17"
   },
@@ -1235,7 +1235,7 @@ const READINGS_DATA = [
     "code": 5003,
     "year": "B",
     "reading1": "Xh 24,3-8",
-    "psalm": "Tv 116,12-13.15-16.17-18",
+    "psalm": "Tv 116",
     "gospel": "Mc 14,12-16.22-26",
     "reading2": "Dt 9,11-15"
   },
@@ -1243,23 +1243,23 @@ const READINGS_DATA = [
     "code": 5003,
     "year": "C",
     "reading1": "St 14,18-20",
-    "psalm": "Tv 110,1.2.3.4",
-    "gospel": "Lc 9,1117",
+    "psalm": "Tv 110",
+    "gospel": "Lc 9,11b-17",
     "reading2": "1 Cr 11,23-26"
   },
   {
     "code": 5004,
     "year": "A",
     "reading1": "Đnl 7,6-11",
-    "psalm": "Tv 103,1-2.3-4.6-7.8.10",
+    "psalm": "Tv 103",
     "gospel": "Mt 11,25-30",
     "reading2": "1 Ga 4,7-16"
   },
   {
     "code": 5004,
     "year": "B",
-    "reading1": "Hs 11,1.3-4.89",
-    "psalm": "Is 12,2-3.4.5-6",
+    "reading1": "Hs 11,1.3-4.8c-9",
+    "psalm": "Is 12",
     "gospel": "Ga 19,31-37",
     "reading2": "Ep 3,8-12.14-19"
   },
@@ -1267,9 +1267,9 @@ const READINGS_DATA = [
     "code": 5004,
     "year": "C",
     "reading1": "Ed 34,11-16",
-    "psalm": "Tv 23,1-3.34.5.6",
+    "psalm": "Tv 23",
     "gospel": "Lc 15,3-7",
-    "reading2": "Rm 5,511"
+    "reading2": "Rm 5,5b-11"
   },
   {
     "code": 5010,
@@ -5253,6 +5253,14 @@ const READINGS_DATA = [
     "gospel": "Mc 16,15-20"
   },
   {
+    "code": 70608,
+    "year": "0",
+    "reading1": "Đn 7,9-10.13-14",
+    "psalm": "Tv 97,1-2.5-6.9",
+    "gospel": "Mt 17,1-9",
+    "reading2": "2 Pr 1,16-19"
+  },
+  {
     "code": 5450,
     "year": "A",
     "reading1": "Đn 7,9-10.13-14",
@@ -5498,5 +5506,12 @@ const READINGS_DATA = [
     "psalm": "Tv 103,1bc và 14a.14b-15.20-21.22-23.24 (Đ. c.1bc)",
     "gospel": "Mt 25,14-30",
     "reading2": "Cv 20,32-35"
+  },
+  {
+    "code": 8441,
+    "year": "0",
+    "reading1": "Is 61, 9-11",
+    "psalm": "Tv 44, 10bc. 11. 12ab. 16",
+    "gospel": "Lc 2, 41-51"
   }
 ];

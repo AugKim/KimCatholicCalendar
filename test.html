@@ -55,6 +55,8 @@
                         <option value="lent">✝️ Mùa Chay</option>
                         <option value="advent">🕯️ Mùa Vọng</option>
                         <option value="tet">🎊 Tết Nguyên Đán</option>
+                        <option value="readingCode">📖 Quy Tắc Mã Bài Đọc</option>
+                        <option value="validateCodeFormat">✅ Kiểm Tra Format Mã Code</option>
                     </select>
                 </div>
                 <button onclick="runTests()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold">
@@ -837,6 +839,671 @@
         }
         
         // ============================================================
+        // TEST: Kiểm Tra Format Mã Code Từ getLiturgicalDayCode()
+        // ============================================================
+        
+        function testControllerCodeFormat(year) {
+            log(`═══ ✅ KIỂM TRA FORMAT MÃ CODE TỪ CONTROLLER - Năm ${year} ═══`, 'section');
+            
+            if (typeof getLiturgicalDayCode === 'undefined') {
+                log('❌ getLiturgicalDayCode không được định nghĩa', 'fail');
+                stats.failed++;
+                stats.total++;
+                return;
+            }
+            
+            const litData = getLiturgicalData(year);
+            if (!litData) {
+                log(`❌ Không thể lấy dữ liệu phụng vụ cho năm ${year}`, 'fail');
+                stats.failed++;
+                stats.total++;
+                return;
+            }
+            
+            let invalidCodes = [];
+            let validCodes = [];
+            let testCases = [];
+            
+            // Hàm validate format (dùng lại từ testReadingDataCodeFormat)
+            function validateCodeFormat(code) {
+                const codeStr = String(code);
+                const codeNum = parseInt(code);
+                
+                // 1. Tết: 70001-70003
+                if (codeNum >= 70001 && codeNum <= 70003) {
+                    return { valid: true, type: 'Tết', format: '7000D' };
+                }
+                
+                // 2. Sanctoral: 7DDMM (5 chữ số, bắt đầu bằng 7)
+                if (codeStr.length === 5 && codeStr.startsWith('7') && codeNum >= 70000 && codeNum < 80000) {
+                    const dd = parseInt(codeStr.substring(1, 3));
+                    const mm = parseInt(codeStr.substring(3, 5));
+                    if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) {
+                        return { valid: true, type: 'Sanctoral', format: '7DDMM' };
+                    }
+                }
+                
+                // 3. Mùa Giáng Sinh: 2DDMM (5 chữ số, bắt đầu bằng 2)
+                if (codeStr.length === 5 && codeStr.startsWith('2') && codeNum >= 20000 && codeNum < 30000) {
+                    const dd = parseInt(codeStr.substring(1, 3));
+                    const mm = parseInt(codeStr.substring(3, 5));
+                    if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) {
+                        return { valid: true, type: 'Mùa Giáng Sinh', format: '2DDMM' };
+                    }
+                }
+                
+                // 4. Mùa Thường Niên: 5TTD (4 chữ số, bắt đầu bằng 5)
+                // Ngoại lệ: 5001-5004, 5010, 5340
+                if (codeNum === 5001 || codeNum === 5002 || codeNum === 5003 || codeNum === 5004 || codeNum === 5010 || codeNum === 5340) {
+                    return { valid: true, type: 'Mùa Thường Niên (Lễ đặc biệt)', format: '5xxx' };
+                }
+                if (codeStr.length === 4 && codeStr.startsWith('5') && codeNum >= 5000 && codeNum < 6000) {
+                    const week = parseInt(codeStr.substring(1, 3));
+                    const day = parseInt(codeStr.substring(3, 4));
+                    if (week >= 1 && week <= 34 && day >= 0 && day <= 6) {
+                        return { valid: true, type: 'Mùa Thường Niên', format: '5TTD' };
+                    }
+                }
+                
+                // 5. Mùa Phục Sinh: 40TD (4 chữ số, bắt đầu bằng 4)
+                // Ngoại lệ: 4080, 4089
+                if (codeNum === 4080 || codeNum === 4089) {
+                    return { valid: true, type: 'Mùa Phục Sinh (Lễ đặc biệt)', format: '408x' };
+                }
+                if (codeStr.length === 4 && codeStr.startsWith('4') && codeNum >= 4000 && codeNum < 5000) {
+                    const week = parseInt(codeStr.substring(2, 3));
+                    const day = parseInt(codeStr.substring(3, 4));
+                    if (week >= 1 && week <= 7 && day >= 0 && day <= 6) {
+                        return { valid: true, type: 'Mùa Phục Sinh', format: '40TD' };
+                    }
+                }
+                
+                // 6. Mùa Chay: 30TD (4 chữ số, bắt đầu bằng 3)
+                // Ngoại lệ: 3004-3007, 3060-3066
+                if (codeNum >= 3004 && codeNum <= 3007) {
+                    return { valid: true, type: 'Mùa Chay (Lễ Tro)', format: '300x' };
+                }
+                if (codeNum >= 3060 && codeNum <= 3066) {
+                    return { valid: true, type: 'Mùa Chay (Tuần Thánh)', format: '306D' };
+                }
+                if (codeStr.length === 4 && codeStr.startsWith('3') && codeNum >= 3000 && codeNum < 4000) {
+                    const week = parseInt(codeStr.substring(2, 3));
+                    const day = parseInt(codeStr.substring(3, 4));
+                    if (week >= 1 && week <= 5 && day >= 0 && day <= 6) {
+                        return { valid: true, type: 'Mùa Chay', format: '30TD' };
+                    }
+                }
+                
+                // 7. Mùa Vọng: 10TD (4 chữ số, bắt đầu bằng 1)
+                if (codeStr.length === 4 && codeStr.startsWith('1') && codeNum >= 1000 && codeNum < 2000) {
+                    const week = parseInt(codeStr.substring(2, 3));
+                    const day = parseInt(codeStr.substring(3, 4));
+                    if (week >= 1 && week <= 4 && day >= 0 && day <= 6) {
+                        return { valid: true, type: 'Mùa Vọng', format: '10TD' };
+                    }
+                }
+                
+                // 8. Các mã đặc biệt khác: 2030, 6001-6006, 8441
+                if (codeNum === 2030) {
+                    return { valid: true, type: 'Lễ Hiển Linh', format: '2030' };
+                }
+                if (codeNum >= 6001 && codeNum <= 6006) {
+                    return { valid: true, type: 'Sau Lễ Hiển Linh', format: '600x' };
+                }
+                if (codeNum === 8441) {
+                    return { valid: true, type: 'Trái Tim Vô Nhiễm Mẹ', format: '8441' };
+                }
+                
+                return { valid: false, type: 'Không xác định', format: 'N/A' };
+            }
+            
+            // Test với nhiều ngày trong năm
+            const testDates = [];
+            
+            // 1. Các ngày quan trọng
+            if (litData.adventStart) testDates.push({ date: litData.adventStart, desc: 'CN I Mùa Vọng' });
+            if (litData.christmas) testDates.push({ date: litData.christmas, desc: 'Giáng Sinh' });
+            if (litData.epiphany) testDates.push({ date: litData.epiphany, desc: 'Hiển Linh' });
+            if (litData.baptismLord) testDates.push({ date: litData.baptismLord, desc: 'Chúa Giêsu Chịu Phép Rửa' });
+            if (litData.ashWednesday) testDates.push({ date: litData.ashWednesday, desc: 'Lễ Tro' });
+            if (litData.easter) testDates.push({ date: litData.easter, desc: 'Phục Sinh' });
+            if (litData.ascension) testDates.push({ date: litData.ascension, desc: 'Thăng Thiên' });
+            if (litData.pentecost) testDates.push({ date: litData.pentecost, desc: 'Hiện Xuống' });
+            if (litData.trinity) testDates.push({ date: litData.trinity, desc: 'Ba Ngôi' });
+            if (litData.corpusChristi) testDates.push({ date: litData.corpusChristi, desc: 'Mình Máu Thánh' });
+            if (litData.sacredHeart) testDates.push({ date: litData.sacredHeart, desc: 'Thánh Tâm' });
+            if (litData.christKing) testDates.push({ date: litData.christKing, desc: 'Chúa Kitô Vua' });
+            
+            // 2. Các ngày cố định quan trọng
+            testDates.push({ date: new Date(year, 11, 17), desc: '17/12' });
+            testDates.push({ date: new Date(year, 11, 24), desc: '24/12' });
+            testDates.push({ date: new Date(year, 0, 1), desc: '01/01' });
+            testDates.push({ date: new Date(year, 7, 15), desc: '15/08 - Đức Mẹ Lên Trời' });
+            testDates.push({ date: new Date(year, 10, 24), desc: '24/11 - Các Thánh Tử Đạo VN' });
+            
+            // 3. Một số ngày ngẫu nhiên trong các mùa
+            for (let month = 0; month < 12; month++) {
+                for (let day = 1; day <= 28; day += 7) {
+                    const testDate = new Date(year, month, day);
+                    if (testDate.getFullYear() === year) {
+                        testDates.push({ date: testDate, desc: `Ngày ${day}/${month + 1}` });
+                    }
+                }
+            }
+            
+            // Kiểm tra từng ngày
+            for (const testCase of testDates) {
+                try {
+                    const code = getLiturgicalDayCode(testCase.date, litData);
+                    const validation = validateCodeFormat(code);
+                    
+                    if (validation.valid) {
+                        validCodes.push({ date: testCase.date, code, desc: testCase.desc, ...validation });
+                    } else {
+                        invalidCodes.push({ date: testCase.date, code, desc: testCase.desc, ...validation });
+                    }
+                } catch (e) {
+                    invalidCodes.push({ 
+                        date: testCase.date, 
+                        code: 'ERROR', 
+                        desc: testCase.desc, 
+                        error: e.message,
+                        valid: false,
+                        type: 'Lỗi',
+                        format: 'N/A'
+                    });
+                }
+            }
+            
+            // Báo cáo kết quả
+            const totalTests = testDates.length;
+            const passedTests = validCodes.length;
+            const failedTests = invalidCodes.length;
+            
+            if (failedTests === 0) {
+                stats.total++;
+                stats.passed++;
+                log(`✅ Tất cả ${totalTests} mã code đều đúng format`, 'pass');
+            } else {
+                stats.total++;
+                stats.failed++;
+                log(`❌ Có ${failedTests} mã code không đúng format trong tổng số ${totalTests} mã`, 'fail');
+                invalidCodes.slice(0, 20).forEach(item => {
+                    const dateStr = formatDate(item.date);
+                    log(`  → ${dateStr} (${item.desc}): code="${item.code}" - ${item.type} (format: ${item.format})${item.error ? ' - ERROR: ' + item.error : ''}`, 'fail');
+                });
+                if (invalidCodes.length > 20) {
+                    log(`  ... và ${invalidCodes.length - 20} mã khác`, 'fail');
+                }
+            }
+            
+            // Thống kê theo loại
+            const statsByType = {};
+            validCodes.forEach(item => {
+                if (!statsByType[item.type]) {
+                    statsByType[item.type] = 0;
+                }
+                statsByType[item.type]++;
+            });
+            
+            log('', 'info');
+            log('📊 Thống kê mã code theo loại:', 'info');
+            Object.entries(statsByType).sort((a, b) => b[1] - a[1]).forEach(([type, count]) => {
+                log(`  - ${type}: ${count} mã`, 'info');
+            });
+        }
+        
+        // ============================================================
+        // TEST: Kiểm Tra Format Mã Code Trong readingdata.js
+        // ============================================================
+        
+        function testReadingDataCodeFormat() {
+            log('═══ ✅ KIỂM TRA FORMAT MÃ CODE TRONG readingdata.js ═══', 'section');
+            
+            if (typeof READINGS_DATA === 'undefined' || !Array.isArray(READINGS_DATA)) {
+                log('❌ READINGS_DATA không được định nghĩa hoặc không phải array', 'fail');
+                stats.failed++;
+                stats.total++;
+                return;
+            }
+            
+            // Lấy tất cả các mã code duy nhất
+            const uniqueCodes = new Set(READINGS_DATA.map(r => r.code));
+            const codeArray = Array.from(uniqueCodes).sort((a, b) => a - b);
+            
+            log(`Tổng số mã code duy nhất: ${codeArray.length}`, 'info');
+            
+            let invalidCodes = [];
+            let validCodes = [];
+            
+            // Hàm kiểm tra format
+            function validateCodeFormat(code) {
+                const codeStr = String(code);
+                const codeNum = parseInt(code);
+                
+                // 1. Tết: 70001-70003
+                if (codeNum >= 70001 && codeNum <= 70003) {
+                    return { valid: true, type: 'Tết', format: '7000D' };
+                }
+                
+                // 2. Sanctoral: 7DDMM (5 chữ số, bắt đầu bằng 7)
+                if (codeStr.length === 5 && codeStr.startsWith('7') && codeNum >= 70000 && codeNum < 80000) {
+                    const dd = parseInt(codeStr.substring(1, 3));
+                    const mm = parseInt(codeStr.substring(3, 5));
+                    if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) {
+                        return { valid: true, type: 'Sanctoral', format: '7DDMM' };
+                    }
+                }
+                
+                // 3. Mùa Giáng Sinh: 2DDMM (5 chữ số, bắt đầu bằng 2)
+                if (codeStr.length === 5 && codeStr.startsWith('2') && codeNum >= 20000 && codeNum < 30000) {
+                    const dd = parseInt(codeStr.substring(1, 3));
+                    const mm = parseInt(codeStr.substring(3, 5));
+                    if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) {
+                        return { valid: true, type: 'Mùa Giáng Sinh', format: '2DDMM' };
+                    }
+                }
+                
+                // 4. Mùa Thường Niên: 5TTD (4 chữ số, bắt đầu bằng 5)
+                // Ngoại lệ: 5001-5004, 5010, 5340
+                if (codeNum === 5001 || codeNum === 5002 || codeNum === 5003 || codeNum === 5004 || codeNum === 5010 || codeNum === 5340) {
+                    return { valid: true, type: 'Mùa Thường Niên (Lễ đặc biệt)', format: '5xxx' };
+                }
+                if (codeStr.length === 4 && codeStr.startsWith('5') && codeNum >= 5000 && codeNum < 6000) {
+                    const week = parseInt(codeStr.substring(1, 3));
+                    const day = parseInt(codeStr.substring(3, 4));
+                    if (week >= 1 && week <= 34 && day >= 0 && day <= 6) {
+                        return { valid: true, type: 'Mùa Thường Niên', format: '5TTD' };
+                    }
+                }
+                
+                // 5. Mùa Phục Sinh: 40TD (4 chữ số, bắt đầu bằng 4)
+                // Ngoại lệ: 4080, 4089
+                if (codeNum === 4080 || codeNum === 4089) {
+                    return { valid: true, type: 'Mùa Phục Sinh (Lễ đặc biệt)', format: '408x' };
+                }
+                if (codeStr.length === 4 && codeStr.startsWith('4') && codeNum >= 4000 && codeNum < 5000) {
+                    const week = parseInt(codeStr.substring(2, 3));
+                    const day = parseInt(codeStr.substring(3, 4));
+                    if (week >= 1 && week <= 7 && day >= 0 && day <= 6) {
+                        return { valid: true, type: 'Mùa Phục Sinh', format: '40TD' };
+                    }
+                }
+                
+                // 6. Mùa Chay: 30TD (4 chữ số, bắt đầu bằng 3)
+                // Ngoại lệ: 3004-3007, 3060-3066
+                if (codeNum >= 3004 && codeNum <= 3007) {
+                    return { valid: true, type: 'Mùa Chay (Lễ Tro)', format: '300x' };
+                }
+                if (codeNum >= 3060 && codeNum <= 3066) {
+                    return { valid: true, type: 'Mùa Chay (Tuần Thánh)', format: '306D' };
+                }
+                if (codeStr.length === 4 && codeStr.startsWith('3') && codeNum >= 3000 && codeNum < 4000) {
+                    const week = parseInt(codeStr.substring(2, 3));
+                    const day = parseInt(codeStr.substring(3, 4));
+                    if (week >= 1 && week <= 5 && day >= 0 && day <= 6) {
+                        return { valid: true, type: 'Mùa Chay', format: '30TD' };
+                    }
+                }
+                
+                // 7. Mùa Vọng: 10TD (4 chữ số, bắt đầu bằng 1)
+                if (codeStr.length === 4 && codeStr.startsWith('1') && codeNum >= 1000 && codeNum < 2000) {
+                    const week = parseInt(codeStr.substring(2, 3));
+                    const day = parseInt(codeStr.substring(3, 4));
+                    if (week >= 1 && week <= 4 && day >= 0 && day <= 6) {
+                        return { valid: true, type: 'Mùa Vọng', format: '10TD' };
+                    }
+                }
+                
+                // 8. Các mã đặc biệt khác: 2030, 6001-6006, 8441
+                if (codeNum === 2030) {
+                    return { valid: true, type: 'Lễ Hiển Linh', format: '2030' };
+                }
+                if (codeNum >= 6001 && codeNum <= 6006) {
+                    return { valid: true, type: 'Sau Lễ Hiển Linh', format: '600x' };
+                }
+                if (codeNum === 8441) {
+                    return { valid: true, type: 'Trái Tim Vô Nhiễm Mẹ', format: '8441' };
+                }
+                
+                return { valid: false, type: 'Không xác định', format: 'N/A' };
+            }
+            
+            // Kiểm tra từng mã
+            for (const code of codeArray) {
+                const validation = validateCodeFormat(code);
+                if (validation.valid) {
+                    validCodes.push({ code, ...validation });
+                } else {
+                    invalidCodes.push({ code, ...validation });
+                }
+            }
+            
+            // Báo cáo kết quả
+            if (invalidCodes.length === 0) {
+                stats.total++;
+                stats.passed++;
+                log(`✅ Tất cả ${codeArray.length} mã code đều đúng format`, 'pass');
+            } else {
+                stats.total++;
+                stats.failed++;
+                log(`❌ Có ${invalidCodes.length} mã code không đúng format trong tổng số ${codeArray.length} mã`, 'fail');
+                invalidCodes.slice(0, 20).forEach(item => {
+                    log(`  → Mã ${item.code}: ${item.type} (format: ${item.format})`, 'fail');
+                });
+                if (invalidCodes.length > 20) {
+                    log(`  ... và ${invalidCodes.length - 20} mã khác`, 'fail');
+                }
+            }
+            
+            // Thống kê theo loại
+            const statsByType = {};
+            validCodes.forEach(item => {
+                if (!statsByType[item.type]) {
+                    statsByType[item.type] = 0;
+                }
+                statsByType[item.type]++;
+            });
+            
+            log('', 'info');
+            log('📊 Thống kê mã code theo loại:', 'info');
+            Object.entries(statsByType).sort((a, b) => b[1] - a[1]).forEach(([type, count]) => {
+                log(`  - ${type}: ${count} mã`, 'info');
+            });
+            
+            // Kiểm tra các mã đặc biệt có tồn tại không
+            log('', 'info');
+            log('🔍 Kiểm tra các mã đặc biệt:', 'info');
+            const specialCodes = {
+                '5001': 'Hiện Xuống',
+                '5002': 'Ba Ngôi',
+                '5003': 'Mình Máu Thánh',
+                '5004': 'Thánh Tâm',
+                '5010': 'Chúa Giêsu Chịu Phép Rửa',
+                '5340': 'Chúa Kitô Vua',
+                '2030': 'Lễ Hiển Linh',
+                '4080': 'Thăng Thiên',
+                '4089': 'Vọng Hiện Xuống',
+                '8441': 'Trái Tim Vô Nhiễm Mẹ',
+                '70001': 'Mùng 1 Tết',
+                '70002': 'Mùng 2 Tết',
+                '70003': 'Mùng 3 Tết'
+            };
+            
+            for (const [code, name] of Object.entries(specialCodes)) {
+                const exists = codeArray.includes(parseInt(code));
+                if (exists) {
+                    stats.total++;
+                    stats.passed++;
+                    log(`  ✅ ${code} (${name}): Có trong dữ liệu`, 'pass');
+                } else {
+                    stats.total++;
+                    stats.warnings++;
+                    log(`  ⚠️ ${code} (${name}): Không tìm thấy trong dữ liệu`, 'warn');
+                }
+            }
+        }
+        
+        // ============================================================
+        // TEST: Quy Tắc Tạo Mã Bài Đọc (Reading Code Rules)
+        // ============================================================
+        
+        function testReadingCodeRules(year) {
+            log(`═══ 📖 QUY TẮC TẠO MÃ BÀI ĐỌC - Năm ${year} ═══`, 'section');
+            const litData = getLiturgicalData(year);
+            
+            // Test 1: Mùa Thường Niên (5TTD)
+            // 5010: Chúa Giêsu Chịu Phép Rửa
+            const baptismCode = getLiturgicalDayCode(litData.baptismLord, litData);
+            assert(baptismCode === '5010',
+                `[${year}] Chúa Giêsu Chịu Phép Rửa (${formatDate(litData.baptismLord)}): code="${baptismCode}" - expected "5010"`);
+            
+            // Test 2: Mùa Thường Niên - Chúa Nhật tuần 10
+            // Tính từ Chúa Giêsu Chịu Phép Rửa, nhưng phải đảm bảo không rơi vào Mùa Chay hoặc lễ đặc biệt
+            const baptismSun = new Date(litData.baptismLord);
+            baptismSun.setDate(baptismSun.getDate() - baptismSun.getDay());
+            
+            // Tìm CN tuần 10 TN - phải sau Mùa Chay và không phải lễ đặc biệt
+            let week10Sunday = new Date(baptismSun);
+            week10Sunday.setDate(week10Sunday.getDate() + 9 * 7);
+            
+            // Kiểm tra xem có rơi vào Mùa Chay không
+            if (week10Sunday >= litData.ashWednesday && week10Sunday < litData.easter) {
+                // Nếu rơi vào Mùa Chay, tính từ sau Phục Sinh
+                const easterSun = new Date(litData.easter);
+                easterSun.setDate(easterSun.getDate() - easterSun.getDay());
+                // Tính ngược từ Chúa Kitô Vua để tìm tuần 10
+                const christKingSun = new Date(litData.christKing);
+                christKingSun.setDate(christKingSun.getDate() - christKingSun.getDay());
+                const lastOTSunday = new Date(christKingSun);
+                lastOTSunday.setDate(lastOTSunday.getDate() - 7); // CN trước Chúa Kitô Vua
+                // Tuần 10 = 34 - (số tuần từ CN 10 đến CN cuối)
+                const weeksFromLast = 34 - 10; // 24 tuần từ CN 10 đến CN cuối
+                week10Sunday = new Date(lastOTSunday);
+                week10Sunday.setDate(week10Sunday.getDate() - weeksFromLast * 7);
+            }
+            
+            // Kiểm tra xem có phải lễ đặc biệt không (Hiện Xuống, Ba Ngôi, etc.)
+            const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+            const week10Time = t(week10Sunday);
+            const isSpecialFeast = (litData.pentecost && week10Time === t(litData.pentecost)) ||
+                                   (litData.trinity && week10Time === t(litData.trinity)) ||
+                                   (litData.corpusChristi && week10Time === t(litData.corpusChristi)) ||
+                                   (litData.sacredHeart && week10Time === t(litData.sacredHeart));
+            
+            const week10Code = getLiturgicalDayCode(week10Sunday, litData);
+            // Chỉ test nếu không rơi vào Mùa Chay và không phải lễ đặc biệt
+            if ((week10Sunday < litData.ashWednesday || week10Sunday >= litData.easter) && !isSpecialFeast) {
+                assert(week10Code === '5100',
+                    `[${year}] CN tuần 10 TN (${formatDate(week10Sunday)}): code="${week10Code}" - expected "5100"`);
+            } else {
+                log(`[${year}] ⚠️ CN tuần 10 TN (${formatDate(week10Sunday)}) rơi vào Mùa Chay hoặc lễ đặc biệt (${week10Code}) - bỏ qua test`, 'warn');
+                stats.warnings++;
+            }
+            
+            // Test 3: Mùa Thường Niên - Thứ Ba tuần 10
+            const week10Tuesday = new Date(week10Sunday);
+            week10Tuesday.setDate(week10Tuesday.getDate() + 2);
+            // Chỉ test nếu không rơi vào Mùa Chay và không phải lễ đặc biệt
+            if ((week10Tuesday < litData.ashWednesday || week10Tuesday >= litData.easter) && !isSpecialFeast) {
+                const week10TueCode = getLiturgicalDayCode(week10Tuesday, litData);
+                assert(week10TueCode === '5102',
+                    `[${year}] Thứ Ba tuần 10 TN (${formatDate(week10Tuesday)}): code="${week10TueCode}" - expected "5102"`);
+            }
+            
+            // Test 4: Các lễ trọng sau Hiện Xuống
+            // 5001: Hiện Xuống
+            const pentecostCode = getLiturgicalDayCode(litData.pentecost, litData);
+            assert(pentecostCode === '5001',
+                `[${year}] Hiện Xuống (${formatDate(litData.pentecost)}): code="${pentecostCode}" - expected "5001"`);
+            
+            // 5002: Ba Ngôi
+            if (litData.trinity) {
+                const trinityCode = getLiturgicalDayCode(litData.trinity, litData);
+                assert(trinityCode === '5002',
+                    `[${year}] Ba Ngôi (${formatDate(litData.trinity)}): code="${trinityCode}" - expected "5002"`);
+            }
+            
+            // 5003: Mình Máu Thánh
+            if (litData.corpusChristi) {
+                const corpusCode = getLiturgicalDayCode(litData.corpusChristi, litData);
+                assert(corpusCode === '5003',
+                    `[${year}] Mình Máu Thánh (${formatDate(litData.corpusChristi)}): code="${corpusCode}" - expected "5003"`);
+            }
+            
+            // 5004: Thánh Tâm
+            if (litData.sacredHeart) {
+                const sacredHeartCode = getLiturgicalDayCode(litData.sacredHeart, litData);
+                assert(sacredHeartCode === '5004',
+                    `[${year}] Thánh Tâm (${formatDate(litData.sacredHeart)}): code="${sacredHeartCode}" - expected "5004"`);
+            }
+            
+            // Test 5: Mùa Vọng (10TD)
+            const advent1Code = getLiturgicalDayCode(litData.adventStart, litData);
+            assert(advent1Code === '1010',
+                `[${year}] CN I Mùa Vọng (${formatDate(litData.adventStart)}): code="${advent1Code}" - expected "1010"`);
+            
+            // Thứ Hai tuần I Mùa Vọng
+            const advent1Monday = new Date(litData.adventStart);
+            advent1Monday.setDate(advent1Monday.getDate() + 1);
+            const advent1MonCode = getLiturgicalDayCode(advent1Monday, litData);
+            assert(advent1MonCode === '1011',
+                `[${year}] Thứ Hai tuần I Mùa Vọng (${formatDate(advent1Monday)}): code="${advent1MonCode}" - expected "1011"`);
+            
+            // Test 6: Mùa Giáng Sinh (2DDMM)
+            // 17/12 - 24/12: Tuần chuẩn bị Giáng Sinh
+            const dec17 = new Date(year, 11, 17);
+            const dec17Code = getLiturgicalDayCode(dec17, litData);
+            assert(dec17Code === '21712',
+                `[${year}] 17/12 (${formatDate(dec17)}): code="${dec17Code}" - expected "21712"`);
+            
+            // 25/12: Lễ Giáng Sinh
+            const christmasCode = getLiturgicalDayCode(litData.christmas, litData);
+            assert(christmasCode === '22512',
+                `[${year}] 25/12 (${formatDate(litData.christmas)}): code="${christmasCode}" - expected "22512"`);
+            
+            // 01/01: Đức Mẹ là Mẹ Thiên Chúa
+            const jan1 = new Date(year, 0, 1);
+            const jan1Code = getLiturgicalDayCode(jan1, litData);
+            assert(jan1Code === '20101',
+                `[${year}] 01/01 (${formatDate(jan1)}): code="${jan1Code}" - expected "20101"`);
+            
+            // Test 7: Lễ Hiển Linh (2030)
+            const epiphanyCode = getLiturgicalDayCode(litData.epiphany, litData);
+            assert(epiphanyCode === '2030',
+                `[${year}] Hiển Linh (${formatDate(litData.epiphany)}): code="${epiphanyCode}" - expected "2030"`);
+            
+            // Test 8: Mùa Chay (30TD, 306D)
+            if (!litData.ashWednesdayTransferred) {
+                // 3004: Lễ Tro
+                const ashCode = getLiturgicalDayCode(litData.ashWednesday, litData);
+                assert(ashCode === '3004',
+                    `[${year}] Lễ Tro (${formatDate(litData.ashWednesday)}): code="${ashCode}" - expected "3004"`);
+                
+                // 3005-3007: Sau Lễ Tro
+                const ashThurs = new Date(litData.ashWednesday);
+                ashThurs.setDate(ashThurs.getDate() + 1);
+                const ashThursCode = getLiturgicalDayCode(ashThurs, litData);
+                assert(ashThursCode === '3005',
+                    `[${year}] Thứ Năm sau Lễ Tro (${formatDate(ashThurs)}): code="${ashThursCode}" - expected "3005"`);
+            }
+            
+            // Tuần Thánh: 3060-3066
+            // 3060: Lễ Lá (CN)
+            const palmCode = getLiturgicalDayCode(litData.palmSunday, litData);
+            assert(palmCode === '3060',
+                `[${year}] Lễ Lá (${formatDate(litData.palmSunday)}): code="${palmCode}" - expected "3060"`);
+            
+            // 3065: Thứ Sáu Tuần Thánh
+            const goodFridayCode = getLiturgicalDayCode(litData.goodFriday, litData);
+            assert(goodFridayCode === '3065',
+                `[${year}] Thứ Sáu Tuần Thánh (${formatDate(litData.goodFriday)}): code="${goodFridayCode}" - expected "3065"`);
+            
+            // Test 9: Mùa Phục Sinh (40TD)
+            // 4010: Chúa Nhật Phục Sinh
+            const easterCode = getLiturgicalDayCode(litData.easter, litData);
+            assert(easterCode === '4010',
+                `[${year}] Phục Sinh (${formatDate(litData.easter)}): code="${easterCode}" - expected "4010"`);
+            
+            // 4011: Thứ Hai tuần Bát Nhật PS
+            const easterMonday = new Date(litData.easter);
+            easterMonday.setDate(easterMonday.getDate() + 1);
+            const easterMonCode = getLiturgicalDayCode(easterMonday, litData);
+            assert(easterMonCode === '4011',
+                `[${year}] Thứ Hai tuần Bát Nhật PS (${formatDate(easterMonday)}): code="${easterMonCode}" - expected "4011"`);
+            
+            // 4020: CN II Phục Sinh (Lòng Chúa Thương Xót)
+            const easter2Sunday = new Date(litData.easter);
+            easter2Sunday.setDate(easter2Sunday.getDate() + 7);
+            const easter2Code = getLiturgicalDayCode(easter2Sunday, litData);
+            assert(easter2Code === '4020',
+                `[${year}] CN II Phục Sinh (${formatDate(easter2Sunday)}): code="${easter2Code}" - expected "4020"`);
+            
+            // Test 10: Thăng Thiên (4080)
+            const ascensionCode = getLiturgicalDayCode(litData.ascension, litData);
+            assert(ascensionCode === '4080',
+                `[${year}] Thăng Thiên (${formatDate(litData.ascension)}): code="${ascensionCode}" - expected "4080"`);
+            
+            // Test 11: Vọng Hiện Xuống (4089)
+            const pentecostVigil = new Date(litData.pentecost);
+            pentecostVigil.setDate(pentecostVigil.getDate() - 1);
+            const vigilCode = getLiturgicalDayCode(pentecostVigil, litData);
+            assert(vigilCode === '4089',
+                `[${year}] Vọng Hiện Xuống (${formatDate(pentecostVigil)}): code="${vigilCode}" - expected "4089"`);
+            
+            // Test 12: Sanctoral (7DDMM) - Kiểm tra một số lễ thánh cố định
+            // 15/08: Đức Mẹ Lên Trời
+            const aug15 = new Date(year, 7, 15);
+            const aug15Code = getLiturgicalDayCode(aug15, litData);
+            assert(aug15Code === '71508',
+                `[${year}] 15/08 - Đức Mẹ Lên Trời (${formatDate(aug15)}): code="${aug15Code}" - expected "71508"`);
+            
+            // 24/11: Các Thánh Tử Đạo VN
+            const nov24 = new Date(year, 10, 24);
+            const nov24Code = getLiturgicalDayCode(nov24, litData);
+            assert(nov24Code === '72411',
+                `[${year}] 24/11 - Các Thánh Tử Đạo VN (${formatDate(nov24)}): code="${nov24Code}" - expected "72411"`);
+            
+            // Test 13: Tết (7000D) - nếu có
+            if (typeof LUNAR_CALENDAR !== 'undefined') {
+                let tetDate = null;
+                for (let month = 0; month <= 1; month++) {
+                    for (let day = 1; day <= 31; day++) {
+                        try {
+                            const date = new Date(year, month, day);
+                            if (date.getMonth() !== month) continue;
+                            
+                            const tetDay = LUNAR_CALENDAR.isTetDay(date);
+                            if (tetDay === 1) {
+                                tetDate = date;
+                                break;
+                            }
+                        } catch (e) {}
+                    }
+                    if (tetDate) break;
+                }
+                
+                if (tetDate) {
+                    const tetCode = getLiturgicalDayCode(tetDate, litData);
+                    assert(tetCode === '70001',
+                        `[${year}] Mùng 1 Tết (${formatDate(tetDate)}): code="${tetCode}" - expected "70001"`);
+                    
+                    // Mùng 2 Tết
+                    const tet2 = new Date(tetDate);
+                    tet2.setDate(tet2.getDate() + 1);
+                    const tet2Day = LUNAR_CALENDAR.isTetDay(tet2);
+                    if (tet2Day === 2) {
+                        const tet2Code = getLiturgicalDayCode(tet2, litData);
+                        assert(tet2Code === '70002',
+                            `[${year}] Mùng 2 Tết (${formatDate(tet2)}): code="${tet2Code}" - expected "70002"`);
+                    }
+                }
+            }
+            
+            // Test 14: Kiểm tra format mã - Mùa Thường Niên phải có format 5TTD
+            const testOTDate = new Date(litData.baptismLord);
+            testOTDate.setDate(testOTDate.getDate() + 14); // Tuần 3
+            const testOTCode = getLiturgicalDayCode(testOTDate, litData);
+            if (testOTCode && testOTCode.startsWith('5') && testOTCode.length === 4) {
+                const week = parseInt(testOTCode.substring(1, 3));
+                const day = parseInt(testOTCode.substring(3));
+                assert(week >= 1 && week <= 34 && day >= 0 && day <= 6,
+                    `[${year}] Format mã TN (${testOTCode}): tuần=${week}, thứ=${day} - hợp lệ`);
+            }
+            
+            // Test 15: Kiểm tra format mã - Mùa Vọng phải có format 10TD
+            const testAdventDate = new Date(litData.adventStart);
+            testAdventDate.setDate(testAdventDate.getDate() + 7); // Tuần 2
+            const testAdventCode = getLiturgicalDayCode(testAdventDate, litData);
+            if (testAdventCode && testAdventCode.startsWith('10')) {
+                const week = parseInt(testAdventCode.substring(2, 3));
+                const day = parseInt(testAdventCode.substring(3));
+                assert(week >= 1 && week <= 4 && day >= 0 && day <= 6,
+                    `[${year}] Format mã Mùa Vọng (${testAdventCode}): tuần=${week}, thứ=${day} - hợp lệ`);
+            }
+        }
+        
+        // ============================================================
         // MAIN TEST RUNNERS
         // ============================================================
         
@@ -935,6 +1602,17 @@
                     }
                     if (testType === 'all' || testType === 'tet') {
                         testTet(year);
+                    }
+                    if (testType === 'all' || testType === 'readingCode') {
+                        testReadingCodeRules(year);
+                    }
+                    if (testType === 'all' || testType === 'validateCodeFormat') {
+                        if (year === startYear) {
+                            // Chạy test cho readingdata.js (chỉ 1 lần)
+                            testReadingDataCodeFormat();
+                        }
+                        // Chạy test cho controller.js (mỗi năm)
+                        testControllerCodeFormat(year);
                     }
                 } catch (e) {
                     log(`[${year}] ❌ ERROR: ${e.message}`, 'fail');
