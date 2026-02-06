@@ -100,8 +100,52 @@ body {
 .today-date-card {
     width: 100%;
     max-width: 900px;
-    margin: 12px auto 18px;
+    margin: 0;
     text-align: center;
+}
+
+.today-date-wrap {
+    width: 100%;
+    max-width: 980px;
+    margin: 12px auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.today-nav-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 61, 94, 0.18);
+    background: #ffffff;
+    color: #1f2937;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.today-nav-btn:hover {
+    background: #f1f5f9;
+    border-color: #60a5fa;
+    color: #1d4ed8;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.12);
+}
+
+.today-nav-btn--compact {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+}
+
+.compact-nav-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
 }
 
 #headerTodayInfo::before {
@@ -420,6 +464,18 @@ body.dark-mode .today-date-text {
 
 body.dark-mode .today-lunar-text {
     color: #94a3b8;
+}
+
+body.dark-mode .today-nav-btn {
+    background: #0f172a;
+    border-color: rgba(148, 163, 184, 0.25);
+    color: #e2e8f0;
+}
+
+body.dark-mode .today-nav-btn:hover {
+    background: #1f2937;
+    border-color: #60a5fa;
+    color: #bfdbfe;
 }
 
 body.dark-mode #headerSeasonWeek {

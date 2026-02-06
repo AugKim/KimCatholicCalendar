@@ -652,6 +652,18 @@ const MONTHS_VI = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "
 const DAYS_VI = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
 const DAYS_FULL_VI = ["Chúa Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 let currentYear = new Date().getFullYear();
+let headerFocusDate = null;
+
+function getHeaderBaseDate() {
+    return headerFocusDate ? new Date(headerFocusDate) : new Date();
+}
+
+function shiftHeaderDate(offsetDays) {
+    const base = getHeaderBaseDate();
+    base.setDate(base.getDate() + offsetDays);
+    headerFocusDate = new Date(base);
+    updateHeaderTodayInfo(headerFocusDate);
+}
 
 // --- CORE FUNCTIONS ---
 function addDays(date, days) {
@@ -2995,8 +3007,11 @@ function renderReadingsContent(data, type) {
     }
 }
 
-function updateHeaderTodayInfo() {
-    const today = new Date();
+function updateHeaderTodayInfo(dateOverride) {
+    const today = dateOverride ? new Date(dateOverride) : getHeaderBaseDate();
+    if (dateOverride) {
+        headerFocusDate = new Date(today);
+    }
     const litData = getLiturgicalData(today.getFullYear());
     // Dùng hàm core để lấy toàn bộ thông tin phụng vụ
     const dayInfo = getDayLiturgicalInfo(today, litData);
@@ -3219,6 +3234,11 @@ function updateHeaderTodayInfo() {
     
     // Click handler
     document.getElementById('headerTodayInfo').onclick = () => openModal(today, info);
+
+    // Cập nhật ngay view thu gọn (nếu đang hiển thị) để đồng bộ khi đổi ngày
+    if (typeof HeaderCollapseManager !== 'undefined' && HeaderCollapseManager.updateCompactView) {
+        HeaderCollapseManager.updateCompactView();
+    }
 }
 
 // --- LITURGICAL TOOLTIP ---
@@ -4751,6 +4771,8 @@ function changeYear(offset) {
 function goToToday() { 
     currentYear = new Date().getFullYear(); 
     renderCalendar(); 
+    headerFocusDate = null;
+    updateHeaderTodayInfo();
 }
 
 // Hàm xóa toàn bộ cache (dùng khi cần reset)
@@ -4876,7 +4898,7 @@ const HeaderCollapseManager = {
     },
     
     updateCompactView() {
-        const today = new Date();
+        const today = getHeaderBaseDate();
         const litData = getLiturgicalData(today.getFullYear());
         
         // Dùng hàm core để lấy toàn bộ thông tin phụng vụ
@@ -4943,6 +4965,7 @@ window.onload = function() {
     HeaderCollapseManager.init();
     initCalendarFontControls();
     initThemeToggle();
+    initHeaderNavButtons();
     document.onkeydown = function(evt) { 
         if (evt.keyCode == 27) {
             closeModal();
@@ -4984,6 +5007,37 @@ function initCalendarFontControls() {
             const current = parseFloat(getComputedStyle(root).getPropertyValue('--cell-font-scale')) || 1;
             applyScale(current + step);
         };
+    }
+}
+
+function initHeaderNavButtons() {
+    const prevBtn = document.getElementById('prevDayBtn');
+    const nextBtn = document.getElementById('nextDayBtn');
+    const prevBtnCompact = document.getElementById('prevDayBtnCompact');
+    const nextBtnCompact = document.getElementById('nextDayBtnCompact');
+    if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            shiftHeaderDate(-1);
+        });
+    }
+    if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            shiftHeaderDate(1);
+        });
+    }
+    if (prevBtnCompact) {
+        prevBtnCompact.addEventListener('click', (e) => {
+            e.stopPropagation();
+            shiftHeaderDate(-1);
+        });
+    }
+    if (nextBtnCompact) {
+        nextBtnCompact.addEventListener('click', (e) => {
+            e.stopPropagation();
+            shiftHeaderDate(1);
+        });
     }
 }
 

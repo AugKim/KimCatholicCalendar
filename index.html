@@ -50,9 +50,17 @@
                         <span id="headerCycle" class="today-cycle-text"></span>
                     </div>
 
-                    <div id="headerDateCard" class="today-date-card">
-                        <div id="headerDateText" class="today-date-text"></div>
-                        <div id="headerLunarText" class="today-lunar-text"></div>
+                    <div class="today-date-wrap">
+                        <button id="prevDayBtn" class="today-nav-btn" aria-label="Hôm qua">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div id="headerDateCard" class="today-date-card">
+                            <div id="headerDateText" class="today-date-text"></div>
+                            <div id="headerLunarText" class="today-lunar-text"></div>
+                        </div>
+                        <button id="nextDayBtn" class="today-nav-btn" aria-label="Ngày mai">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
 
                     <!-- 1. CỬ HÀNH CHÍNH - Nổi bật -->
@@ -85,11 +93,19 @@
                     <div class="compact-cycle-row">
                         <span id="headerCycleCompact" class="today-cycle-text today-cycle-text-compact"></span>
                     </div>
-                    <div class="compact-row">
-                        <!-- Màu phụng vụ -->
-                        <span id="headerColorDotCompact" class="w-3 h-3 rounded-full shadow-sm ring-1 ring-white flex-shrink-0"></span>
-                        <!-- Tên lễ -->
-                        <span id="headerCelebrationCompact" class="text-lg md:text-xl font-bold text-gray-900 font-serif"></span>
+                    <div class="compact-nav-row">
+                        <button id="prevDayBtnCompact" class="today-nav-btn today-nav-btn--compact" aria-label="Hôm qua">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="compact-row">
+                            <!-- Màu phụng vụ -->
+                            <span id="headerColorDotCompact" class="w-3 h-3 rounded-full shadow-sm ring-1 ring-white flex-shrink-0"></span>
+                            <!-- Tên lễ -->
+                            <span id="headerCelebrationCompact" class="text-lg md:text-xl font-bold text-gray-900 font-serif"></span>
+                        </div>
+                        <button id="nextDayBtnCompact" class="today-nav-btn today-nav-btn--compact" aria-label="Ngày mai">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
                     <!-- Bài đọc vắn tắt -->
                     <div id="headerReadingsCompact" class="text-xs text-gray-500 font-mono mt-2 text-center truncate"></div>
