@@ -97,6 +97,48 @@ body {
     pointer-events: none;
 }
 
+.today-date-card {
+    width: 100%;
+    max-width: 900px;
+    margin: 12px auto 18px;
+    text-align: center;
+}
+
+#headerTodayInfo::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 9px;
+    border-radius: 12px 12px 6px 6px;
+    background: var(--today-accent, #16a34a);
+    opacity: 1;
+    z-index: 0;
+}
+
+#headerTodayInfo {
+    overflow: hidden;
+}
+
+#headerTodayInfo > * {
+    position: relative;
+    z-index: 1;
+}
+
+.today-date-text {
+    font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+}
+
+.today-lunar-text {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
 h1, h2, h3, .serif-font { font-family: 'Fraunces', serif; }
 .font-mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 
@@ -369,6 +411,14 @@ body.dark-mode #headerReadingsCompact {
 }
 
 body.dark-mode .today-cycle-text {
+    color: #94a3b8;
+}
+
+body.dark-mode .today-date-text {
+    color: #e2e8f0;
+}
+
+body.dark-mode .today-lunar-text {
     color: #94a3b8;
 }
 
@@ -812,23 +862,7 @@ body.modal-active { overflow: hidden; }
     border-left: 2px solid #10b981;
 }
 
-/* Header Today Info Enhanced */
-#headerTodayInfo::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    border-radius: 2px;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-#headerTodayInfo:hover::before {
-    opacity: 1;
-}
+/* Header Today Info Enhanced - removed hover micro bar */
 
 /* Header Secondary Celebrations */
 #headerSecondary {

@@ -3070,6 +3070,32 @@ function updateHeaderTodayInfo() {
         // Chỉ hiển thị tuần, không hiển thị mùa
         headerSeasonWeek.innerText = detailedWeek;
     }
+
+    // === 2b. NGÀY DƯƠNG + ÂM (Thanh today) ===
+    const headerDateCard = document.getElementById('headerDateCard');
+    const headerDateText = document.getElementById('headerDateText');
+    const headerLunarText = document.getElementById('headerLunarText');
+    if (headerDateText) {
+        headerDateText.innerText = `${dayOfWeek}, ${today.getDate()} tháng ${today.getMonth() + 1}, ${today.getFullYear()}`;
+    }
+    if (headerLunarText && typeof LUNAR_CALENDAR !== 'undefined') {
+        const lunar = LUNAR_CALENDAR.getLunarDate(today);
+        if (lunar) {
+            const monthStr = lunar.leap ? `${lunar.month}N` : lunar.month;
+            headerLunarText.innerText = `${lunar.day}/${monthStr} Âm lịch`;
+        }
+    }
+    if (headerDateCard) {
+        let accent = "#0f3d5e";
+        if (info.color.includes('purple')) accent = "#7e22ce";
+        else if (info.color.includes('green')) accent = "#15803d";
+        else if (info.color.includes('red')) accent = "#dc2626";
+        else if (info.color.includes('white')) accent = "#d97706";
+        else if (info.color.includes('rose')) accent = "#db2777";
+        headerDateCard.style.setProperty('--today-accent', accent);
+        const headerInfo = document.getElementById('headerTodayInfo');
+        if (headerInfo) headerInfo.style.setProperty('--today-accent', accent);
+    }
     
     const headerCycle = document.getElementById('headerCycle');
     if (headerCycle) {
