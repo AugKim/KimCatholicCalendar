@@ -4754,7 +4754,8 @@ function showCacheStats() {
 
 const HeaderCollapseManager = {
     isCollapsed: false,
-    scrollThreshold: 150, // pixels từ đầu trang để bắt đầu thu gọn
+    collapseThreshold: 220, // ngưỡng thu gọn
+    expandThreshold: 120, // ngưỡng mở rộng (thấp hơn để tránh nhấp nháy)
     lastScrollTop: 0,
     ticking: false,
     
@@ -4790,9 +4791,9 @@ const HeaderCollapseManager = {
     checkScrollPosition() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         
-        if (scrollTop > this.scrollThreshold && !this.isCollapsed) {
+        if (scrollTop > this.collapseThreshold && !this.isCollapsed) {
             this.collapse();
-        } else if (scrollTop <= this.scrollThreshold && this.isCollapsed) {
+        } else if (scrollTop < this.expandThreshold && this.isCollapsed) {
             this.expand();
         }
         
