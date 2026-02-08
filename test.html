@@ -611,14 +611,14 @@
             assert(litData.adventStart.getDay() === 0,
                 `[${year}] CN I Mùa Vọng (${formatDate(litData.adventStart)}) là Chúa Nhật`);
             
-            // E7. Thăng Thiên = Phục Sinh + 39 ngày (Thứ Năm truyền thống VN)
+            // E7. Thăng Thiên (VN) = Chúa Nhật VII Phục Sinh = Phục Sinh + 42 ngày
             const ascensionDiff = Math.round((litData.ascension - litData.easter) / (24*60*60*1000));
-            assert(ascensionDiff === 39,
-                `[${year}] Thăng Thiên cách Phục Sinh ${ascensionDiff} ngày - expected 39`);
+            assert(ascensionDiff === 42,
+                `[${year}] Thăng Thiên cách Phục Sinh ${ascensionDiff} ngày - expected 42`);
             
-            // E8. Thăng Thiên phải là Thứ Năm
-            assert(litData.ascension.getDay() === 4,
-                `[${year}] Thăng Thiên (${formatDate(litData.ascension)}) là Thứ Năm`);
+            // E8. Thăng Thiên (VN) phải là Chúa Nhật
+            assert(litData.ascension.getDay() === 0,
+                `[${year}] Thăng Thiên (${formatDate(litData.ascension)}) là Chúa Nhật`);
             
             // E9. Hiện Xuống = Phục Sinh + 49 ngày
             const pentecostDiff = Math.round((litData.pentecost - litData.easter) / (24*60*60*1000));
@@ -684,12 +684,12 @@
                 `[${year}] Pentecost (${formatDate(litData.pentecost)}) cách Easter ${pentecostDiff} ngày - phải là 49 ngày`);
             
             const ascensionDiff = Math.round((litData.ascension - litData.easter) / (24*60*60*1000));
-            assert(ascensionDiff === 39,
-                `[${year}] Ascension (${formatDate(litData.ascension)}) cách Easter ${ascensionDiff} ngày - phải là 39 ngày`);
+            assert(ascensionDiff === 42,
+                `[${year}] Ascension (${formatDate(litData.ascension)}) cách Easter ${ascensionDiff} ngày - phải là 42 ngày`);
             
             const ascensionDay = litData.ascension.getDay();
-            assert(ascensionDay === 4,
-                `[${year}] Ascension (${formatDate(litData.ascension)}) là ${getDayName(litData.ascension)} - phải là Thứ Năm`);
+            assert(ascensionDay === 0,
+                `[${year}] Ascension (${formatDate(litData.ascension)}) là ${getDayName(litData.ascension)} - phải là Chúa Nhật`);
         }
         
         function testEpiphanyAndBaptism(year) {
@@ -1717,6 +1717,29 @@
             } catch (e) {
                 assert(false, `[${year}] CACHE size test lỗi "${e.message}"`, true);
             }
+
+            // F9. Quy tắc VN cho 4 lễ thường được ấn định/dời vào Chúa Nhật
+            // 1) Hiển Linh: CN 02-08/01
+            assert(litData.epiphany.getDay() === 0 &&
+                   litData.epiphany.getMonth() === 0 &&
+                   litData.epiphany.getDate() >= 2 &&
+                   litData.epiphany.getDate() <= 8,
+                   `[${year}] Hiển Linh (${formatDate(litData.epiphany)}): đúng Chúa Nhật trong [02/01..08/01]`);
+
+            // 2) Thăng Thiên: Chúa Nhật VII Phục Sinh = Easter + 42
+            const ascDiffStrict = Math.round((litData.ascension - litData.easter) / (24 * 60 * 60 * 1000));
+            assert(ascDiffStrict === 42 && litData.ascension.getDay() === 0,
+                   `[${year}] Thăng Thiên (${formatDate(litData.ascension)}): đúng CN VII Phục Sinh (Easter+42)`);
+
+            // 3) Mình Máu Thánh: Chúa Nhật sau Chúa Ba Ngôi
+            const corpusDiffStrict = Math.round((litData.corpusChristi - litData.trinity) / (24 * 60 * 60 * 1000));
+            assert(corpusDiffStrict === 7 && litData.corpusChristi.getDay() === 0,
+                   `[${year}] Mình Máu Thánh (${formatDate(litData.corpusChristi)}): đúng Chúa Nhật sau Chúa Ba Ngôi`);
+
+            // 4) Các Thánh Tử Đạo VN (dạng địa phương): Chúa Nhật trước Chúa Kitô Vua
+            const martyrsDiffStrict = Math.round((litData.christKing - litData.vietnameseMartyrs) / (24 * 60 * 60 * 1000));
+            assert(martyrsDiffStrict === 7 && litData.vietnameseMartyrs.getDay() === 0,
+                   `[${year}] Tử Đạo VN (${formatDate(litData.vietnameseMartyrs)}): đúng Chúa Nhật trước Chúa Kitô Vua`);
         }
         
         // ============================================================

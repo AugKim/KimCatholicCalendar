@@ -3,8 +3,8 @@
  * Cache các tài nguyên tĩnh để tăng tốc độ tải trang
  */
 
-const CACHE_NAME = 'liturgical-calendar-v1';
-const CACHE_VERSION = 1;
+const CACHE_NAME = 'liturgical-calendar-v3';
+const CACHE_VERSION = 3;
 
 // Danh sách các file cần cache (relative paths)
 const STATIC_ASSETS = [
