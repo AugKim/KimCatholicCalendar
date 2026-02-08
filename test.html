@@ -124,6 +124,7 @@
     <script src="Reading/SaintsBible.js"></script>
     <script src="Reading/Optionsaint.js"></script>
     <script src="Reading/eucharisticAdoration.js"></script>
+    <script src="Reading/meditationLinks.js"></script>
     <script src="js/controller.js"></script>
     
     <script>
@@ -1183,15 +1184,30 @@
                     }
                 }
                 
-                // 8. Các mã đặc biệt khác: 2030, 6001-6006, 8441
+                // 8. Các mã đặc biệt khác: 2030, 6000, 6001-6006, 8441, 2003, 2010, 3037/3047/3057, 5450, 224122
                 if (codeNum === 2030) {
                     return { valid: true, type: 'Lễ Hiển Linh', format: '2030' };
+                }
+                if (codeNum === 6000) {
+                    return { valid: true, type: 'Lễ Hiển Linh (Sunday.js)', format: '6000' };
                 }
                 if (codeNum >= 6001 && codeNum <= 6006) {
                     return { valid: true, type: 'Sau Lễ Hiển Linh', format: '600x' };
                 }
                 if (codeNum === 8441) {
                     return { valid: true, type: 'Trái Tim Vô Nhiễm Mẹ', format: '8441' };
+                }
+                if (codeNum === 2003 || codeNum === 2010) {
+                    return { valid: true, type: 'Mùa Giáng Sinh (mã đặc biệt)', format: '20xx' };
+                }
+                if (codeNum === 3037 || codeNum === 3047 || codeNum === 3057) {
+                    return { valid: true, type: 'Mùa Chay (CN - mã đặc biệt)', format: '30x7' };
+                }
+                if (codeNum === 5450) {
+                    return { valid: true, type: 'Lễ Hiển Dung (CN đặc biệt)', format: '5450' };
+                }
+                if (codeNum === 224122) {
+                    return { valid: true, type: 'Lễ Vọng Giáng Sinh (ban chiều)', format: '224122' };
                 }
                 
                 return { valid: false, type: 'Không xác định', format: 'N/A' };
@@ -1574,6 +1590,14 @@
                 assert(false, `[${year}] 31/12: Không tìm thấy Sylvestro trong FIXED_DATA_LOOKUP`, true);
             }
             
+            // F2b. Bát nhật Giáng Sinh: specialDayType phải là CHRISTMAS_OCTAVE (25/12 & 01/01)
+            const dec25 = new Date(year, 11, 25);
+            const jan1 = new Date(year, 0, 1);
+            assert(getSpecialDayType(dec25, litData) === 'CHRISTMAS_OCTAVE',
+                `[${year}] 25/12 (${formatDate(dec25)}): specialDayType = CHRISTMAS_OCTAVE`);
+            assert(getSpecialDayType(jan1, litData) === 'CHRISTMAS_OCTAVE',
+                `[${year}] 01/01 (${formatDate(jan1)}): specialDayType = CHRISTMAS_OCTAVE`);
+            
             // F3. 26/12 (Thánh Stêphanô) là Lễ Kính nếu không trùng Chúa Nhật
             const dec26 = new Date(year, 11, 26);
             if (dec26.getDay() !== 0) {
@@ -1642,19 +1666,56 @@
             const jan25 = new Date(year, 0, 25);
             if (jan25.getDay() === 0) {
                 const code = getLiturgicalDayCode(jan25, litData);
-                assert(code.startsWith('5'),
-                    `[${year}] CN 25/01 (${formatDate(jan25)}): code="${code}" phải là Mùa Thường Niên (5xx)`);
-                
-                const baptismSun = new Date(litData.baptismLord);
-                baptismSun.setDate(baptismSun.getDate() - baptismSun.getDay());
-                const janSun = new Date(jan25);
-                janSun.setDate(janSun.getDate() - janSun.getDay());
-                const expectedWeek = Math.floor((janSun - baptismSun) / (7 * 24 * 60 * 60 * 1000)) + 1;
-                const week = parseInt(code.substring(1, 3), 10);
-                assert(week === expectedWeek,
-                    `[${year}] CN 25/01 (${formatDate(jan25)}): tuần=${week} - expected ${expectedWeek}`);
+                const tetDay = LUNAR_CALENDAR.isTetDay(jan25);
+                const isTetOverride = tetDay >= 1 && tetDay <= 3 && code.startsWith('7000');
+
+                if (isTetOverride) {
+                    assert(true, `[${year}] CN 25/01 (${formatDate(jan25)}) trùng Tết (Mùng ${tetDay}) - bỏ qua kiểm tra mã 5xx`, true);
+                } else {
+                    assert(code.startsWith('5'),
+                        `[${year}] CN 25/01 (${formatDate(jan25)}): code="${code}" phải là Mùa Thường Niên (5xx)`);
+
+                    const baptismSun = new Date(litData.baptismLord);
+                    baptismSun.setDate(baptismSun.getDate() - baptismSun.getDay());
+                    const janSun = new Date(jan25);
+                    janSun.setDate(janSun.getDate() - janSun.getDay());
+                    const expectedWeek = Math.floor((janSun - baptismSun) / (7 * 24 * 60 * 60 * 1000)) + 1;
+                    const week = parseInt(code.substring(1, 3), 10);
+                    assert(week === expectedWeek,
+                        `[${year}] CN 25/01 (${formatDate(jan25)}): tuần=${week} - expected ${expectedWeek}`);
+                }
             } else {
                 assert(false, `[${year}] 25/01 không phải Chúa Nhật: bỏ qua test CN cuối tháng 1`, true);
+            }
+
+            // F7. Export phải có discipline (ăn chay/kiêng thịt/lễ buộc) khi cần
+            try {
+                const savedYear = currentYear;
+                currentYear = year;
+                exportRange = 'year';
+                const exportData = generateCalendarData();
+                const ash = litData.ashWednesdayTransferred ? litData.ashWednesdayCelebration : litData.ashWednesday;
+                const ashMonth = exportData.months.find(m => m.month === ash.getMonth() + 1);
+                const ashIso = `${year}-${String(ash.getMonth() + 1).padStart(2, '0')}-${String(ash.getDate()).padStart(2, '0')}`;
+                const ashDay = ashMonth?.days?.find(d => (d.day === ash.getDate()) || (d.date === ashIso));
+                assert(Boolean(ashDay && ashDay.discipline && (ashDay.discipline.fast || ashDay.discipline.abstinence)),
+                    `[${year}] Export discipline tại Lễ Tro (${formatDate(ash)}): có ăn chay/kiêng thịt`);
+                currentYear = savedYear;
+            } catch (e) {
+                assert(false, `[${year}] Export discipline: lỗi "${e.message}"`, true);
+            }
+            
+            // F8. Cache size không vượt 500 (test riêng bằng map tạm)
+            try {
+                CACHE.test = new Map();
+                for (let i = 0; i < 520; i++) {
+                    CACHE.set('test', `k${i}`, i);
+                }
+                assert(CACHE.test.size === 500,
+                    `[${year}] CACHE size: ${CACHE.test.size} (expected 500)`);
+                delete CACHE.test;
+            } catch (e) {
+                assert(false, `[${year}] CACHE size test lỗi "${e.message}"`, true);
             }
         }
         

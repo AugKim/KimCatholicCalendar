@@ -31,8 +31,8 @@ const CACHE = {
     set(type, key, value) {
         const cache = this[type];
         if (cache instanceof Map) {
-            // Giới hạn cache size để tránh memory leak
-            if (cache.size > 500) {
+            // Giới hạn cache size để tránh memory leak (giữ tối đa 500)
+            if (!cache.has(key) && cache.size >= 500) {
                 const firstKey = cache.keys().next().value;
                 cache.delete(firstKey);
             }
@@ -568,6 +568,38 @@ function getTetReadingCode(date) {
     return null;
 }
 
+// Helper: YYYY-MM-DD theo ngày địa phương (tránh lệch UTC)
+function toISODateLocal(date) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Helper: lấy link suy niệm nếu có (từ map hoặc dữ liệu bài đọc)
+function getMeditationLinkForDate(date, dayInfo, cycle, weekdayCycle) {
+    const iso = toISODateLocal(date);
+    if (typeof MEDITATION_LINKS !== 'undefined' && MEDITATION_LINKS[iso]) {
+        return MEDITATION_LINKS[iso];
+    }
+    if (typeof MEDITATION_BY_CODE !== 'undefined' && dayInfo?.dayCode && MEDITATION_BY_CODE[dayInfo.dayCode]) {
+        return MEDITATION_BY_CODE[dayInfo.dayCode];
+    }
+    if (typeof READINGS_SPECIAL !== 'undefined' && dayInfo?.dayCode && READINGS_SPECIAL[dayInfo.dayCode]?.meditationUrl) {
+        return READINGS_SPECIAL[dayInfo.dayCode].meditationUrl;
+    }
+    if (typeof READINGS_DATA !== 'undefined' && dayInfo?.dayCode) {
+        const ref = READINGS_DATA.find(r => {
+            if (r.code != dayInfo.dayCode) return false;
+            if (date.getDay() === 0) return r.year === cycle;
+            return r.year === weekdayCycle || r.year === "0";
+        });
+        if (ref && ref.meditationUrl) return ref.meditationUrl;
+    }
+    return null;
+}
+
 // Lấy thông tin Tết cho một ngày
 function getTetEvent(date) {
     const tetDay = LUNAR_CALENDAR.isTetDay(date);
@@ -972,13 +1004,15 @@ function getLiturgicalDayCode(date, litData) {
     if (dTime >= t(litData.ashWednesday) && dTime < t(litData.easter)) {
         // 3004-3007: Lễ Tro và các ngày sau
         if (litData.ashWednesdayTransferred) {
+            const ashCelebrationTime = t(litData.ashWednesdayCelebration);
             // Lễ Tro bị dời
-            if (dTime === t(litData.ashWednesdayCelebration)) {
+            if (dTime === ashCelebrationTime) {
                 return "3004";
             }
-            // Các ngày sau Lễ Tro ban đầu
-            if (dTime > t(litData.ashWednesday) && dTime <= t(addDays(litData.ashWednesday, 3))) {
-                const daysFromAsh = Math.floor((dTime - t(litData.ashWednesday)) / (24 * 60 * 60 * 1000));
+            // Khi có dời Lễ Tro theo quy luật Việt Nam, dãy 3004-3007
+            // bám theo ngày cử hành thực tế để nhất quán với export/test.
+            if (dTime > ashCelebrationTime && dTime <= t(addDays(litData.ashWednesdayCelebration, 3))) {
+                const daysFromAsh = Math.floor((dTime - ashCelebrationTime) / (24 * 60 * 60 * 1000));
                 return `300${4 + daysFromAsh}`;
             }
         } else {
@@ -1406,15 +1440,18 @@ function getCategoryWeight(celebrationInfo) {
 }
 
 // Legacy function - giữ lại để tương thích (số nhỏ hơn = ưu tiên cao hơn)
+// Pure mapping để tránh phụ thuộc ngày chạy.
 function getRankPriority(rankCode) {
-    // Chuyển đổi từ rank code cũ sang precedence rank mới
-    // Số nhỏ hơn = ưu tiên cao hơn, nên ta đảo ngược logic
-    const tempInfo = { rankCode: rankCode };
-    const dummyDate = new Date();
-    const dummyLitData = getLiturgicalData(dummyDate.getFullYear());
-    const precedence = getPrecedenceRank(tempInfo, dummyDate, dummyLitData);
-    // Trả về giá trị ngược lại để tương thích với code cũ (số cao = ưu tiên cao)
-    return 100 - precedence;
+    switch (rankCode) {
+        case 'TRONG': return RANK.SOLEMNITY;
+        case 'KINH': return RANK.FEAST;
+        case 'NHO': return RANK.MEM_OBL;
+        case 'NHOKB':
+        case 'O': return RANK.MEM_OPT;
+        case 'CHUA_NHAT': return RANK.SUNDAY_ORD_OR_CHRISTMAS;
+        case 'NGAY_THUONG': return RANK.OT_WEEKDAY;
+        default: return RANK.OT_WEEKDAY;
+    }
 }
 
 // Xác định loại ngày phụng vụ đặc biệt
@@ -1454,10 +1491,17 @@ function getSpecialDayType(date, litData) {
         return 'ADVENT';
     }
     
-    // Bát Nhật Giáng Sinh
-    const christmasTime = t(litData.christmas);
-    const christmasOctaveEnd = t(new Date(date.getFullYear(), 0, 1));
-    if (dTime >= christmasTime && dTime <= christmasOctaveEnd) {
+    // Bát Nhật Giáng Sinh (25/12 -> 01/01, bắc cầu qua năm)
+    let christmasStart = new Date(date.getFullYear(), 11, 25);
+    let christmasOctaveEnd = new Date(date.getFullYear() + 1, 0, 1);
+    // Nếu đang ở đầu tháng 1, bắc cầu từ 25/12 năm trước -> 01/01 năm hiện tại
+    if (date.getMonth() === 0 && date.getDate() <= 1) {
+        christmasStart = new Date(date.getFullYear() - 1, 11, 25);
+        christmasOctaveEnd = new Date(date.getFullYear(), 0, 1);
+    }
+    const christmasTime = t(christmasStart);
+    const christmasOctaveEndTime = t(christmasOctaveEnd);
+    if (dTime >= christmasTime && dTime <= christmasOctaveEndTime) {
         return 'CHRISTMAS_OCTAVE';
     }
     
@@ -1822,11 +1866,7 @@ function getTransferDate(originalDate, litData) {
         return addDays(easterOctaveEnd, 1);
     }
     
-    // Bát Nhật Giáng Sinh → dời sang Thứ Hai sau Bát Nhật
-    if (specialDayType === 'CHRISTMAS_OCTAVE') {
-        const christmasOctaveEnd = new Date(originalDate.getFullYear(), 0, 1);
-        return addDays(christmasOctaveEnd, 1);
-    }
+    // Bát Nhật Giáng Sinh: các lễ trong Bát Nhật không bị dời
     
     // Không cần dời
     return null;
@@ -3927,7 +3967,8 @@ function renderCalendar() {
 
 function openModal(date, info) {
     const modal = document.getElementById('dayModal');
-    const litData = getLiturgicalData(currentYear);
+    const modalYear = date.getFullYear();
+    const litData = getLiturgicalData(modalYear);
     
     // Dùng hàm core để lấy toàn bộ thông tin phụng vụ
     // Nếu info đã được truyền vào, vẫn dùng hàm core để đảm bảo tính nhất quán
@@ -3952,7 +3993,7 @@ function openModal(date, info) {
     // Ngày dương lịch
     const modalDate = document.getElementById('modalDate');
     const modalDayOfWeek = document.getElementById('modalDayOfWeek');
-    if (modalDate) modalDate.innerText = `${date.getDate()} tháng ${date.getMonth() + 1}, ${currentYear}`;
+    if (modalDate) modalDate.innerText = `${date.getDate()} tháng ${date.getMonth() + 1}, ${modalYear}`;
     if (modalDayOfWeek) modalDayOfWeek.innerText = dayName;
     
     // Ngày âm lịch
@@ -4749,6 +4790,30 @@ function openModal(date, info) {
         }
     }
 
+    // === MEDITATION LINK SECTION ===
+    const meditationSection = document.getElementById('modalMeditationSection');
+    const meditationLink = document.getElementById('modalMeditationLink');
+    if (meditationSection && meditationLink) {
+        const meditationData = getMeditationLinkForDate(date, dayInfo, cycle, weekdayCycle);
+        if (meditationData) {
+            let url = meditationData;
+            let label = 'Mở suy niệm hôm nay';
+            if (typeof meditationData === 'object' && meditationData !== null) {
+                url = meditationData.url || meditationData.href || '';
+                label = meditationData.label || label;
+            }
+            if (url) {
+                meditationLink.href = url;
+                meditationLink.textContent = label;
+                meditationSection.classList.remove('hidden');
+            } else {
+                meditationSection.classList.add('hidden');
+            }
+        } else {
+            meditationSection.classList.add('hidden');
+        }
+    }
+
     // === SHOW MODAL ===
     modal.classList.remove('opacity-0');
     modal.classList.remove('pointer-events-none');
@@ -4967,7 +5032,7 @@ window.onload = function() {
     initThemeToggle();
     initHeaderNavButtons();
     document.onkeydown = function(evt) { 
-        if (evt.keyCode == 27) {
+        if (evt.key === 'Escape' || evt.key === 'Esc') {
             closeModal();
             closeExportModal();
         }
@@ -5188,6 +5253,9 @@ function generateCalendarData() {
             
             const dayData = {
                 date: `${currentYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+                year: currentYear,
+                month: month,
+                day: day,
                 dayOfWeek: DAYS_FULL_VI[date.getDay()],
                 celebration: dayInfo.dayLabelText, // Dùng dayLabelText từ hàm core
                 rank: info.rankCode || 'NGAY_THUONG',
@@ -5419,13 +5487,16 @@ function generateCalendarData() {
             }
             
             // Discipline notes
-            const discipline = getLiturgicalDiscipline(date, litData);
-            if (discipline && (discipline.fast || discipline.abstinence || discipline.obligation)) {
+            const disciplineList = getLiturgicalDiscipline(date, litData);
+            if (Array.isArray(disciplineList) && disciplineList.length > 0) {
+                const hasFast = disciplineList.some(d => d.type === 'fast');
+                const hasAbstinence = disciplineList.some(d => d.type === 'abstinence');
+                const hasObligation = disciplineList.some(d => d.type === 'obligation');
                 dayData.discipline = {
-                    fast: discipline.fast || false,
-                    abstinence: discipline.abstinence || false,
-                    obligation: discipline.obligation || false,
-                    note: discipline.note || null
+                    fast: hasFast,
+                    abstinence: hasAbstinence,
+                    obligation: hasObligation,
+                    tags: disciplineList
                 };
             }
             
