@@ -2092,7 +2092,21 @@ function getDayInfo(date, litData) {
         result.season = "Mùa Thường Niên";
     }
     
-    if (dTime === t(litData.vietnameseMartyrs)) { result.special = "CÁC THÁNH TỬ ĐẠO VIỆT NAM"; result.color = "bg-lit-red"; result.rankCode = "TRONG"; }
+    if (dTime === t(litData.christKing)) {
+        result.special = "ĐẠI LỄ CHÚA KITÔ VUA VŨ TRỤ";
+        result.color = "bg-lit-white";
+        result.textColor = "text-lit-gold";
+        result.rankCode = "TRONG";
+        result.season = "Mùa Thường Niên";
+    }
+    if (dTime === t(litData.vietnameseMartyrs)) {
+        result.special = "CÁC THÁNH TỬ ĐẠO VIỆT NAM";
+        result.color = "bg-lit-red";
+        result.textColor = "text-lit-red";
+        result.rankCode = "TRONG";
+        result._forceSanctoralReadings = true;
+        result._forceSanctoralKey = "72411";
+    }
     if (dTime === t(litData.rosarySunday)) { result.special = "ĐỨC MẸ MÂN CÔI (Kính Trọng Thể)"; result.color = "bg-lit-white"; result.rankCode = "TRONG"; }
     if (dTime === t(litData.missionSunday)) { result.special = "Khánh Nhật Truyền Giáo"; result.color = "bg-lit-green"; result.rankCode = "CHUA_NHAT"; } 
     
@@ -3678,7 +3692,13 @@ function generateTooltipContent(date, info, litData) {
                 // Chỉ thêm nếu không phải cử hành chính
                 // Kiểm tra xem có phải là cử hành chính không
                 const isSanctoralPrimary = infoFromCore._winnerKey === "SANCTORAL" || 
-                                         (infoFromCore.special === saint.name);
+                                         (infoFromCore.special === saint.name) ||
+                                         // Lễ di động ép sanctoral (Tử Đạo VN, Truyền Tin, St Joseph...)
+                                         // → sanctoral code ĐÃ bị đổi, tên có thể khác nhưng vẫn là cử hành chính
+                                         infoFromCore._forceSanctoralReadings ||
+                                         // So sánh mềm: tên cử hành chính chứa trong tên thánh hoặc ngược lại
+                                         (infoFromCore.special && saint.name && 
+                                          (saint.name.includes(infoFromCore.special) || infoFromCore.special.includes(saint.name)));
                 
                 if (!isSanctoralPrimary) {
                     notCelebratedNames.push(saint.name);
@@ -4579,6 +4599,40 @@ function openModal(date, info) {
     }
 
     // ============================================================================
+    // ĐẶC BIỆT: Lễ Các Thánh Tử Đạo Việt Nam (di động, _forceSanctoralKey = 72411)
+    // Lễ này là lễ trọng di động, khi rơi vào CN thì:
+    //   - Tab ưu tiên: "Các Thánh Tử Đạo VN" (sanctoral 72411)
+    //   - Tab phụ: "Chúa Nhật TN" (seasonal - bài đọc CN gốc)
+    //   - Không hiện thánh cố định ngày hôm đó (bị đè bởi lễ trọng)
+    // ============================================================================
+    const isVietnameseMartyrs = infoFromCore._forceSanctoralReadings && infoFromCore._forceSanctoralKey === "72411";
+    
+    // Nếu là Lễ Tử Đạo VN, cần lấy lại bài đọc seasonal gốc (CN TN) vì sanctoralCode đã bị đổi
+    let originalSeasonalSummary = seasonalSummary;
+    let originalSeasonalFullData = seasonalFullData;
+    if (isVietnameseMartyrs) {
+        // Lấy mã seasonal gốc (không bị đổi bởi sanctoral)
+        const originalSeasonalCode = getLiturgicalDayCode(date, litData, { includeSanctoral: false });
+        if (originalSeasonalCode !== seasonalCodeForReadings) {
+            originalSeasonalSummary = READINGS_DATA.find(r => {
+                if (r.code != originalSeasonalCode) return false;
+                if (date.getDay() === 0) return r.year === cycle;
+                return r.year === weekdayCycle || r.year === "0";
+            });
+            // Lấy full data từ Sunday.js cho CN
+            if (date.getDay() === 0 && typeof READINGS_SUNDAY !== 'undefined') {
+                const sundayCode = originalSeasonalCode;
+                if (READINGS_SUNDAY[sundayCode]) {
+                    originalSeasonalFullData = READINGS_SUNDAY[sundayCode][cycle] || READINGS_SUNDAY[sundayCode];
+                }
+            }
+        }
+        // Gán lại seasonal data gốc cho tab "Mùa phụng vụ"
+        seasonalSummary = originalSeasonalSummary;
+        seasonalFullData = originalSeasonalFullData;
+    }
+    
+    // ============================================================================
     // XÁC ĐỊNH NGUỒN BÀI ĐỌC MẶC ĐỊNH DỰA TRÊN BẬC LỄ (Precedence)
     // ============================================================================
     
@@ -4689,9 +4743,10 @@ function openModal(date, info) {
     // Tab Sanctoral (nếu có) - bao gồm cả lễ nhớ
     if (!limitToSeasonalOptions && (sanctoralSummary || sanctoralFullData)) {
         const isSanctoralActive = defaultReadingSource === 'sanctoral';
-        const saintName = infoFromCore.saints.length > 0 
-            ? infoFromCore.saints[0].name 
-            : (infoFromCore._forceSanctoralReadings && infoFromCore.special ? infoFromCore.special : 'Lễ kính');
+        // Ưu tiên tên lễ từ _forceSanctoralReadings (cho lễ di động như Tử Đạo VN)
+        const saintName = (infoFromCore._forceSanctoralReadings && infoFromCore.special)
+            ? infoFromCore.special
+            : (infoFromCore.saints.length > 0 ? infoFromCore.saints[0].name : 'Lễ kính');
         // Rút ngắn tên nếu quá dài
         const displayName = saintName.length > 25 ? 
             (saintName.includes('và') ? saintName.split('và')[0].trim() + '...' : saintName.substring(0, 22) + '...') : 
