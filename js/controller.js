@@ -1004,24 +1004,35 @@ function getLiturgicalDayCode(date, litData, options = {}) {
     // ===== ƯU TIÊN 6: Mùa Chay (3) =====
     // Cấu trúc: 3 + 0 + T (1-6) + D (0-6)
     if (dTime >= t(litData.ashWednesday) && dTime < t(litData.easter)) {
-        // 3004-3007: Lễ Tro và các ngày sau
-        if (litData.ashWednesdayTransferred) {
-            const ashCelebrationTime = t(litData.ashWednesdayCelebration);
-            // Lễ Tro bị dời
-            if (dTime === ashCelebrationTime) {
-                return "3004";
-            }
-            // Khi có dời Lễ Tro theo quy luật Việt Nam, dãy 3004-3007
-            // bám theo ngày cử hành thực tế để nhất quán với export/test.
-            if (dTime > ashCelebrationTime && dTime <= t(addDays(litData.ashWednesdayCelebration, 3))) {
-                const daysFromAsh = Math.floor((dTime - ashCelebrationTime) / (24 * 60 * 60 * 1000));
-                return `300${4 + daysFromAsh}`;
-            }
-        } else {
-            // Lễ Tro không bị dời
-            if (dTime >= t(litData.ashWednesday) && dTime <= t(addDays(litData.ashWednesday, 3))) {
-                const daysFromAsh = Math.floor((dTime - t(litData.ashWednesday)) / (24 * 60 * 60 * 1000));
-                return `300${4 + daysFromAsh}`;
+        // Tìm Chúa Nhật I Mùa Chay (4 ngày sau Lễ Tro ban đầu)
+        const firstSunLent = addDays(litData.ashWednesday, 4);
+        const firstSunLentDate = new Date(firstSunLent);
+        firstSunLentDate.setDate(firstSunLentDate.getDate() - firstSunLentDate.getDay());
+        
+        // 3004-3007: Lễ Tro và các ngày sau (nhưng phải TRƯỚC Chúa Nhật I Mùa Chay)
+        if (dTime < t(firstSunLentDate)) {
+            if (litData.ashWednesdayTransferred) {
+                const ashCelebrationTime = t(litData.ashWednesdayCelebration);
+                // Lễ Tro bị dời
+                if (dTime === ashCelebrationTime) {
+                    return "3004";
+                }
+                // Khi có dời Lễ Tro theo quy luật Việt Nam, dãy 3004-3007
+                // bám theo ngày cử hành thực tế để nhất quán với export/test.
+                if (dTime > ashCelebrationTime) {
+                    const daysFromAsh = Math.floor((dTime - ashCelebrationTime) / (24 * 60 * 60 * 1000));
+                    if (daysFromAsh >= 1 && daysFromAsh <= 3) {
+                        return `300${4 + daysFromAsh}`;
+                    }
+                }
+            } else {
+                // Lễ Tro không bị dời
+                if (dTime >= t(litData.ashWednesday)) {
+                    const daysFromAsh = Math.floor((dTime - t(litData.ashWednesday)) / (24 * 60 * 60 * 1000));
+                    if (daysFromAsh >= 0 && daysFromAsh <= 3) {
+                        return `300${4 + daysFromAsh}`;
+                    }
+                }
             }
         }
         
@@ -1033,11 +1044,6 @@ function getLiturgicalDayCode(date, litData, options = {}) {
         }
         
         // Các tuần Mùa Chay khác: 3010-3050
-        // Tìm Chúa Nhật I Mùa Chay (4 ngày sau Lễ Tro)
-        const firstSunLent = addDays(litData.ashWednesday, 4);
-        // Đảm bảo là Chúa Nhật
-        const firstSunLentDate = new Date(firstSunLent);
-        firstSunLentDate.setDate(firstSunLentDate.getDate() - firstSunLentDate.getDay());
         if (dTime >= t(firstSunLentDate)) {
             const weekNum = Math.floor((t(prevSunday(date)) - t(firstSunLentDate)) / ONE_WEEK) + 1;
             if (weekNum >= 1 && weekNum <= 5) {
