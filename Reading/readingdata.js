@@ -359,14 +359,14 @@ const READINGS_DATA = [
   {
     "code": 3023,
     "year": "0",
-    "reading1": "Hc 18,18-20",
+    "reading1": "Gr 18,18-20",
     "psalm": "Tv 31,5-6.14.15-16",
     "gospel": "Mt 20,17-28"
   },
   {
     "code": 3024,
     "year": "0",
-    "reading1": "Hc 17,5-10",
+    "reading1": "Gr 17,5-10",
     "psalm": "Tv 1,1-2.3.4.6",
     "gospel": "Lc 16,19-31"
   },
