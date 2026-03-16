@@ -1999,6 +1999,116 @@ const READINGS_SUNDAY =
       }
     }
   },
+  "4080": {
+    "A": {
+      "firstReading": {
+        "excerpt": "Cv 1, 1-11",
+        "info": "“Trước sự chứng kiến của các ông, Người lên trời”.",
+        "title": "Trích sách Tông đồ Công vụ.",
+        "content": "Hỡi Thêôphilê, trong quyển thứ nhất, tôi đã tường thuật tất cả những điều Ðức Giêsu đã bắt đầu làm và giảng dạy, cho đến ngày Người lên trời, sau khi căn dặn các Tông đồ, những kẻ Người đã tuyển chọn dưới sự hướng dẫn của Thánh Thần. Sau cuộc thương khó, Người đã tỏ cho các ông thấy Người vẫn sống, với nhiều bằng chứng Người đã hiện ra với các ông trong khoảng bốn mươi ngày và đàm đạo về Nước Thiên Chúa. Và trong một bữa ăn, Người đã ra lệnh cho các ông chớ rời khỏi Giêrusalem, nhưng hãy chờ đợi điều Chúa Cha đã hứa. Người nói: “Như các con đã nghe chính miệng Thầy rằng: Gioan đã làm phép rửa bằng nước, phần các con, ít ngày nữa, các con sẽ chịu phép rửa trong Thánh Thần”.\rVậy các kẻ có mặt hỏi Người rằng: “Lạy Thầy, có phải đã đến lúc Thầy khôi phục Nước Israel chăng?” Người bảo họ rằng: “Ðâu phải việc các con hiểu biết thời gian hay kỳ hạn mà Cha đã ấn định do quyền bính Ngài. Nhưng các con sẽ nhận được sức mạnh của Thánh Thần ngự xuống trên các con, và các con sẽ nên chứng nhân cho Thầy tại Giêrusalem, trong tất cả xứ Giuđêa và Samaria, và cho đến tận cùng trái đất”. Nói xong, Người được cất lên trước mắt các ông, và một đám mây bao phủ Người khuất mắt các ông.\rÐang khi các ông còn ngước mắt lên trời nhìn theo Người đang xa đi, thì bỗng có hai người mặc áo trắng đứng gần các ông và nói rằng: “Hỡi người Galilê, sao các ông còn đứng nhìn lên trời? Ðức Giêsu, Ðấng vừa lìa các ông mà lên trời, sẽ đến cùng một thể thức như các ông đã thấy Người lên trời”.",
+        "end": "Ðó là lời Chúa"
+      },
+      "psalms": {
+        "excerpt": "Tv 46, 2-3. 6-7. 8-9",
+        "response": "Ðáp: Thiên Chúa ngự lên giữa tiếng tưng bừng, Chúa ngự lên trong tiếng kèn vang. \r Hoặc đọc: Alleluia.",
+        "verses": [
+          "Xướng: Hết thảy chư dân, hãy vỗ tay, hãy reo mừng Thiên Chúa tiếng reo vui! Vì Chúa là Ðấng Tối cao, khả uý, Người là Ðại Ðế trên khắp trần gian.",
+          "Xướng: Thiên Chúa ngự lên giữa tiếng tưng bừng, Chúa ngự lên trong tiếng kèn vang. Hãy ca mừng, ca mừng Thiên Chúa’ hãy ca mừng, ca mừng Vua ta!",
+          "Xướng:  Vì Thiên Chúa là Vua khắp cõi trần gian, hãy xướng ca vịnh mừng Người. Thiên Chúa thống trị trên các nước, Thiên Chúa ngự trên ngai thánh của Người."
+        ]
+      },
+      "secondReading": {
+        "excerpt": "Ep 1, 17-23",
+        "info": "“Người đặt Ngài ngự bên hữu mình trên trời”.",
+        "title": "Trích thư của Thánh Phaolô Tông đồ gửi tín hữu Êphêxô.",
+        "content": "Anh em thân mến, xin Thiên Chúa của Ðức Giêsu Kitô, Chúa chúng ta, là Cha vinh hiển, ban cho anh em thần trí khôn ngoan và mạc khải, để nhận biết Người, xin cho mắt tâm hồn anh em được sáng suốt, để anh em biết thế nào là trông cậy vào ơn Người kêu gọi, thế nào là sự phong phú gia nghiệp vinh quang nơi các thánh, và thế nào là quyền năng vô cùng lớn lao của Người đối với chúng ta, là những kẻ tin, chiếu theo hành động của sức mạnh quyền năng Người, công việc mà Chúa đã thực hiện trong Ðức Kitô, tức là làm cho Ngài từ cõi chết sống lại, và đặt Ngài ngự bên hữu mình trên trời, vượt trên mọi cấp trật, các lãnh thần, quyền thần, dũng thần, và quản thần, vượt trên mọi danh hiệu được xưng hô cả đời này lẫn đời sau. Chúa khiến mọi sự quy phục dưới chân Ngài, và tôn Ngài làm đầu toàn thể Hội Thánh là thân thể Ngài, và là sự sung mãn của Ðấng chu toàn mọi sự trong mọi người.",
+        "end": "Ðó là lời Chúa"
+      },
+      "alleluia": {
+        "verse": "Mt 28, 19 và 20",
+        "content": "Alleluia, Alleluia – Chúa phán: “Các con hãy đi giảng dạy muôn dân: Thầy sẽ ở cùng các con mọi ngày cho đến tận thế”. – Alleluia."
+      },
+      "gospel": {
+        "excerpt": "Mt 28, 16-20",
+        "info": "“Mọi quyền năng trên trời dưới đất đã được ban cho Thầy”.",
+        "title": "Bài kết Tin Mừng Chúa Giêsu Kitô theo Thánh Matthêu.",
+        "content": "Khi ấy, mười một môn đệ đi về Galilêa, đến núi Chúa Giêsu đã chỉ trước. Khi thấy Người, các ông thờ lạy Người, nhưng có ít kẻ còn hoài nghi. Chúa Giêsu tiến lại nói với các ông rằng: “Mọi quyền năng trên trời dưới đất đã được ban cho Thầy. Vậy các con hãy đi giảng dạy muôn dân, làm phép rửa cho họ nhân danh Cha, và Con và Thánh Thần, giảng dạy họ tuân giữ mọi điều Thầy đã truyền cho các con. Và đây Thầy ở cùng các con mọi ngày cho đến tận thế”.",
+        "end": "Ðó là lời Chúa"
+      }
+    },
+    "B": {
+      "firstReading": {
+        "excerpt": "Cv 1, 1-11",
+        "info": "“Trước sự chứng kiến của các ông, Người lên trời”.",
+        "title": "Trích sách Tông đồ Công vụ.",
+        "content": "Hỡi Thêôphilê, trong quyển thứ nhất, tôi đã tường thuật tất cả những điều Ðức Giêsu đã bắt đầu làm và giảng dạy, cho đến ngày Người lên trời, sau khi căn dặn các Tông đồ, những kẻ Người đã tuyển chọn dưới sự hướng dẫn của Thánh Thần. Sau cuộc thương khó, Người đã tỏ cho các ông thấy Người vẫn sống, với nhiều bằng chứng Người đã hiện ra với các ông trong khoảng bốn mươi ngày và đàm đạo về Nước Thiên Chúa. Và trong một bữa ăn, Người đã ra lệnh cho các ông chớ rời khỏi Giêrusalem, nhưng hãy chờ đợi điều Chúa Cha đã hứa. Người nói: “Như các con đã nghe chính miệng Thầy rằng: Gioan đã làm phép rửa bằng nước, phần các con, ít ngày nữa, các con sẽ chịu phép rửa trong Thánh Thần”.\rVậy các kẻ có mặt hỏi Người rằng: “Lạy Thầy, có phải đã đến lúc Thầy khôi phục Nước Israel chăng?” Người bảo họ rằng: “Ðâu phải việc các con hiểu biết thời gian hay kỳ hạn mà Cha đã ấn định do quyền bính Ngài. Nhưng các con sẽ nhận được sức mạnh của Thánh Thần ngự xuống trên các con, và các con sẽ nên chứng nhân cho Thầy tại Giêrusalem, trong tất cả xứ Giuđêa và Samaria, và cho đến tận cùng trái đất”. Nói xong, Người được cất lên trước mắt các ông, và một đám mây bao phủ Người khuất mắt các ông.\rÐang khi các ông còn ngước mắt lên trời nhìn theo Người đang xa đi, thì bỗng có hai người mặc áo trắng đứng gần các ông và nói rằng: “Hỡi người Galilê, sao các ông còn đứng nhìn lên trời? Ðức Giêsu, Ðấng vừa lìa các ông mà lên trời, sẽ đến cùng một thể thức như các ông đã thấy Người lên trời”.",
+        "end": "Ðó là lời Chúa"
+      },
+      "psalms": {
+        "excerpt": "Tv 46, 2-3. 6-7. 8-9",
+        "response": "Ðáp: Thiên Chúa ngự lên giữa tiếng tưng bừng, Chúa ngự lên trong tiếng kèn vang. \r Hoặc đọc: Alleluia.",
+        "verses": [
+          "Xướng: Hết thảy chư dân, hãy vỗ tay, hãy reo mừng Thiên Chúa tiếng reo vui! Vì Chúa là Ðấng Tối cao, khả uý, Người là Ðại Ðế trên khắp trần gian.",
+          "Xướng: Thiên Chúa ngự lên giữa tiếng tưng bừng, Chúa ngự lên trong tiếng kèn vang. Hãy ca mừng, ca mừng Thiên Chúa’ hãy ca mừng, ca mừng Vua ta!",
+          "Xướng: Vì Thiên Chúa là Vua khắp cõi trần gian, hãy xướng ca vịnh mừng Người. Thiên Chúa thống trị trên các nước, Thiên Chúa ngự trên ngai thánh của Người."
+        ]
+      },
+      "secondReading": {
+        "excerpt": "Ep 1, 17-23",
+        "info": "“Người đặt Ngài ngự bên hữu mình trên trời”.",
+        "title": "Trích thư của Thánh Phaolô Tông đồ gửi tín hữu Êphêxô.",
+        "content": "Anh em thân mến, xin Thiên Chúa của Ðức Giêsu Kitô, Chúa chúng ta, là Cha vinh hiển, ban cho anh em thần trí khôn ngoan và mạc khải, để nhận biết Người, xin cho mắt tâm hồn anh em được sáng suốt, để anh em biết thế nào là trông cậy vào ơn Người kêu gọi, thế nào là sự phong phú gia nghiệp vinh quang nơi các thánh, và thế nào là quyền năng vô cùng lớn lao của Người đối với chúng ta, là những kẻ tin, chiếu theo hành động của sức mạnh quyền năng Người, công việc mà Chúa đã thực hiện trong Ðức Kitô, tức là làm cho Ngài từ cõi chết sống lại, và đặt Ngài ngự bên hữu mình trên trời, vượt trên mọi cấp trật, các lãnh thần, quyền thần, dũng thần, và quản thần, vượt trên mọi danh hiệu được xưng hô cả đời này lẫn đời sau. Chúa khiến mọi sự quy phục dưới chân Ngài, và tôn Ngài làm đầu toàn thể Hội Thánh là thân thể Ngài, và là sự sung mãn của Ðấng chu toàn mọi sự trong mọi người.",
+        "end": "Ðó là lời Chúa"
+      },
+      "alleluia": {
+        "verse": "Mt 28, 19 và 20",
+        "content": "Alleluia, Alleluia – Chúa phán: “Các con hãy đi giảng dạy muôn dân: Thầy sẽ ở cùng các con mọi ngày cho đến tận thế”. – Alleluia."
+      },
+      "gospel": {
+        "excerpt": "Mc 16, 15-20",
+        "info": "“Ðang khi Người chúc phúc cho các ông, Người rời khỏi các ông mà lên trời”.",
+        "title": "Bài kết Tin Mừng Chúa Giêsu Kitô theo Thánh Marcô.",
+        "content": "Khi ấy, Chúa Giêsu hiện ra với mười một môn đệ và phán: “Các con hãy đi khắp thế gian, rao giảng Tin Mừng cho mọi tạo vật. Ai tin và chịu phép rửa, thì sẽ được cứu độ; ai không tin, sẽ bị luận phạt. Và đây là những phép lạ đi theo những người đã tin: nhân danh Thầy, họ sẽ trừ quỷ, nói các thứ tiếng mới lạ, họ đặt tay trên những người bệnh, và bệnh nhân sẽ được lành mạnh”.\rVậy sau khi nói với các môn đệ, Chúa Giêsu lên trời, và ngự bên hữu Thiên Chúa.\rPhần các ông, các ông đi rao giảng khắp mọi nơi, có Chúa cùng hoạt động với các ông, và củng cố lời giảng dạy bằng những phép lạ kèm theo.",
+        "end": "Ðó là lời Chúa"
+      }
+    },
+    "C": {
+      "firstReading": {
+        "excerpt": "Cv 1, 1-11",
+        "info": "“Trước sự chứng kiến của các ông, Người lên trời”.",
+        "title": "Trích sách Tông đồ Công vụ.",
+        "content": "Hỡi Thêôphilê, trong quyển thứ nhất, tôi đã tường thuật tất cả những điều Ðức Giêsu đã bắt đầu làm và giảng dạy, cho đến ngày Người lên trời, sau khi căn dặn các Tông đồ, những kẻ Người đã tuyển chọn dưới sự hướng dẫn của Thánh Thần. Sau cuộc thương khó, Người đã tỏ cho các ông thấy Người vẫn sống, với nhiều bằng chứng Người đã hiện ra với các ông trong khoảng bốn mươi ngày và đàm đạo về Nước Thiên Chúa. Và trong một bữa ăn, Người đã ra lệnh cho các ông chớ rời khỏi Giêrusalem, nhưng hãy chờ đợi điều Chúa Cha đã hứa. Người nói: “Như các con đã nghe chính miệng Thầy rằng: Gioan đã làm phép rửa bằng nước, phần các con, ít ngày nữa, các con sẽ chịu phép rửa trong Thánh Thần”.\rVậy các kẻ có mặt hỏi Người rằng: “Lạy Thầy, có phải đã đến lúc Thầy khôi phục Nước Israel chăng?” Người bảo họ rằng: “Ðâu phải việc các con hiểu biết thời gian hay kỳ hạn mà Cha đã ấn định do quyền bính Ngài. Nhưng các con sẽ nhận được sức mạnh của Thánh Thần ngự xuống trên các con, và các con sẽ nên chứng nhân cho Thầy tại Giêrusalem, trong tất cả xứ Giuđêa và Samaria, và cho đến tận cùng trái đất”. Nói xong, Người được cất lên trước mắt các ông, và một đám mây bao phủ Người khuất mắt các ông.\rÐang khi các ông còn ngước mắt lên trời nhìn theo Người đang xa đi, thì bỗng có hai người mặc áo trắng đứng gần các ông và nói rằng: “Hỡi người Galilê, sao các ông còn đứng nhìn lên trời? Ðức Giêsu, Ðấng vừa lìa các ông mà lên trời, sẽ đến cùng một thể thức như các ông đã thấy Người lên trời”.",
+        "end": "Ðó là lời Chúa"
+      },
+      "psalms": {
+        "excerpt": "Tv 46, 2-3. 6-7. 8-9",
+        "response": "Ðáp: Thiên Chúa ngự lên giữa tiếng tưng bừng, Chúa ngự lên trong tiếng kèn vang (c. 6). \r Hoặc đọc: Alleluia.",
+        "verses": [
+          "Xướng: Hết thảy chư dân, hãy vỗ tay, hãy reo mừng Thiên Chúa tiếng reo vui! Vì Chúa là Ðấng Tối cao, khả uý, Người là Ðại Ðế trên khắp trần gian.",
+          "Xướng: Thiên Chúa ngự lên giữa tiếng tưng bừng, Chúa ngự lên trong tiếng kèn vang. Hãy ca mừng, ca mừng Thiên Chúa’ hãy ca mừng, ca mừng Vua ta!",
+          "Xướng: Vì Thiên Chúa là Vua khắp cõi trần gian, hãy xướng ca vịnh mừng Người. Thiên Chúa thống trị trên các nước, Thiên Chúa ngự trên ngai thánh của Người."
+        ]
+      },
+      "secondReading": {
+        "excerpt": "Ep 1, 17-23",
+        "info": "“Người đặt Ngài ngự bên hữu mình trên trời”.",
+        "title": "Trích thư của Thánh Phaolô Tông đồ gửi tín hữu Êphêxô.",
+        "content": "Anh em thân mến, xin Thiên Chúa của Ðức Giêsu Kitô, Chúa chúng ta, là Cha vinh hiển, ban cho anh em thần trí khôn ngoan và mạc khải, để nhận biết Người, xin cho mắt tâm hồn anh em được sáng suốt, để anh em biết thế nào là trông cậy vào ơn Người kêu gọi, thế nào là sự phong phú gia nghiệp vinh quang nơi các thánh, và thế nào là quyền năng vô cùng lớn lao của Người đối với chúng ta, là những kẻ tin, chiếu theo hành động của sức mạnh quyền năng Người, công việc mà Chúa đã thực hiện trong Ðức Kitô, tức là làm cho Ngài từ cõi chết sống lại, và đặt Ngài ngự bên hữu mình trên trời, vượt trên mọi cấp trật, các lãnh thần, quyền thần, dũng thần, và quản thần, vượt trên mọi danh hiệu được xưng hô cả đời này lẫn đời sau. Chúa khiến mọi sự quy phục dưới chân Ngài, và tôn Ngài làm đầu toàn thể Hội Thánh là thân thể Ngài, và là sự sung mãn của Ðấng chu toàn mọi sự trong mọi người.",
+        "end": "Ðó là lời Chúa"
+      },
+      "alleluia": {
+        "verse": "Mt 28, 19 và 20",
+        "content": "Alleluia, Alleluia – Chúa phán: “Các con hãy đi giảng dạy muôn dân: Thầy sẽ ở cùng các con mọi ngày cho đến tận thế”. – Alleluia."
+      },
+      "gospel": {
+        "excerpt": "Lc 24, 46-53",
+        "info": "“Ðang khi Người chúc phúc cho các ông, Người rời khỏi các ông mà lên trời”.",
+        "title": "Bài kết Tin Mừng Chúa Giêsu Kitô theo Thánh Luca.",
+        "content": "Khi ấy, Chúa Giêsu phán cùng các môn đệ rằng: “Như đã ghi chép là Ðức Kitô phải chịu khổ hình và ngày thứ ba từ cõi chết sống lại; và nhân danh Người mà rao giảng việc sám hối và ơn tha tội trong mọi dân, bắt đầu từ Giêrusalem. Các con là nhân chứng những sự việc ấy. Thầy sẽ sai đến với các con Ðấng Cha Thầy đã hứa; vậy các con hãy ở lại trong thành cho đến khi mặc lấy quyền lực từ trên cao ban xuống”. Rồi Người dẫn các ông ra ngoài, đến làng Bêtania, và giơ tay chúc phúc cho các ông. Sự việc xảy ra là đang khi Người chúc phúc cho các ông, Người rời khỏi các ông mà lên trời. Các ông thờ lạy Người, và trở về Giêrusalem lòng đầy vui mừng. Các ông luôn luôn ở trong đền thờ mà chúc tụng Thiên Chúa. Amen.",
+        "end": "Ðó là lời Chúa"
+      }
+    }
+  },
   "5010": {
     "A": {
       "firstReading": {

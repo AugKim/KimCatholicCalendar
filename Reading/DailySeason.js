@@ -1,4 +1,4 @@
-const READINGS_SEASONAL =  {
+const READINGS_SEASONAL = {
 
   "1011": {
     "firstReading": {
@@ -160,7 +160,7 @@ const READINGS_SEASONAL =  {
     "psalms": {
       "excerpt": "Tv 146, 1-2. 3-4. 5-6",
       "response": "Ðáp: Phúc cho tất cả những ai mong đợi Chúa(Is 30, 18). Hoặc đọc: Alleluia.",
-      "verses": [  
+      "verses": [
         "Xướng: Hãy ngợi khen Chúa vì Người hảo tâm; hãy ca mừng Thiên Chúa chúng ta, vì Người êm ái, thực Người rất đáng ngợi khen. Chúa xây dựng lại Giê-ru-sa-lem, tập họp con cái Ít-ra-en phân tán.",
         "Xướng: Chính Người chữa những kẻ giập nát tâm can, và băng bó vết thương của lòng họ. Người ấn định con số các ngôi sao, và gọi đích danh từng ngôi một.",
         "Xướng:  Chúa chúng ta cao cả và mãnh liệt quyền năng, sự khôn ngoan của Người thực là vô lượng. Chúa nâng cao những kẻ khiêm cung, Người đè bẹp đứa ác nhân xuống tận đất."
@@ -1284,7 +1284,7 @@ const READINGS_SEASONAL =  {
       "content": "Ôi lạy Chúa, xin tạo cho con quả tim trong sạch. Xin ban lại cho con niềm vui ơn cứu độ."
     },
     "gospel": {
-      "excerpt":  "Mt 6, 1-6. 16-18",
+      "excerpt": "Mt 6, 1-6. 16-18",
       "info": "“Cha ngươi, Ðấng thấu suốt mọi bí ẩn, sẽ trả công cho ngươi”.",
       "title": "Tin Mừng Chúa Giêsu Kitô theo Thánh Matthêu.",
       "content": "rKhi ấy, Chúa Giêsu phán cùng các môn đệ rằng: “Các con hãy cẩn thận, đừng phô trương công đức trước mặt người ta để thiên hạ trông thấy, bằng không các con mất công phúc nơi Cha các con là Ðấng ở trên trời. Vậy khi các con bố thí, thì đừng thổi loa báo trước, như bọn giả hình làm ở nơi hội đường và phố xá, để cho người ta ca tụng họ. Quả thật, Ta bảo các con, họ đã được thưởng công rồi. Các con có bố thí, thì làm sao đừng để tay trái biết việc tay phải làm, để việc con bố thí được giữ kín và Cha con, Ðấng thấu suốt mọi bí ẩn, sẽ trả công cho con.\r“Rồi khi các con cầu nguyện, thì cũng chớ làm như những kẻ giả hình: họ ưa đứng cầu nguyện giữa hội đường và các ngả đàng, để thiên hạ trông thấy. Quả thật, Ta bảo các con rằng: họ đã được thưởng công rồi. Còn con khi cầu nguyện, thì hãy vào phòng đóng cửa lại mà cầu xin với Cha con, Ðấng ngự nơi bí ẩn, và Cha con, Ðấng thấu suốt mọi bí ẩn, sẽ trả công cho con.\r“Khi các con ăn chay, thì đừng làm như bọn giả hình thiểu não: họ làm cho mặt mũi ủ dột, để có vẻ ăn chay trước mặt người ta. Quả thật, Ta bảo các con, họ đã được thưởng công rồi. Còn con khi ăn chay, hãy xức dầu thơm trên đầu và rửa mặt, để thiên hạ không biết con ăn chay, nhưng chỉ tỏ ra cho Cha con, Ðấng ngự nơi bí ẩn, và Cha con thấu suốt mọi bí ẩn, sẽ trả công cho con”.",
@@ -1313,7 +1313,7 @@ const READINGS_SEASONAL =  {
       "content": "Ðây là lúc thuận tiện, đây là ngày cứu độ."
     },
     "gospel": {
-      "excerpt":"Lc 9, 22-25",
+      "excerpt": "Lc 9, 22-25",
       "info": "“Ai bỏ mạng sống mình vì Ta, sẽ được sống”.",
       "title": "Tin Mừng Chúa Giêsu Kitô theo Thánh Luca.",
       "content": "Khi ấy, Chúa Giêsu phán cùng các môn đệ rằng: “Con Người phải đau khổ nhiều, bị các vị Kỳ lão, các Thượng tế, và các Luật sĩ khai trừ và giết chết, nhưng ngày thứ ba Người sẽ sống lại”.\rChúa nói với mọi người rằng: “Ai muốn theo Ta, hãy bỏ mình, vác thập giá mình hằng ngày mà theo Ta. Vì chưng, ai muốn giữ mạng sống mình, thì sẽ mất; còn ai mất mạng sống vì Ta, sẽ được sống. Vậy nếu con người được lời lãi cả thế gian, mà phải thiệt mất mạng sống, thì được ích gì?”",
@@ -1431,9 +1431,9 @@ const READINGS_SEASONAL =  {
       "content": "Chúa phán: “Hãy hối cải, vì nước trời đã gần đến”."
     },
     "gospel": {
-      "excerpt":"Mt 6, 7-15",
-      "info":  "“Vậy các ngươi hãy cầu nguyện như thế này”.",
-      "title":"Tin Mừng Chúa Giêsu Kitô theo Thánh Matthêu.\r",
+      "excerpt": "Mt 6, 7-15",
+      "info": "“Vậy các ngươi hãy cầu nguyện như thế này”.",
+      "title": "Tin Mừng Chúa Giêsu Kitô theo Thánh Matthêu.\r",
       "content": "Khi ấy, Chúa Giêsu phán cùng các môn đệ rằng: “Khi cầu nguyện, các con đừng nhiều lời như dân ngoại: họ nghĩ là phải nói nhiều mới được chấp nhận. Ðừng làm như họ, vì Cha các con biết rõ điều các con cần, ngay cả trước khi các con xin. Vậy các con hãy cầu nguyện như thế này:\r“Lạy Cha chúng con ở trên trời, chúng con nguyện danh Cha cả sáng, nước Cha trị đến, ý Cha thể hiện dưới đất cũng như trên trời. Xin Cha cho chúng con hôm nay lương thực hằng ngày, và tha nợ chúng con, như chúng con cũng tha kẻ có nợ chúng con, xin chớ đến chúng con sa chước cám dỗ, nhưng cứu chúng con cho khỏi sự dữ. Amen.\r“Vì nếu các con có tha thứ cho người ta những lầm lỗi của họ, thì Cha các con, Ðấng ngự trên trời, mới tha thứ cho các con. Nếu các con không tha thứ cho người ta, thì Cha các con cũng chẳng tha thứ lỗi lầm cho các con”.",
       "end": "Ðó là lời Chúa"
     }
@@ -1461,8 +1461,8 @@ const READINGS_SEASONAL =  {
     },
     "gospel": {
       "excerpt": "Lc 11, 29-32",
-      "info":  "“Không ban cho dòng giống này điềm lạ nào ngoài điềm lạ của tiên tri Giona”.",
-      "title":"Tin Mừng Chúa Giê-su Ki-tô theo Thánh Lu-ca.",
+      "info": "“Không ban cho dòng giống này điềm lạ nào ngoài điềm lạ của tiên tri Giona”.",
+      "title": "Tin Mừng Chúa Giê-su Ki-tô theo Thánh Lu-ca.",
       "content": "Khi ấy, thấy dân chúng từng đoàn lũ tụ tập lại, Chúa Giê-su phán rằng: “Dòng giống này là dòng giống gian ác. Chúng đòi điềm lạ, nhưng sẽ không ban cho chúng điềm lạ nào, ngoài điềm lạ của tiên tri Giô-na. Vì Giô-na đã nên điềm lạ cho dân thành Ni-ni-vê thế nào, thì Con Người cũng sẽ là điềm lạ cho dòng giống này như vậy. Ðến ngày phán xét, nữ hoàng phương nam sẽ đứng lên tố cáo và lên án dòng giống này, vì bà đã từ tận cùng trái đất mà đến nghe sự khôn ngoan của Sa-lô-môn. Nhưng ở đây còn có người hơn Sa-lô-môn. Dân thành Ni-ni-vê cũng sẽ đứng lên tố cáo và lên án dòng giống này, vì họ đã sám hối theo lời Giô-na giảng, nhưng ở đây còn có người hơn Giô-na nữa”.",
       "end": "Ðó là lời Chúa"
     }
@@ -1636,8 +1636,8 @@ const READINGS_SEASONAL =  {
     },
     "gospel": {
       "excerpt": "Mt 20, 17-28",
-      "info":  "“Họ đã lên án tử cho Người”.",
-      "title":"Tin Mừng Chúa Giê-su Ki-tô theo Thánh Mát-thêu.",
+      "info": "“Họ đã lên án tử cho Người”.",
+      "title": "Tin Mừng Chúa Giê-su Ki-tô theo Thánh Mát-thêu.",
       "content": "Khi ấy, Chúa Giêsu đi lên Giê-ru-sa-lem, đem riêng mười hai môn đệ đi theo. Dọc đường, Người nói với họ: “Này chúng ta lên Giê-ru-sa-lem và Con Người sẽ bị nộp cho các vị thượng tế và luật sĩ. Người ta sẽ lên án tử cho Người, sẽ nộp Người cho dân ngoại để chúng nhạo báng, đánh đòn, rồi treo Người lên thập giá, nhưng đến ngày thứ ba, Người sẽ sống lại”.\rBấy giờ bà mẹ các con ông Giê-bê-đê cùng với hai con đến gặp Người. Bà sấp mình xuống lạy Người, có ý xin Người điều chi đó. Người hỏi: “Bà muốn gì”. Bà ta thưa lại: “Xin Ngài hãy truyền cho hai con tôi đây được ngồi một đứa bên hữu, một đứa bên tả Ngài, trong Nước Ngài”. Chúa Giê-su đáp lại: “Các ngươi không biết điều các ngươi xin. Các ngươi có thể uống chén mà ít nữa đây Ta sắp uống chăng?” Họ nói với Người: “Thưa được”. Người bảo họ: “Vậy các ngươi sẽ uống chén của Ta, còn việc ngồi bên hữu hay bên tả, thì không thuộc quyền Ta ban, nhưng Cha Ta đã chuẩn bị cho ai, thì người ấy mới được”. Nghe vậy, mười người kia tỏ ra bất bình với hai anh em: Chúa Giê-su gọi họ lại mà bảo: “Các con biết thủ lãnh của các dân tộc thì thống trị họ và những người làm lớn thì hành quyền trên họ. Giữa các con thì không được thế. Trong các con, ai muốn làm lớn, thì hãy phục vụ các con, và ai muốn cầm đầu trong các con, thì hãy làm tôi tớ các con. Cũng như Con Người đến không phải để được người ta phục vụ, nhưng để phục vụ và phó mạng sống làm giá chuộc cho nhiều người”.",
       "end": "Ðó là lời Chúa"
     }
@@ -1812,8 +1812,8 @@ const READINGS_SEASONAL =  {
     },
     "gospel": {
       "excerpt": "Mt 5, 17-19",
-      "info":  "“Ai giữ và dạy người ta giữ, sẽ được kể là người cao cả trong Nước Trời”.",
-      "title":" Tin Mừng Chúa Giê-su Ki-tô theo thánh Mát-thêu.",
+      "info": "“Ai giữ và dạy người ta giữ, sẽ được kể là người cao cả trong Nước Trời”.",
+      "title": " Tin Mừng Chúa Giê-su Ki-tô theo thánh Mát-thêu.",
       "content": "Khi ấy, Chúa Giê-su phán cùng các môn đệ rằng: “Các con đừng tưởng Ta đến để huỷ bỏ lề luật hay các tiên tri: Ta không đến để huỷ bỏ, nhưng để kiện toàn. Vì Ta bảo thật các con: Cho dù trời đất có qua đi, thì một chấm, một phẩy trong bộ luật cũng không bỏ sót, cho đến khi mọi sự hoàn thành. Bởi vậy, ai huỷ bỏ một trong những điều luật nhỏ mọn nhất, và dạy người khác làm như vậy, sẽ kể là người nhỏ nhất trong Nước Trời; trái lại, ai giữ và dạy người ta giữ những điều đó, sẽ được kể là người cao cả trong Nước Trời”.",
       "end": "Ðó là lời Chúa"
     }
@@ -2163,7 +2163,7 @@ const READINGS_SEASONAL =  {
       "content": "Chúa phán: “Ta là sự sống lại và là sự sống; ai tin Ta, sẽ không chết đời đời”."
     },
     "gospel": {
-      "excerpt":  " Ga 8, 31-42",
+      "excerpt": " Ga 8, 31-42",
       "info": "“Nếu Chúa Con giải thoát các ngươi, thì các ngươi thực sự được tự do”.",
       "title": "Tin Mừng Chúa Giêsu Kitô theo Thánh Gioan.",
       "content": "Khi ấy, Chúa Giêsu nói với những người Do-thái đã tin nơi Ngài rằng: “Nếu các ngươi cứ ở trong lời Ta, các ngươi sẽ thật là môn đệ của Ta, và sẽ được biết sự thật, và sự thật giải thoát các ngươi”. Họ thưa lại Người: “Chúng tôi là con cháu Abraham, và chưa bao giờ làm nô lệ ai cả. Tại sao ông lại nói “Các ngươi sẽ được tự do”?”. Chúa Giêsu trả lời rằng: “Quả thật, quả thật, Ta bảo các ngươi: Hễ ai phạm tội, thì làm nô lệ cho tội. Mà tên nô lệ không ở mãi trong nhà; người con mới ở vĩnh viễn trong nhà. Vậy nếu Chúa Con giải thoát các ngươi, thì các ngươi sẽ được tự do thực sự. Ta biết các ngươi là con cháu Abraham, thế mà các ngươi lại tìm giết Ta: vì lời Ta không thấm nhập vào lòng các ngươi. Ta nói những điều Ta đã thấy nơi Cha Ta. Còn các ngươi, các ngươi làm điều các ngươi đã thấy nơi cha các ngươi”. Họ đáp lại: “Cha chúng tôi chính là Abraham!” Chúa Giêsu nói: “Nếu thực các ngươi là con cháu Abraham, thì các ngươi làm công việc của Abraham! Nhưng các ngươi đang tìm giết Ta, là người đã nói cho các ngươi biết sự thật mà Ta nghe tự Thiên Chúa. Ðiều đó Abraham đã không làm! Các ngươi đang làm việc của cha các ngươi!” Họ lại nói: “Chúng tôi không phải là những đứa con hoang! Chúng tôi chỉ có một Cha là Thiên Chúa!” Chúa Giêsu nói: “Nếu Thiên Chúa là Cha các ngươi, thì các ngươi yêu mến Ta, vì Ta tự Thiên Chúa mà đến; vì Ta không tự mình mà đến, nhưng chính Ngài đã sai Ta đến”.",
@@ -2281,7 +2281,7 @@ const READINGS_SEASONAL =  {
       "content": "Kính chào Vua chúng con: Chỉ có nhà Vua là người thương hại đến những lỗi lầm của chúng con."
     },
     "gospel": {
-      "excerpt":"Ga 12, 1-11",
+      "excerpt": "Ga 12, 1-11",
       "info": "“Hãy để mặc cô ấy làm công việc chỉ về ngày táng xác Ta”.",
       "title": "Tin Mừng Chúa Giê-su Ki-tô theo Thánh Gio-an.",
       "content": "Sáu ngày trước Lễ Vượt Qua, Chúa Giê-su đến làng Bê-ta-ni-a, nơi La-da-rô đã chết được Người cho sống lại. Tại đây người ta dọn bữa cho Người ăn. Mác-ta hầu bàn. Còn La-da-rô cũng là một trong những kẻ đồng bàn với Người. Bấy giờ Ma-ri-a lấy một cân dầu thơm, dầu cam tùng hảo hạng, và xức chân Chúa Giê-su, rồi lấy tóc mình mà lau. Hương thơm toả đầy nhà. Một môn đệ là Giu-đa Ít-ca-ri-ốt, kẻ sẽ phản nộp Người, liền nói: “Sao không bán dầu thơm đó lấy ba trăm đồng mà cho người nghèo khó?” Hắn nói thế không phải vì lo lắng cho người nghèo khó đâu, mà vì hắn là tên trộm cắp, lại được giữ túi tiền, nên bớt xén các khoản tiền người ta bỏ vào đó. Vậy Chúa Giê-su nói: “Hãy để mặc cô ấy làm công việc chỉ về ngày táng xác Ta. Vì các ngươi sẽ có người nghèo luôn bên cạnh các ngươi, còn Ta, các ngươi sẽ không gặp Ta mãi đâu”.\rCó đám đông người Do-thái biết Người đang ở đó, nên tuôn đến, không những vì Chúa Giê-su, mà còn để thấy La-da-rô, kẻ đã chết được Người cho sống lại. Thế là các Thượng tế quyết định giết luôn cả La-da-rô, vì tại ông mà nhiều người Do-thái đã bỏ họ và tin theo Chúa Giê-su.",
@@ -2361,7 +2361,7 @@ const READINGS_SEASONAL =  {
       "verses": [
         "Xướng: Tôi lấy gì dâng lại cho Chúa để đền đáp những điều Ngài ban tặng cho tôi? Tôi sẽ lãnh chén cứu độ, và tôi sẽ kêu cầu danh Chúa.",
         "Xướng: Trước mặt Chúa, thật là quý hoá cái chết của những bậc thánh nhân Ngài. Con là tôi tớ Ngài, con trai của nữ tỳ Ngài, Ngài đã bẽ gãy xiềng xích cho con.",
-        "Xướng: Con sẽ hiến dâng Chúa lời ca ngợi làm sinh lễ, và con sẽ kêu cầu danh Chúa. Con sẽ giữ trọn lời khấn xin cùng Chúa, trước mặt toàn thể dân Ngài."        
+        "Xướng: Con sẽ hiến dâng Chúa lời ca ngợi làm sinh lễ, và con sẽ kêu cầu danh Chúa. Con sẽ giữ trọn lời khấn xin cùng Chúa, trước mặt toàn thể dân Ngài."
       ]
     },
     "secondReading": {
@@ -2398,7 +2398,7 @@ const READINGS_SEASONAL =  {
         "Xướng: Lạy Chúa, con tìm đến nương nhờ Ngài, xin đừng để con muôn đời tủi hổ, vì đức công minh Ngài, xin cứu chữa con! Con phó thác tâm hồn trong tay Chúa, lạy Chúa, lạy Thiên Chúa trung thành, xin cứu chữa con.",
         "Xướng: Con trở nên đồ ô nhục đối với những người thù, nên trò cười cho khách lân bang, và mối lo sợ cho người quen biết; gặp con ngoài đường, họ tránh xa con. Con bị người ta quên, không để ý tới, dường như đã chết, con đã trở nên như cái bình bị vỡ tan.",
         "Xướng: Phần con, lạy Chúa, con tin cậy ở Ngài, con kêu lên: Ngài là Thiên Chúa của con! Vận mạng con ở trong tay Ngài, xin cứu gỡ con khỏi tay quân thù và những người bách hại.",
-        "Xướng: Xin cho tôi tớ Chúa được thấy long nhan dịu hiền, xin cứu sống con theo lượng từ bi của Chúa. Lòng chư vị hãy can trường mạnh bạo, hết thảy chư vị là người cậy trông ở Chúa."        
+        "Xướng: Xin cho tôi tớ Chúa được thấy long nhan dịu hiền, xin cứu sống con theo lượng từ bi của Chúa. Lòng chư vị hãy can trường mạnh bạo, hết thảy chư vị là người cậy trông ở Chúa."
       ]
     },
     "secondReading": {
@@ -2413,7 +2413,7 @@ const READINGS_SEASONAL =  {
       "content": "Chúa Kitô vì chúng ta đã vâng lời cho đến chết, và chết trên thập giá. Vì thế, Thiên Chúa đã tôn vinh Người, và ban cho Người một danh hiệu vượt trên mọi danh hiệu."
     },
     "gospel": {
-      "excerpt": "Ga 18, 1 – 19, 42", 
+      "excerpt": "Ga 18, 1 – 19, 42",
       "info": "Chúa Kitô vì chúng ta đã vâng lời cho đến chết, và chết trên thập giá. Vì thế, Thiên Chúa đã tôn vinh Người, và ban cho Người một danh hiệu vượt trên mọi danh hiệu.",
       "title": "“Sự Thương Khó Ðức Giêsu Kitô, Chúa chúng ta, theo Thánh Gioan”.",
       "content": "Khi ấy, Chúa Giêsu đi với môn đệ sang qua suối Xêrông, ở đó có một khu vườn, Người vào đó cùng với các môn đệ. Giuđa, tên phản bội, đã biết rõ nơi đó, vì Chúa Giêsu thường đến đấy với các môn đệ. Nên Giuđa dẫn tới một toán quân cùng với vệ binh do các thượng tế và biệt phái cấp cho, nó đến đây với đèn đuốc và khí giới. Chúa Giêsu đã biết mọi sự sẽ xảy đến cho Mình, nên Người tiến ra và hỏi chúng:\rJ. “Các ngươi tìm ai?”\r...............................................\r(Quỳ gối thinh lặng thờ lạy trong giây lát)\rHôm đó là ngày chuẩn bị lễ: để tội nhân khỏi treo trên thập giá trong ngày Sabbat, vì ngày Sabbat là ngày đại lễ, nên người Do-thái xin Philatô cho đánh dập ống chân tội nhân và cho cất xác xuống. Quân lính đến đánh dập ống chân của người thứ nhất và người thứ hai cùng chịu treo trên thập giá với Người. Nhưng lúc họ đến gần Chúa Giêsu, họ thấy Người đã chết, nên không đánh dập ống chân Người nữa, tuy nhiên một tên lính lấy giáo đâm cạnh sườn Người; tức thì máu cùng nước chảy ra. Kẻ đã xem thấy thì đã minh chứng, mà lời chứng của người đó chân thật, và người đó biết rằng mình nói thật để cho các người cũng tin nữa. Những sự việc này đã xảy ra để ứng nghiệm lời Kinh Thánh: “Người ta sẽ không đánh dập một cái xương nào của Người”. Lời Kinh Thánh khác rằng: “Họ sẽ nhìn xem Ðấng họ đã đâm thâu qua”.\rSau đó, Giuse người xứ Arimathia, môn đệ Chúa Giêsu, nhưng thầm kín vì sợ người Do-thái, xin Philatô cho phép cất xác Chúa Giêsu. Philatô cho phép. Và ông đến cất xác Chúa Giêsu. Nicôđêmô cũng đến, ông là người trước kia đã đến gặp Chúa Giêsu ban đêm. Ông đem theo chừng một trăm cân mộc dược trộn lẫn với trầm hương. Họ lấy xác Chúa Giêsu và lấy khăn bọc lại cùng với thuốc thơm theo tục khâm liệm người Do-thái. Ở nơi Chúa chịu đóng đinh có cái vườn và trong vườn có một ngôi mộ mới, chưa chôn cất ai. Vì là ngày chuẩn bị lễ của người Do-thái và ngôi mộ lại rất gần, nên họ đã mai táng Chúa Giêsu trong mộ đó.",
@@ -2440,7 +2440,7 @@ const READINGS_SEASONAL =  {
         "Ðáp: Ôi lạy Chúa, xin tạo cho con quả tim trong sạch",
         "Xướng: Ôi lạy Chúa, xin tạo cho con quả tim trong sạch, và canh tân tinh thần cương nghị trong người con. Xin đừng loại con khỏi thiên nhan Chúa, chớ thu hồi Thánh Thần Chúa ra khỏi con.",
         "Xướng: Xin Chúa lại cho con niềm vui ơn cứu độ, với tinh thần quảng đại, Chúa đỡ nâng con. Con sẽ dạy kẻ bất nhân đường nẻo Chúa, và người tội lỗi sẽ trở về với Ngài.",
-        "Xướng: Bởi vì Chúa chẳng ưa gì sinh lễ, nếu con dâng lễ toàn thiêu, Chúa sẽ không ưng. Của lễ con dâng, lạy Chúa, là tâm hồn tan nát; lạy Chúa, xin đừng chê tấm lòng tan nát, khiêm cung."       
+        "Xướng: Bởi vì Chúa chẳng ưa gì sinh lễ, nếu con dâng lễ toàn thiêu, Chúa sẽ không ưng. Của lễ con dâng, lạy Chúa, là tâm hồn tan nát; lạy Chúa, xin đừng chê tấm lòng tan nát, khiêm cung."
       ]
     },
     "secondReading": {
@@ -2620,7 +2620,7 @@ const READINGS_SEASONAL =  {
     "psalms": {
       "excerpt": "Tv 117, 1 và 14-15. 16ab-18. 19-21",
       "response": "Ðáp: Tôi cảm tạ Chúa vì Chúa đã nhậm lời tôi. Hoặc đọc: Alleluia.",
-      "verses": [       
+      "verses": [
         "Xướng: Hãy cảm tạ Chúa, vì Chúa hảo tâm, vì đức từ bi của Người muôn thuở. Chúa là sức mạnh, là dũng lực của tôi, và Người trở nên Ðấng cứu độ tôi. Tiếng reo mừng và chiến thắng vang lên trong cư xá những kẻ hiền nhân:Tay hữu Chúa đã hành động mãnh liệt.",
         "Xướng: Tay hữu Chúa đã cất nhắc tôi lên, tay hữu Chúa đã hành động mãnh liệt. Tôi không chết, nhưng tôi sẽ sống, và tôi sẽ loan truyền công cuộc của Chúa. Chúa sửa trị, Chúa sửa trị tôi, nhưng Người đã không nạp tôi cho tử thần.",
         "Xướng: Xin mở cho tôi các cửa công minh, để tôi vào và cảm tạ ơn Chúa. Ðây là ngọ môn của Chúa, những người hiền đức qua đó tiến vào. Tôi cảm tạ Chúa vì Chúa đã nhậm lời tôi, và đã trở nên Ðấng cứu độ tôi."
@@ -3682,7 +3682,42 @@ const READINGS_SEASONAL =  {
       "content": "Khi ấy, Phêrô quay lại, thấy môn đệ Chúa Giêsu yêu mến theo sau, cũng là người nằm sát ngực Chúa trong bữa ăn tối và hỏi “Thưa Thầy, ai là người sẽ nộp Thầy?” Vậy khi thấy môn đệ đó, Phêrô hỏi Chúa Giêsu rằng: “Còn người này thì sao?” Chúa Giêsu đáp: “Nếu Thầy muốn nó cứ ở lại mãi cho tới khi Thầy đến thì việc gì đến con? Phần con, cứ theo Thầy”. Vì thế, có tiếng đồn trong anh em là môn đệ này sẽ không chết. Nhưng Chúa Giêsu không nói với Phêrô: “Nó sẽ không chết”, mà Người chỉ nói: “Nếu Thầy muốn nó cứ ở lại mãi cho tới khi Thầy đến thì việc gì đến con”.\rChính môn đệ này làm chứng về những việc đó và đã viết ra, và chúng tôi biết lời chứng của người ấy xác thật. Còn nhiều việc khác Chúa Giêsu đã làm, nếu chép lại từng việc một thì tôi thiết tưởng cả thế giới cũng không thể chứa hết các sách viết ra.",
       "end": "Ðó là lời Chúa"
     }
+  },
+  "4089": {
+    "firstReading": {
+      "excerpt": "St 11, 1-9 (hay Xh 19,3-8. 16-20)",
+      "info": "“Trước mắt toàn dân, Chúa sẽ ngự xuống trên núi Sinai”",
+      "title": "Bài trích sách Xuất Hành",
+      "content": "Trong những ngày ấy, Môisen lên cùng Thiên Chúa. \rTừ trên núi, Chúa gọi ông và bảo: “Ngươi hãy nói với nhà Giacób, và thông báo cho con cái Israel thế này: “Chính các ngươi đã thấy những gì Ta làm cho người Ai cập. Ta đã mang các ngươi trên cánh phượng hoàng, và đem các ngươi đến với Ta. Từ nay, nếu các ngươi nghe lời Ta và giữ giao ước Ta, thì các ngươi sẽ là sở hữu của Ta được tách biệt khỏi mọi dân, vì cả trái đất là của Ta. Ðối với Ta, các ngươi sẽ là một vương quốc tư tế, một dân tộc hiến thánh. Ðó là những lời ngươi sẽ nói lại với con cái Israel”.\r Môisen trở xuống triệu tập các trưởng lão trong dân và trình bày cho họ mọi điều Chúa đã truyền cho ông.\r Toàn dân đồng thanh đáp: “Mọi điều Thiên Chúa dạy, chúng tôi xin thi hành”.\rQua ngày thứ ba, trời vừa sáng, có sấm vang chớp loè và mây dày đặc che phủ ngọn núi và tiếng tù và rền vang.\rToàn dân trong trại kinh hãi.\rMôisen đưa dân ra khỏi trại để gặp Chúa, họ đứng dưới chân núi.\r Khắp núi Sinai bốc khói, vì Chúa ngự xuống đó trong ngọn lửa: khói bốc lên như bởi lò lửa và cả núi rung chuyển dữ dội.\r Tiếng tù và càng rúc mạnh.\rMôisen nói và Thiên Chúa đáp lại trong tiếng sấm.\rChúa ngự xuống trên đỉnh núi Sinai, Người gọi Môisen lên đỉnh núi.",
+      "end": "Ðó là lời Chúa"
+    },
+    "psalms": {
+      "excerpt": "Tv 103, 1-2a; 25c, 27-28, 29bc-30",
+      "response": "Đáp:  Lạy Chúa, xin sai Thánh Thần Chúa đến, và xin canh tân bộ mặt trái đất.",
+      "verses": [
+        "Xướng: Linh hồn tôi ơi, hãy chúc tụng Chúa, lạy Chúa là Thượng Ðế của tôi, Ngài quá ư vĩ đại! Ngài mặc lấy oai nghiêm huy hoàng, ánh sáng choàng thân như mang áo khoác.",
+        "Xướng: Lạy Chúa, thực nhiều thay công cuộc của Ngài! Ngài đã tạo thành vạn vật cách khôn ngoan, địa cầu đầy dẫy loài thụ tạo của Ngài, kìa biển khơi mênh mông bát ngát, những vật tý hon sống chung cùng loài to lớn.",
+        "Xướng: Hết thảy mọi vật đều mong chờ ở Chúa, để Ngài ban lương thực cho chúng đúng thời giờ. Khi Ngài ban cho thì chúng lãnh, Ngài mở tay ra thì chúng no đầy thiện hảo.",
+        "Xướng: Ngài rút hơi thở chúng đi, chúng chết ngay, và chúng trở về chỗ tro bụi của mình. Nếu Ngài gởi hơi tới, chúng được tạo thành, vì Ngài canh tân bộ mặt trái đất."
+      ]
+    },
+    "secondReading": {
+      "excerpt": "Rm. 8,22-27",
+      "info": "“Thánh Thần cầu xin cho chúng ta bằng những tiếng than khôn tả”.",
+      "title": "Bài trích thơ Thánh Phaolô Tông đồ gởi tín hữu Rôma.",
+      "content": "Anh em thân mến, chúng ta biết rằng cho đến nay, mọi tạo vật đang rên siết trong cơn đau đớn như lúc sinh nở. Nhưng không phải chỉ tạo vật mà thôi đâu, mà cả chúng ta nữa, tức là những kẻ đã được hưởng của đầu mùa của Thánh Thần, chúng ta cũng rên rỉ trong mình chúng ta khi mong Thánh Thần nhận làm nghĩa tử, và cứu chuộc thân xác chúng ta. Vì chưng nhờ niềm cậy trông mà chúng ta được cứu độ.\r Nhưng hễ nhìn thấy điều mình hy vọng thì không phải là hy vọng nữa.\r Vì ai đã thấy điều gì rồi, đâu còn hy vọng nó nữa?\r Nhưng nếu chúng ta hy vọng điều chúng ta không trông thấy, chúng ta sẽ kiên tâm trông đợi.\r Ðàng khác, cũng có Thánh Thần nâng đỡ sự yếu hèn của chúng ta.\r Vì chúng ta không biết cầu ngyện thế nào cho xứng hợp.\r Nhưng chính Thánh Thần cầu xin cho chúng ta bằng những tiếng than khôn tả.\r Mà Ðấng thấu suốt tâm hồn, thì biết điều Thánh Thần ước muốn.\r Bởi vì Thánh Thần cầu xin cho các thánh theo ý Thiên Chúa. ",
+      "end": "Ðó là lời Chúa"
+    },
+    "alleluia": {
+      "verse": " ",
+      "content": "Alleluia, Alleluia,  Alleluia. - Lạy Chúa Thánh Thần, xin xuống tràn ngập tâm hồn các tín hữu Chúa, và xin nhóm lửa tình yêu Chúa trong lòng họ. – Alleluia."
+    },
+    "gospel": {
+      "excerpt": "Ga 7,37-39",
+      "info": "“Phát sinh nước hằng sống“",
+      "title": "Bài trích Phúc Âm theo Thánh Gioan.",
+      "content": "Vào ngày cuối cùng và trọng đại của dịp lễ, Chúa Giêsu đứng lên giảng lớn tiếng rằng: “Ai khát nước hãy đến cùng Ta và uống; ai tin nơi Ta, thì như lời Thánh Kinh dạy: từ lòng họ nước hằng sống sẽ chảy ra như giòng sông”.\r Người nói điều ấy về Chúa Thánh Thần mà các kẻ tin nơi Người sẽ lãnh lấy, vì bởi Chúa Giêsu chưa được tôn vinh.",
+      "end": "Ðó là lời Chúa"
+    }
   }
-   
-
 };

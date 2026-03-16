@@ -17,7 +17,7 @@ const CACHE = {
     STORAGE_PREFIX: 'liturgical_cache_',
     // Cache version để invalidate khi có update
     VERSION: '1.0.0',
-    
+
     // Lấy từ memory cache
     get(type, key) {
         const cache = this[type];
@@ -26,7 +26,7 @@ const CACHE = {
         }
         return null;
     },
-    
+
     // Lưu vào memory cache
     set(type, key, value) {
         const cache = this[type];
@@ -39,7 +39,7 @@ const CACHE = {
             cache.set(key, value);
         }
     },
-    
+
     // Lấy từ localStorage
     getFromStorage(key) {
         try {
@@ -57,7 +57,7 @@ const CACHE = {
         }
         return null;
     },
-    
+
     // Lưu vào localStorage (với expiry)
     setToStorage(key, value, expiryMs = 24 * 60 * 60 * 1000) { // Default 24 hours
         try {
@@ -74,7 +74,7 @@ const CACHE = {
             this.clearOldStorage();
         }
     },
-    
+
     // Xóa cache cũ trong localStorage
     clearOldStorage() {
         try {
@@ -93,14 +93,14 @@ const CACHE = {
             console.warn('Cache clear error:', e);
         }
     },
-    
+
     // Xóa toàn bộ cache
     clearAll() {
         this.liturgicalData.clear();
         this.dayInfo.clear();
         this.lunarDates.clear();
         this.readings.clear();
-        
+
         // Clear localStorage
         try {
             const keys = [];
@@ -116,7 +116,7 @@ const CACHE = {
             console.warn('Cache clear error:', e);
         }
     },
-    
+
     // Thống kê cache
     getStats() {
         let storageSize = 0;
@@ -129,8 +129,8 @@ const CACHE = {
                     storageSize += localStorage.getItem(key).length * 2; // UTF-16
                 }
             }
-        } catch (e) {}
-        
+        } catch (e) { }
+
         return {
             memory: {
                 liturgicalData: this.liturgicalData.size,
@@ -154,10 +154,10 @@ window.LiturgicalCache = CACHE;
 // Thuật toán chuyển đổi từ Dương lịch sang Âm lịch Việt Nam
 // ============================================================================
 
-const LUNAR_CALENDAR = (function() {
+const LUNAR_CALENDAR = (function () {
     // Số ngày Julius của ngày 1/1/4713 TCN (Julius Day Number)
     const PI = Math.PI;
-    
+
     // Tính số ngày Julius từ ngày dương lịch
     function jdFromDate(dd, mm, yy) {
         const a = Math.floor((14 - mm) / 12);
@@ -169,7 +169,7 @@ const LUNAR_CALENDAR = (function() {
         }
         return jd;
     }
-    
+
     // Chuyển từ số ngày Julius sang ngày dương lịch
     function jdToDate(jd) {
         let a, b, c, d, e, m, day, month, year;
@@ -189,7 +189,7 @@ const LUNAR_CALENDAR = (function() {
         year = b * 100 + d - 4800 + Math.floor(m / 10);
         return [day, month, year];
     }
-    
+
     // Tính thời điểm Sóc (New Moon) thứ k kể từ ngày 1/1/1900
     function getNewMoonDay(k, timeZone) {
         const T = k / 1236.85; // Time in Julian centuries from 1900 January 0.5
@@ -217,7 +217,7 @@ const LUNAR_CALENDAR = (function() {
         const JdNew = Jd1 + C1 - deltat;
         return Math.floor(JdNew + 0.5 + timeZone / 24);
     }
-    
+
     // Tính tọa độ mặt trời (Sun longitude) tại thời điểm JD
     function getSunLongitude(jdn, timeZone) {
         const T = (jdn - 2451545.5 - timeZone / 24) / 36525;
@@ -232,7 +232,7 @@ const LUNAR_CALENDAR = (function() {
         L = L - PI * 2 * (Math.floor(L / (PI * 2)));
         return Math.floor(L / PI * 6);
     }
-    
+
     // Tính ngày bắt đầu tháng âm lịch thứ k
     function getLunarMonth11(yy, timeZone) {
         const off = jdFromDate(31, 12, yy) - 2415021;
@@ -244,7 +244,7 @@ const LUNAR_CALENDAR = (function() {
         }
         return nm;
     }
-    
+
     // Xác định tháng nhuận
     function getLeapMonthOffset(a11, timeZone) {
         const k = Math.floor((a11 - 2415021.076998695) / 29.530588853 + 0.5);
@@ -258,7 +258,7 @@ const LUNAR_CALENDAR = (function() {
         } while (arc !== last && i < 14);
         return i - 1;
     }
-    
+
     // Chuyển đổi từ Dương lịch sang Âm lịch Việt Nam (múi giờ +7)
     function solarToLunar(dd, mm, yy, timeZone = 7) {
         const dayNumber = jdFromDate(dd, mm, yy);
@@ -298,49 +298,49 @@ const LUNAR_CALENDAR = (function() {
         }
         return { day: lunarDay, month: lunarMonth, year: lunarYear, leap: lunarLeap };
     }
-    
+
     // API công khai
     return {
         solarToLunar: solarToLunar,
-        
+
         // Lấy ngày âm lịch từ Date object (có cache)
-        getLunarDate: function(date) {
+        getLunarDate: function (date) {
             const cacheKey = `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}`;
             const cached = CACHE.get('lunarDates', cacheKey);
             if (cached) return cached;
-            
+
             const result = solarToLunar(date.getDate(), date.getMonth() + 1, date.getFullYear());
             CACHE.set('lunarDates', cacheKey, result);
             return result;
         },
-        
+
         // Format ngày âm lịch
-        formatLunarDay: function(date) {
+        formatLunarDay: function (date) {
             const lunar = this.getLunarDate(date);
             return lunar.day;
         },
-        
+
         // Format đầy đủ ngày âm lịch (ngày/tháng)
-        formatLunarFull: function(date) {
+        formatLunarFull: function (date) {
             const lunar = this.getLunarDate(date);
             const monthStr = lunar.leap ? `${lunar.month}N` : lunar.month;
             return `${lunar.day}/${monthStr}`;
         },
-        
+
         // Kiểm tra có phải ngày mùng 1 âm lịch không
-        isFirstDayOfLunarMonth: function(date) {
+        isFirstDayOfLunarMonth: function (date) {
             const lunar = this.getLunarDate(date);
             return lunar.day === 1;
         },
-        
+
         // Lấy tên tháng âm lịch
-        getLunarMonthName: function(month, leap) {
+        getLunarMonthName: function (month, leap) {
             const names = ["Giêng", "Hai", "Ba", "Tư", "Năm", "Sáu", "Bảy", "Tám", "Chín", "Mười", "M.Một", "Chạp"];
             return (leap ? "Nhuận " : "") + names[month - 1];
         },
-        
+
         // Kiểm tra có phải ngày Tết Việt Nam không (Mùng 1, 2, 3 tháng Giêng)
-        isTetDay: function(date) {
+        isTetDay: function (date) {
             const lunar = this.getLunarDate(date);
             // Tháng Giêng (tháng 1) và không phải tháng nhuận
             if (lunar.month === 1 && !lunar.leap && lunar.day >= 1 && lunar.day <= 3) {
@@ -348,9 +348,9 @@ const LUNAR_CALENDAR = (function() {
             }
             return 0;
         },
-        
+
         // Kiểm tra có phải ngày 30 Tết (Giao thừa) không
-        isNewYearEve: function(date) {
+        isNewYearEve: function (date) {
             const lunar = this.getLunarDate(date);
             // Ngày cuối tháng Chạp (tháng 12 âm lịch)
             if (lunar.month === 12 && !lunar.leap) {
@@ -473,12 +473,12 @@ const LITURGICAL_DISCIPLINE = {
 // Lấy thông tin kỷ luật phụng vụ cho ngày
 function getLiturgicalDiscipline(date, litData) {
     const disciplines = [];
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
     const dayOfWeek = date.getDay();
     const month = date.getMonth();
     const day = date.getDate();
-    
+
     // Kiểm tra Lễ Tro
     const ashTime = litData.ashWednesdayTransferred ? t(litData.ashWednesdayCelebration) : t(litData.ashWednesday);
     if (dTime === ashTime) {
@@ -495,7 +495,7 @@ function getLiturgicalDiscipline(date, litData) {
             class: 'discipline-abstinence'
         });
     }
-    
+
     // Kiểm tra Thứ Sáu Tuần Thánh
     if (dTime === t(litData.goodFriday)) {
         disciplines.push({
@@ -511,7 +511,7 @@ function getLiturgicalDiscipline(date, litData) {
             class: 'discipline-abstinence'
         });
     }
-    
+
     // Kiểm tra các Thứ Sáu Mùa Chay
     if (dayOfWeek === 5 && dTime >= t(litData.ashWednesday) && dTime < t(litData.easter)) {
         if (!disciplines.some(d => d.type === 'abstinence')) {
@@ -523,7 +523,7 @@ function getLiturgicalDiscipline(date, litData) {
             });
         }
     }
-    
+
     // Kiểm tra Lễ Buộc
     const isHolyDay = LITURGICAL_DISCIPLINE.HOLY_DAYS_VN.some(hd => {
         if (hd.movable) {
@@ -535,7 +535,7 @@ function getLiturgicalDiscipline(date, litData) {
         }
         return false;
     });
-    
+
     // Chúa Nhật cũng là lễ buộc
     if (dayOfWeek === 0 || isHolyDay) {
         disciplines.push({
@@ -545,7 +545,7 @@ function getLiturgicalDiscipline(date, litData) {
             class: 'discipline-obligation'
         });
     }
-    
+
     // Ghi chú đặc biệt cho Tam Nhật Vượt Qua
     if (dTime >= t(addDays(litData.easter, -3)) && dTime <= t(litData.easter)) {
         disciplines.push({
@@ -555,7 +555,7 @@ function getLiturgicalDiscipline(date, litData) {
             class: 'discipline-special'
         });
     }
-    
+
     return disciplines;
 }
 
@@ -610,7 +610,7 @@ function getTetEvent(date) {
             lunar: lunar
         };
     }
-    
+
     // Kiểm tra đêm Giao thừa
     if (LUNAR_CALENDAR.isNewYearEve(date) && TET_CELEBRATIONS[0]) {
         const lunar = LUNAR_CALENDAR.getLunarDate(date);
@@ -619,35 +619,35 @@ function getTetEvent(date) {
             lunar: lunar
         };
     }
-    
+
     return null;
 }
 
 // Xử lý xung đột Tết với phụng vụ
 function resolveTetConflict(tetEvent, temporalInfo, date, litData) {
     if (!tetEvent) return null;
-    
+
     const dayOfWeek = date.getDay();
     const season = temporalInfo.season;
     const specialDayType = getSpecialDayType(date, litData);
-    
+
     // Quy tắc xung đột Tết theo HĐGMVN:
     // 1. Nếu Tết trùng Chúa Nhật Thường Niên: có thể cử hành lễ Tết (ưu tiên Tết)
     // 2. Nếu trùng Mùa Chay/Tuần Thánh: giữ phụng vụ mùa; thêm ghi chú về Tết
-    
+
     const isOrdinarySunday = (season === "Mùa Thường Niên" && dayOfWeek === 0);
     let result = {
         celebrate: true,
         note: tetEvent.note,
         rank: tetEvent.rank
     };
-    
+
     if (isOrdinarySunday) {
         // Chúa Nhật Thường Niên: Tết được ưu tiên
         result.note = "Theo phép HĐGMVN: khi Tết trùng Chúa Nhật Thường Niên, có thể cử hành Thánh lễ Tết.";
         result.rank = 3; // Keep SOLEMNITY level
     }
-    
+
     return result;
 }
 
@@ -704,7 +704,7 @@ function addDays(date, days) {
     return result;
 }
 function toRoman(num) {
-    const roman = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+    const roman = { M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1 };
     let str = '';
     for (let i of Object.keys(roman)) {
         let q = Math.floor(num / roman[i]);
@@ -745,7 +745,7 @@ function getLiturgicalData(year) {
     if (cached) {
         return cached;
     }
-    
+
     const easter = getEasterDate(year);
     const ashWednesday = addDays(easter, -46); // Ngày Lễ Tro theo phụng vụ (bắt đầu Mùa Chay)
     const palmSunday = addDays(easter, -7);
@@ -755,8 +755,8 @@ function getLiturgicalData(year) {
     const ascension = addDays(easter, 42);
     const pentecost = addDays(easter, 49);
     const christmas = new Date(year, 11, 25);
-    
-    const christmasDay = christmas.getDay(); 
+
+    const christmasDay = christmas.getDay();
     let daysToSubstract = christmasDay === 0 ? 7 : christmasDay;
     const fourthSundayAdvent = addDays(christmas, -daysToSubstract);
     const adventStart = addDays(fourthSundayAdvent, -21);
@@ -796,7 +796,7 @@ function getLiturgicalData(year) {
     if (immConception.getDay() === 0) {
         immConception = addDays(immConception, 1);
     }
-    
+
     // ============================================================================
     // QUY LUẬT DỜI LỄ TRO TẠI VIỆT NAM (Theo HĐGMVN)
     // Nếu Lễ Tro trùng với Tết (Mùng 1, 2, 3), việc cử hành và ăn chay kiêng thịt
@@ -806,7 +806,7 @@ function getLiturgicalData(year) {
     let ashWednesdayCelebration = ashWednesday; // Ngày cử hành Lễ Tro thực tế
     let ashWednesdayTransferred = false;
     let ashWednesdayTransferNote = null;
-    
+
     // Kiểm tra xem Lễ Tro có trùng Tết không
     const ashLunar = LUNAR_CALENDAR.getLunarDate(ashWednesday);
     if (ashLunar.month === 1 && !ashLunar.leap && ashLunar.day >= 1 && ashLunar.day <= 3) {
@@ -826,9 +826,9 @@ function getLiturgicalData(year) {
     const sacredHeart = addDays(corpusChristi, 5); // Thứ Sáu sau Mình Máu - Lễ Thánh Tâm
     const immaculateHeart = addDays(sacredHeart, 1); // Thứ Bảy sau Thánh Tâm - Trái Tim Vô Nhiễm Mẹ
 
-    const result = { 
-        easter, ashWednesday, palmSunday, goodFriday, ascension, pentecost, 
-        adventStart, christKing, christmas, epiphany, baptismLord, 
+    const result = {
+        easter, ashWednesday, palmSunday, goodFriday, ascension, pentecost,
+        adventStart, christKing, christmas, epiphany, baptismLord,
         vietnameseMartyrs, missionSunday, rosarySunday, annunciation, stJoseph, immConception,
         // Các lễ sau Hiện Xuống
         trinity, corpusChristi, sacredHeart, immaculateHeart,
@@ -837,53 +837,53 @@ function getLiturgicalData(year) {
         ashWednesdayTransferred,
         ashWednesdayTransferNote
     };
-    
+
     // Lưu vào cache
     CACHE.set('liturgicalData', cacheKey, result);
-    
+
     return result;
 }
 
 function getLiturgicalDayCode(date, litData, options = {}) {
     const includeSanctoral = options.includeSanctoral !== false;
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
     const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
-    const getSunday = (d) => { const c = new Date(d); c.setHours(0,0,0,0); c.setDate(c.getDate() - c.getDay()); return c; }
+    const getSunday = (d) => { const c = new Date(d); c.setHours(0, 0, 0, 0); c.setDate(c.getDate() - c.getDay()); return c; }
     const prevSunday = (d) => getSunday(d);
     const currentSun = getSunday(date);
     const dayOfWeek = date.getDay(); // 0=CN, 1=T2, ..., 6=T7
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    
+
     // ===== ƯU TIÊN 1: Tết Nguyên Đán (7000D) =====
     const tetDay = typeof LUNAR_CALENDAR !== 'undefined' ? LUNAR_CALENDAR.isTetDay(date) : 0;
     if (tetDay > 0 && tetDay <= 3) {
         return `7000${tetDay}`;
     }
-    
+
     // ===== ƯU TIÊN 2: Các lễ di động đặc biệt liên quan đến Giáng Sinh =====
-    
+
     // 2030: Lễ Hiển Linh (quy ước riêng) - PHẢI ưu tiên trước 2DDMM
     if (litData.epiphany && dTime === t(litData.epiphany)) {
         return "2030";
     }
-    
+
     // 6001-6006: Các ngày sau lễ Hiển Linh (trước Chúa Giêsu Chịu Phép Rửa)
     // PHẢI ưu tiên trước 2DDMM
-    if (litData.epiphany && litData.baptismLord && 
+    if (litData.epiphany && litData.baptismLord &&
         dTime > t(litData.epiphany) && dTime < t(litData.baptismLord)) {
         const daysAfterEpiphany = Math.floor((dTime - t(litData.epiphany)) / (24 * 60 * 60 * 1000));
         if (daysAfterEpiphany >= 1 && daysAfterEpiphany <= 6) {
             return `600${daysAfterEpiphany}`;
         }
         // Nếu quá 6 ngày, fallback về 2DDMM (chỉ khi rơi vào 17/12-01/01)
-        if ((date.getMonth() === 11 && date.getDate() >= 17) || 
+        if ((date.getMonth() === 11 && date.getDate() >= 17) ||
             (date.getMonth() === 0 && date.getDate() <= 1)) {
             return `2${day}${month}`;
         }
     }
-    
+
     // ===== ƯU TIÊN 3: Mùa Giáng Sinh & Cuối Mùa Vọng (2DDMM) =====
     // 17/12 đến trước lễ Hiển Linh: Tuần chuẩn bị Giáng Sinh + Bát Nhật + các ngày đầu tháng 1
     // Phải ưu tiên TRƯỚC Sanctoral để tránh bị ghi đè
@@ -910,7 +910,7 @@ function getLiturgicalDayCode(date, litData, options = {}) {
             return `2${day}${month}`;
         }
     }
-    
+
     // ===== ƯU TIÊN 4: Sanctoral (7DDMM) =====
     // Mã theo ngày-tháng cho các lễ thánh cố định
     // Chỉ ưu tiên khi KHÔNG rơi vào các mùa đặc biệt (đã xử lý ở trên)
@@ -928,25 +928,25 @@ function getLiturgicalDayCode(date, litData, options = {}) {
             if (saint.rank === 'TRONG' || (saint.rank === 'KINH' && (!isSunday || isLordFixedFeast))) {
                 // Kiểm tra xem có phải lễ di động đặc biệt không (sẽ xử lý ở dưới)
                 const isSpecialFeast = (litData.epiphany && dTime === t(litData.epiphany)) ||
-                                       (litData.baptismLord && dTime === t(litData.baptismLord)) ||
-                                       (litData.ascension && dTime === t(litData.ascension)) ||
-                                       (litData.pentecost && dTime === t(litData.pentecost)) ||
-                                       (litData.trinity && dTime === t(litData.trinity)) ||
-                                       (litData.corpusChristi && dTime === t(litData.corpusChristi)) ||
-                                       (litData.sacredHeart && dTime === t(litData.sacredHeart)) ||
-                                       (litData.immaculateHeart && dTime === t(litData.immaculateHeart));
-                
+                    (litData.baptismLord && dTime === t(litData.baptismLord)) ||
+                    (litData.ascension && dTime === t(litData.ascension)) ||
+                    (litData.pentecost && dTime === t(litData.pentecost)) ||
+                    (litData.trinity && dTime === t(litData.trinity)) ||
+                    (litData.corpusChristi && dTime === t(litData.corpusChristi)) ||
+                    (litData.sacredHeart && dTime === t(litData.sacredHeart)) ||
+                    (litData.immaculateHeart && dTime === t(litData.immaculateHeart));
+
                 // Kiểm tra xem có bị override bởi lễ di động không
                 const movableOverride = typeof MOVABLE_OVERRIDES_FIXED !== 'undefined' && MOVABLE_OVERRIDES_FIXED[fixedKey];
                 const isOverridden = movableOverride && litData[movableOverride] && dTime === t(litData[movableOverride]);
-                
+
                 // Kiểm tra xem có rơi vào Mùa Vọng không (17/12-24/12 đã xử lý ở trên)
                 const isInAdvent = dTime >= t(litData.adventStart) && dTime < t(litData.christmas);
-                
+
                 // Kiểm tra xem có rơi vào Mùa Chay hoặc Mùa Phục Sinh không
                 const isInLent = dTime >= t(litData.ashWednesday) && dTime < t(litData.easter);
                 const isInEaster = dTime >= t(litData.easter) && dTime <= t(litData.pentecost);
-                
+
                 // Chỉ ưu tiên sanctoral nếu:
                 // - Không phải lễ di động đặc biệt
                 // - Không bị override bởi lễ di động
@@ -957,50 +957,50 @@ function getLiturgicalDayCode(date, litData, options = {}) {
             }
         }
     }
-    
+
     // ===== ƯU TIÊN 5: Các lễ di động đặc biệt khác =====
-    
+
     // 5010: Chúa Giêsu Chịu Phép Rửa (Chúa Nhật I Thường Niên)
     if (litData.baptismLord && dTime === t(litData.baptismLord)) {
         return "5010";
     }
-    
+
     // 4080: Thăng Thiên
     if (litData.ascension && dTime === t(litData.ascension)) {
         return "4080";
     }
-    
+
     // 4089: Vọng Hiện Xuống (trước Hiện Xuống 1 ngày)
     const pentecostVigil = addDays(litData.pentecost, -1);
     if (dTime === t(pentecostVigil)) {
         return "4089";
     }
-    
+
     // 5001: Hiện Xuống (Pentecost Sunday)
     if (dTime === t(litData.pentecost)) {
         return "5001";
     }
-    
+
     // 5002: Ba Ngôi (Chúa Nhật sau Hiện Xuống)
     if (litData.trinity && dTime === t(litData.trinity)) {
         return "5002";
     }
-    
+
     // 5003: Mình Máu Thánh (Chúa Nhật sau Ba Ngôi)
     if (litData.corpusChristi && dTime === t(litData.corpusChristi)) {
         return "5003";
     }
-    
+
     // 5004: Thánh Tâm (Thứ Sáu sau Mình Máu)
     if (litData.sacredHeart && dTime === t(litData.sacredHeart)) {
         return "5004";
     }
-    
+
     // 8441: Trái Tim Vô Nhiễm Mẹ (Thứ Bảy sau Thánh Tâm)
     if (litData.immaculateHeart && dTime === t(litData.immaculateHeart)) {
         return "8441";
     }
-    
+
     // ===== ƯU TIÊN 6: Mùa Chay (3) =====
     // Cấu trúc: 3 + 0 + T (1-6) + D (0-6)
     if (dTime >= t(litData.ashWednesday) && dTime < t(litData.easter)) {
@@ -1008,7 +1008,7 @@ function getLiturgicalDayCode(date, litData, options = {}) {
         const firstSunLent = addDays(litData.ashWednesday, 4);
         const firstSunLentDate = new Date(firstSunLent);
         firstSunLentDate.setDate(firstSunLentDate.getDate() - firstSunLentDate.getDay());
-        
+
         // 3004-3007: Lễ Tro và các ngày sau (nhưng phải TRƯỚC Chúa Nhật I Mùa Chay)
         if (dTime < t(firstSunLentDate)) {
             if (litData.ashWednesdayTransferred) {
@@ -1035,14 +1035,14 @@ function getLiturgicalDayCode(date, litData, options = {}) {
                 }
             }
         }
-        
+
         // Tuần Thánh: 3060-3066
         const holyWeekStart = addDays(litData.easter, -7);
         if (dTime >= t(holyWeekStart)) {
             // Tuần Thánh: Lễ Lá (CN) = 3060, Thứ 2-6 = 3061-3065, Thứ 7 = 3066
             return `306${dayOfWeek}`;
         }
-        
+
         // Các tuần Mùa Chay khác: 3010-3050
         if (dTime >= t(firstSunLentDate)) {
             const weekNum = Math.floor((t(prevSunday(date)) - t(firstSunLentDate)) / ONE_WEEK) + 1;
@@ -1051,7 +1051,7 @@ function getLiturgicalDayCode(date, litData, options = {}) {
             }
         }
     }
-    
+
     // ===== ƯU TIÊN 7: Mùa Phục Sinh (4) =====
     // Cấu trúc: 4 + 0 + T (1-7) + D (0-6)
     if (dTime >= t(litData.easter) && dTime <= t(litData.pentecost)) {
@@ -1060,7 +1060,7 @@ function getLiturgicalDayCode(date, litData, options = {}) {
             return `40${weekNum}${dayOfWeek}`;
         }
     }
-    
+
     // ===== ƯU TIÊN 8: Mùa Vọng (1) =====
     // Cấu trúc: 1 + 0 + T (1-4) + D (0-6)
     // Lưu ý: Từ 17/12-24/12 đã xử lý ở trên (2DDMM)
@@ -1077,11 +1077,11 @@ function getLiturgicalDayCode(date, litData, options = {}) {
             return `10${weekNum}${dayOfWeek}`;
         }
     }
-    
+
     // ===== ƯU TIÊN 9: Mùa Thường Niên (5) =====
     // Cấu trúc: 5 + TT (01-34) + D (0-6)
     // Chúa Giêsu Chịu Phép Rửa (5010) đã được xử lý ở trên, không tính vào đây
-    
+
     if (dTime > t(litData.baptismLord) && dTime < t(litData.ashWednesday)) {
         // Sau Chúa Giêsu Chịu Phép Rửa đến trước Mùa Chay
         // Tính tuần từ Chúa Nhật của Chúa Giêsu Chịu Phép Rửa (hoặc chính nó nếu là CN)
@@ -1099,19 +1099,19 @@ function getLiturgicalDayCode(date, litData, options = {}) {
             // Chúa Kitô Vua là CN cuối TN (tuần 34), dùng mã 5340 (5 + 34 + 0)
             return "5340";
         }
-        
+
         // Tính ngược từ CN cuối TN (Chúa Kitô Vua)
         // CN cuối TN = christKing (CN trước CN I Mùa Vọng 7 ngày)
         const lastOTSunday = litData.christKing; // CN cuối TN = Chúa Kitô Vua
         const thisSunday = prevSunday(date);
         const weeksBeforeLast = Math.floor((t(lastOTSunday) - t(thisSunday)) / ONE_WEEK);
         const weekNum = 34 - weeksBeforeLast;
-        
+
         if (weekNum >= 1 && weekNum <= 34) {
             return `5${weekNum.toString().padStart(2, '0')}${dayOfWeek}`;
         }
     }
-    
+
     // Fallback: Trả về sanctoral code nếu không tìm thấy
     if (!includeSanctoral) {
         return getLiturgicalDayCode(date, litData, { includeSanctoral: true });
@@ -1126,12 +1126,12 @@ function getLiturgicalCycle(date, litData) {
     let year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
-    
+
     // Kiểm tra xem có phải sau Chúa Nhật I Mùa Vọng không
     if (month === 12 || (month === 11 && date.getTime() >= litData.adventStart.getTime())) {
         year += 1;
     }
-    
+
     // Tính năm A/B/C: Năm % 3 == 1 => A, == 2 => B, == 0 => C
     const r = year % 3;
     return r === 1 ? "A" : (r === 2 ? "B" : "C");
@@ -1142,7 +1142,7 @@ function getLiturgicalCycle(date, litData) {
 function getSundayNumberOfYear(date) {
     const year = date.getFullYear();
     const jan1 = new Date(year, 0, 1);
-    
+
     // Tìm Chúa Nhật đầu tiên của năm
     let firstSunday = new Date(jan1);
     const jan1Day = jan1.getDay();
@@ -1150,16 +1150,16 @@ function getSundayNumberOfYear(date) {
         // Nếu 1/1 không phải Chúa Nhật, tìm Chúa Nhật đầu tiên
         firstSunday.setDate(jan1.getDate() + (7 - jan1Day));
     }
-    
+
     // Nếu ngày hiện tại trước Chúa Nhật đầu tiên, return 0
     if (date < firstSunday) {
         return 0;
     }
-    
+
     // Tính số tuần từ Chúa Nhật đầu tiên
     const daysSinceFirstSunday = Math.floor((date - firstSunday) / (24 * 60 * 60 * 1000));
     const sundayNumber = Math.floor(daysSinceFirstSunday / 7) + 1;
-    
+
     return sundayNumber;
 }
 
@@ -1168,35 +1168,35 @@ function getDetailedLiturgicalWeek(date, litData) {
     const season = parseInt(code.substring(0, 1));
     const month = date.getMonth();
     const day = date.getDate();
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
 
     if (month === 11 && day >= 17 && day <= 24) {
         return `Mùa Vọng ngày ${String(day).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}`;
     }
     if ((month === 11 && day >= 25) || (month === 0 && day === 1)) return "Tuần Bát Nhật Giáng Sinh";
-    
+
     // Kiểm tra các ngày sau lễ Hiển Linh (từ ngày sau Hiển Linh đến trước Chúa Giêsu Chịu Phép Rửa)
     if (litData.epiphany && litData.baptismLord) {
         const epiphanyTime = t(litData.epiphany);
         const baptismTime = t(litData.baptismLord);
-        
+
         // Ngày Hiển Linh
         if (dTime === epiphanyTime) {
             return "Lễ Hiển Linh";
         }
-        
+
         // Ngày Chúa Giêsu Chịu Phép Rửa
         if (dTime === baptismTime) {
             return "Lễ Chúa Giêsu Chịu Phép Rửa";
         }
-        
+
         // Các ngày sau lễ Hiển Linh (trước Chúa Giêsu Chịu Phép Rửa)
         if (dTime > epiphanyTime && dTime < baptismTime) {
             return "sau lễ Hiển Linh";
         }
     }
-    
+
     if (season === 2) return "Mùa Giáng Sinh";
 
     // Kiểm tra các ngày đặc biệt có mã riêng
@@ -1210,25 +1210,25 @@ function getDetailedLiturgicalWeek(date, litData) {
 
     const week = parseInt(code.substring(1, 3));
     const seasonNames = ["", "Mùa Vọng", "Mùa Giáng Sinh", "Mùa Chay", "Mùa Phục Sinh", "Thường Niên"];
-    if(week === 0 && season === 3) return "Sau Lễ Tro";
-    if(week === 6 && season === 3) return "Tuần Thánh";
-    if(week === 1 && season === 4) return "Tuần Bát Nhật Phục Sinh";
-    
+    if (week === 0 && season === 3) return "Sau Lễ Tro";
+    if (week === 6 && season === 3) return "Tuần Thánh";
+    if (week === 1 && season === 4) return "Tuần Bát Nhật Phục Sinh";
+
     // Kiểm tra season hợp lệ trước khi truy cập seasonNames
     const seasonName = (season >= 0 && season < seasonNames.length) ? seasonNames[season] : "Thường Niên";
     // Kiểm tra week hợp lệ
     const weekRoman = (week > 0 && !isNaN(week)) ? toRoman(week) : "";
-    
+
     if (!weekRoman) {
         // Nếu không có week hợp lệ, trả về tên mùa hoặc fallback
         return seasonName || "Mùa Thường Niên";
     }
-    
+
     return `Tuần ${weekRoman} ${seasonName}`;
 }
 
 function getRankDisplayName(rank) {
-    switch(rank) {
+    switch (rank) {
         case 'TRONG': return 'LỄ TRỌNG';
         case 'KINH': return 'LỄ KÍNH';
         case 'NHO': return 'LỄ NHỚ';
@@ -1239,7 +1239,7 @@ function getRankDisplayName(rank) {
     }
 }
 function getRankBadgeClass(rank) {
-     switch(rank) {
+    switch (rank) {
         case 'TRONG': return 'rank-TRONG';
         case 'KINH': return 'rank-KINH';
         case 'NHO': return 'rank-NHO';
@@ -1275,11 +1275,11 @@ const RANK = Object.freeze({
     OT_WEEKDAY: 13
 });
 
-const CATEGORY_WEIGHT = Object.freeze({ 
-    LORD: 0, 
-    MARY: 1, 
-    SAINT: 2, 
-    OTHER: 3 
+const CATEGORY_WEIGHT = Object.freeze({
+    LORD: 0,
+    MARY: 1,
+    SAINT: 2,
+    OTHER: 3
 });
 
 const GRADE = Object.freeze({
@@ -1309,14 +1309,14 @@ function rankCodeToGrade(rankCode) {
 // Xác định Precedence Rank cho một ngày phụng vụ
 // Số nhỏ hơn = ưu tiên cao hơn
 function getPrecedenceRank(celebrationInfo, date, litData) {
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
     const dayOfWeek = date.getDay();
     const season = parseInt(getLiturgicalDayCode(date, litData).substring(0, 1));
     const specialDayType = getSpecialDayType(date, litData);
     const month = date.getMonth();
     const day = date.getDate();
-    
+
     // 1. TRIDUUM - Tam Nhật Vượt Qua (ưu tiên tuyệt đối)
     if (specialDayType === 'TRIDUUM') {
         return RANK.TRIDUUM;
@@ -1326,40 +1326,40 @@ function getPrecedenceRank(celebrationInfo, date, litData) {
     if (month === 11 && day >= 17 && day <= 24 && dayOfWeek !== 0) {
         return RANK.ADVENT_17_24_WEEKDAY;
     }
-    
+
     // Các ngày đặc biệt có ưu tiên cao (Theo bảng phụng vụ)
     // Áp dụng CHỈ cho ngày thường/Chúa Nhật của mùa (không áp dụng cho lễ thánh)
     const isAshWednesdayCelebration = litData?.ashWednesdayTransferred
         ? (dTime === t(litData.ashWednesdayCelebration))
         : (dTime === t(litData.ashWednesday));
-    const isPrivilegedWeekday = specialDayType === 'HOLY_WEEK' || 
-                                specialDayType === 'EASTER_OCTAVE' || 
-                                isAshWednesdayCelebration;
-    const isAshWednesdayCelebrationInfo = isAshWednesdayCelebration && 
+    const isPrivilegedWeekday = specialDayType === 'HOLY_WEEK' ||
+        specialDayType === 'EASTER_OCTAVE' ||
+        isAshWednesdayCelebration;
+    const isAshWednesdayCelebrationInfo = isAshWednesdayCelebration &&
         typeof celebrationInfo.special === 'string' && celebrationInfo.special.toLowerCase().includes('lễ tro');
     if (isPrivilegedWeekday && (
-        celebrationInfo.rankCode === 'NGAY_THUONG' || 
+        celebrationInfo.rankCode === 'NGAY_THUONG' ||
         celebrationInfo.rankCode === 'CHUA_NHAT' ||
         isAshWednesdayCelebrationInfo
     )) {
         return RANK.HIGH_LORD_SUNDAY_SEASON;
     }
-    
+
     // 2. HIGH_LORD_SUNDAY_SEASON - Chúa Nhật trong mùa đặc biệt (Vọng, Chay, Phục Sinh)
     if (dayOfWeek === 0 && (season === 1 || season === 3 || season === 4) && celebrationInfo.rankCode === 'CHUA_NHAT') {
         return RANK.HIGH_LORD_SUNDAY_SEASON;
     }
-    
+
     // 3. SOLEMNITY - Lễ Trọng
     if (celebrationInfo.rankCode === 'TRONG') {
         return RANK.SOLEMNITY;
     }
-    
+
     // 4. FEAST_LORD - Lễ Kính của Chúa
     if (celebrationInfo.rankCode === 'KINH' && isLordFeast(celebrationInfo)) {
         return RANK.FEAST_LORD;
     }
-    
+
     // 5. SUNDAY_ORD_OR_CHRISTMAS - Chúa Nhật Thường Niên hoặc Chúa Nhật Mùa Giáng Sinh
     if (dayOfWeek === 0 && season === 5 && celebrationInfo.rankCode === 'CHUA_NHAT') {
         return RANK.SUNDAY_ORD_OR_CHRISTMAS;
@@ -1367,54 +1367,54 @@ function getPrecedenceRank(celebrationInfo, date, litData) {
     if (dayOfWeek === 0 && season === 2 && celebrationInfo.rankCode === 'CHUA_NHAT') { // Chúa Nhật Mùa Giáng Sinh
         return RANK.SUNDAY_ORD_OR_CHRISTMAS;
     }
-    
+
     // 6. FEAST - Lễ Kính (không phải của Chúa)
     if (celebrationInfo.rankCode === 'KINH') {
         return RANK.FEAST;
     }
-    
+
     // 7. MEM_OBL - Lễ Nhớ Bắt Buộc
     if (celebrationInfo.rankCode === 'NHO') {
         return RANK.MEM_OBL;
     }
-    
+
     // 8. MEM_OPT - Lễ Nhớ Tùy Chọn
     if (celebrationInfo.rankCode === 'NHOKB') {
         return RANK.MEM_OPT;
     }
-    
+
     // 9. ADVENT_17_24_WEEKDAY - Ngày thường 17-24/12 (tuần cuối Mùa Vọng)
     if (season === 1 && dayOfWeek !== 0) {
         if (day >= 17 && day <= 24) {
             return RANK.ADVENT_17_24_WEEKDAY;
         }
     }
-    
+
     // Ngày thường trong Bát Nhật Giáng Sinh: ưu tiên cao hơn lễ nhớ, nhưng thấp hơn lễ kính
     if (specialDayType === 'CHRISTMAS_OCTAVE' && dayOfWeek !== 0 && celebrationInfo.rankCode === 'NGAY_THUONG') {
         return RANK.ADVENT_17_24_WEEKDAY;
     }
-    
+
     // 10. ADVENT_1_16_WEEKDAY - Ngày thường 1-16/12 Mùa Vọng
     if (season === 1 && dayOfWeek !== 0) {
         return RANK.ADVENT_1_16_WEEKDAY;
     }
-    
+
     // 11. CHRISTMAS_WEEKDAY - Ngày thường Mùa Giáng Sinh (sau Bát Nhật)
     if (season === 2 && dayOfWeek !== 0 && celebrationInfo.rankCode === 'NGAY_THUONG') {
         return RANK.CHRISTMAS_WEEKDAY;
     }
-    
+
     // 12. LENT_WEEKDAY - Ngày thường Mùa Chay
     if (season === 3 && dayOfWeek !== 0) {
         return RANK.LENT_WEEKDAY;
     }
-    
+
     // 13. OT_WEEKDAY - Ngày thường Thường Niên
     if (season === 5 && dayOfWeek !== 0) {
         return RANK.OT_WEEKDAY;
     }
-    
+
     // Fallback: ngày thường
     return RANK.OT_WEEKDAY;
 }
@@ -1423,30 +1423,30 @@ function getPrecedenceRank(celebrationInfo, date, litData) {
 function isLordFeast(celebrationInfo) {
     const name = celebrationInfo.special || '';
     // Các lễ của Chúa thường có từ khóa như "Chúa", "Chúa Giêsu", "Kitô", "Thánh Thể"
-    return name.includes('Chúa') || name.includes('Chúa Giêsu') || 
-           name.includes('Kitô') || name.includes('Thánh Thể') ||
-           name.includes('HIỆN XUỐNG') || name.includes('PHỤC SINH');
+    return name.includes('Chúa') || name.includes('Chúa Giêsu') ||
+        name.includes('Kitô') || name.includes('Thánh Thể') ||
+        name.includes('HIỆN XUỐNG') || name.includes('PHỤC SINH');
 }
 
 // Xác định Category Weight
 function getCategoryWeight(celebrationInfo) {
     const name = celebrationInfo.special || (celebrationInfo.saints && celebrationInfo.saints[0]?.name) || '';
-    
+
     // LORD - Lễ của Chúa
     if (isLordFeast(celebrationInfo)) {
         return CATEGORY_WEIGHT.LORD;
     }
-    
+
     // MARY - Lễ về Đức Mẹ
     if (name.includes('Đức Mẹ') || name.includes('MẸ') || name.includes('MARIA')) {
         return CATEGORY_WEIGHT.MARY;
     }
-    
+
     // SAINT - Lễ các thánh
     if (name.includes('Thánh') || celebrationInfo.saints && celebrationInfo.saints.length > 0) {
         return CATEGORY_WEIGHT.SAINT;
     }
-    
+
     // OTHER - Khác
     return CATEGORY_WEIGHT.OTHER;
 }
@@ -1468,41 +1468,41 @@ function getRankPriority(rankCode) {
 
 // Xác định loại ngày phụng vụ đặc biệt
 function getSpecialDayType(date, litData) {
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
-    
+
     // Tam Nhật Vượt Qua (Triduum) - ưu tiên tuyệt đối
     const goodFridayTime = t(litData.goodFriday);
     const easterTime = t(litData.easter);
     if (dTime >= goodFridayTime && dTime <= easterTime) {
         return 'TRIDUUM';
     }
-    
+
     // Tuần Thánh (trước Triduum)
     const palmSundayTime = t(litData.palmSunday);
     if (dTime >= palmSundayTime && dTime < goodFridayTime) {
         return 'HOLY_WEEK';
     }
-    
+
     // Mùa Chay (từ Thứ Tư Lễ Tro đến trước Tuần Thánh)
     const ashWednesdayTime = t(litData.ashWednesday);
     if (dTime >= ashWednesdayTime && dTime < palmSundayTime) {
         return 'LENT';
     }
-    
+
     // Bát Nhật Phục Sinh
     const octaveEnd = addDays(easterTime, 7);
     if (dTime > easterTime && dTime <= octaveEnd) {
         return 'EASTER_OCTAVE';
     }
-    
+
     // Mùa Vọng (từ Chúa Nhật I Mùa Vọng đến 24/12)
     const adventStartTime = t(litData.adventStart);
     const christmasEve = t(new Date(date.getFullYear(), 11, 24));
     if (dTime >= adventStartTime && dTime <= christmasEve) {
         return 'ADVENT';
     }
-    
+
     // Bát Nhật Giáng Sinh (25/12 -> 01/01, bắc cầu qua năm)
     let christmasStart = new Date(date.getFullYear(), 11, 25);
     let christmasOctaveEnd = new Date(date.getFullYear() + 1, 0, 1);
@@ -1516,7 +1516,7 @@ function getSpecialDayType(date, litData) {
     if (dTime >= christmasTime && dTime <= christmasOctaveEndTime) {
         return 'CHRISTMAS_OCTAVE';
     }
-    
+
     return 'ORDINARY';
 }
 
@@ -1528,23 +1528,23 @@ function baseCelebration(date, temporalInfo, litData) {
     const detailedWeek = getDetailedLiturgicalWeek(date, litData);
     const cycle = getLiturgicalCycle(date, litData);
     const weekdayCycle = date.getFullYear() % 2 !== 0 ? "1" : "2";
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
     const christmasStart = (date.getMonth() === 0)
         ? new Date(date.getFullYear() - 1, 11, 25)
         : new Date(date.getFullYear(), 11, 25);
     const christmasOctaveEnd = new Date(christmasStart.getFullYear() + 1, 0, 1);
     const isChristmasOctave = dTime >= t(christmasStart) && dTime <= t(christmasOctaveEnd);
-    
+
     // Tam Nhật Vượt Qua
     if (specialDayType === 'TRIDUUM') {
-        const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+        const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
         const dTime = t(date);
         const goodFridayTime = t(litData.goodFriday);
         const easterTime = t(litData.easter);
         const holyThursday = addDays(litData.goodFriday, -1);
         const holySaturday = addDays(litData.easter, -1);
-        
+
         let name = "Tam Nhật Vượt Qua";
         let color = "white";
         if (dTime === t(holyThursday)) {
@@ -1560,7 +1560,7 @@ function baseCelebration(date, temporalInfo, litData) {
             name = "Chúa Nhật Phục Sinh";
             color = "white";
         }
-        
+
         return {
             key: "BASE_TRIDUUM",
             name: name,
@@ -1573,7 +1573,7 @@ function baseCelebration(date, temporalInfo, litData) {
             season: temporalInfo.season
         };
     }
-    
+
     // Chúa Nhật
     if (dayOfWeek === 0) {
         // Bát nhật Giáng Sinh: luôn là Chúa Nhật Mùa Giáng Sinh (màu trắng)
@@ -1674,7 +1674,7 @@ function baseCelebration(date, temporalInfo, litData) {
             };
         }
         if (season === 2) { // Mùa Giáng Sinh
-            
+
             // Lễ Hiển Linh
             if (litData.epiphany && dTime === t(litData.epiphany)) {
                 return {
@@ -1689,7 +1689,7 @@ function baseCelebration(date, temporalInfo, litData) {
                     season: temporalInfo.season
                 };
             }
-            
+
             // Lễ Chúa Giêsu Chịu Phép Rửa
             if (litData.baptismLord && dTime === t(litData.baptismLord)) {
                 return {
@@ -1704,7 +1704,7 @@ function baseCelebration(date, temporalInfo, litData) {
                     season: temporalInfo.season
                 };
             }
-            
+
             return {
                 key: "BASE_SUN_XMAS",
                 name: "Chúa Nhật Mùa Giáng Sinh",
@@ -1730,7 +1730,7 @@ function baseCelebration(date, temporalInfo, litData) {
             season: temporalInfo.season
         };
     }
-    
+
     // Ngày thường
     let color = "green";
     if (season === 1) color = "purple"; // Mùa Vọng
@@ -1738,14 +1738,14 @@ function baseCelebration(date, temporalInfo, litData) {
     if (season === 4) color = "white";  // Mùa Phục Sinh
     if (season === 2) color = "white";  // Mùa Giáng Sinh
     if (isChristmasOctave) color = "white"; // Bát nhật Giáng Sinh
-    
+
     const baseRank = getPrecedenceRank(temporalInfo, date, litData);
-    
+
     // Xử lý đặc biệt cho các ngày sau lễ Hiển Linh
     if (litData.epiphany && litData.baptismLord) {
         const epiphanyTime = t(litData.epiphany);
         const baptismTime = t(litData.baptismLord);
-        
+
         if (dTime > epiphanyTime && dTime < baptismTime) {
             const dayOfWeekName = DAYS_FULL_VI[dayOfWeek];
             return {
@@ -1761,7 +1761,7 @@ function baseCelebration(date, temporalInfo, litData) {
             };
         }
     }
-    
+
     return {
         key: "BASE_WEEKDAY",
         name: `Ngày thường ${temporalInfo.season}${detailedWeek ? " - " + detailedWeek : ""}`,
@@ -1781,70 +1781,70 @@ function baseCelebration(date, temporalInfo, litData) {
 function determinePrimaryCelebration(temporalInfo, sanctoralInfo, date, litData) {
     // Tạo base celebration từ temporal
     const base = baseCelebration(date, temporalInfo, litData);
-    
+
     // Tạo danh sách candidates
     const candidates = [base];
-    
+
     // Thêm sanctoral nếu có
     if (sanctoralInfo) {
         const sanctoralCandidate = {
             key: "SANCTORAL",
             name: sanctoralInfo.special,
-            category: getCategoryWeight(sanctoralInfo) === CATEGORY_WEIGHT.MARY ? "MARY" : 
-                     (getCategoryWeight(sanctoralInfo) === CATEGORY_WEIGHT.SAINT ? "SAINT" : "OTHER"),
+            category: getCategoryWeight(sanctoralInfo) === CATEGORY_WEIGHT.MARY ? "MARY" :
+                (getCategoryWeight(sanctoralInfo) === CATEGORY_WEIGHT.SAINT ? "SAINT" : "OTHER"),
             grade: rankCodeToGrade(sanctoralInfo.rankCode),
             rank: getPrecedenceRank(sanctoralInfo, date, litData),
-            color: sanctoralInfo.color.includes('red') ? 'red' : 
-                   (sanctoralInfo.color.includes('white') ? 'white' : 'green'),
+            color: sanctoralInfo.color.includes('red') ? 'red' :
+                (sanctoralInfo.color.includes('white') ? 'white' : 'green'),
             rankCode: sanctoralInfo.rankCode,
             special: sanctoralInfo.special,
             saints: sanctoralInfo.saints || []
         };
         candidates.push(sanctoralCandidate);
     }
-    
+
     // Sắp xếp candidates theo precedence
     candidates.sort((a, b) => {
         // 1. So sánh rank (số nhỏ hơn = ưu tiên cao hơn)
         if (a.rank !== b.rank) return a.rank - b.rank;
-        
+
         // 2. So sánh category weight (số nhỏ hơn = ưu tiên cao hơn)
         const wa = CATEGORY_WEIGHT[a.category] ?? CATEGORY_WEIGHT.OTHER;
         const wb = CATEGORY_WEIGHT[b.category] ?? CATEGORY_WEIGHT.OTHER;
         if (wa !== wb) return wa - wb;
-        
+
         // 3. So sánh grade weight (số cao hơn = ưu tiên cao hơn)
         const ga = gradeWeight(a.grade);
         const gb = gradeWeight(b.grade);
         if (ga !== gb) return gb - ga;
-        
+
         // 4. So sánh tên (alphabetical)
         return String(a.name).localeCompare(String(b.name), "vi");
     });
-    
+
     const winner = candidates[0];
     const isSanctoralWinner = winner.key === "SANCTORAL";
     const commemorations = candidates.slice(1).filter(c => {
         // Chỉ commemorated nếu là MEMORIAL hoặc trong một số trường hợp đặc biệt
-        return c.grade === GRADE.MEMORIAL || 
-               (c.rank === RANK.SOLEMNITY && winner.rank <= RANK.HIGH_LORD_SUNDAY_SEASON);
+        return c.grade === GRADE.MEMORIAL ||
+            (c.rank === RANK.SOLEMNITY && winner.rank <= RANK.HIGH_LORD_SUNDAY_SEASON);
     });
-    
+
     // Chuyển đổi winner về format temporalInfo/sanctoralInfo
     const primaryCelebration = {
         ...temporalInfo,
         special: winner.special || temporalInfo.special,
         rankCode: winner.rankCode || temporalInfo.rankCode,
-        color: winner.color === 'red' ? 'bg-lit-red' : 
-               (winner.color === 'purple' ? 'bg-lit-purple' : 
-               (winner.color === 'white' ? 'bg-lit-white' : 'bg-lit-green')),
-        textColor: winner.color === 'red' ? 'text-lit-red' : 
-                   (winner.color === 'purple' ? 'text-lit-purple' : 
-                   (winner.color === 'white' ? 'text-lit-gold' : 'text-lit-green')),
+        color: winner.color === 'red' ? 'bg-lit-red' :
+            (winner.color === 'purple' ? 'bg-lit-purple' :
+                (winner.color === 'white' ? 'bg-lit-white' : 'bg-lit-green')),
+        textColor: winner.color === 'red' ? 'text-lit-red' :
+            (winner.color === 'purple' ? 'text-lit-purple' :
+                (winner.color === 'white' ? 'text-lit-gold' : 'text-lit-green')),
         saints: winner.saints || temporalInfo.saints,
         _isSanctoral: isSanctoralWinner // Flag để tooltip biết
     };
-    
+
     return {
         primaryCelebration: primaryCelebration,
         commemorations: commemorations,
@@ -1872,17 +1872,17 @@ function getTransferDate(originalDate, litData) {
     const dayOfWeek = originalDate.getDay();
     const season = parseInt(getLiturgicalDayCode(originalDate, litData).substring(0, 1));
     const specialDayType = getSpecialDayType(originalDate, litData);
-    
+
     // Chúa Nhật Thường Niên → dời sang Thứ Hai
     if (dayOfWeek === 0 && season === 5) {
         return addDays(originalDate, 1);
     }
-    
+
     // Chúa Nhật Mùa Vọng, Mùa Chay, Mùa Phục Sinh → dời sang Thứ Hai
     if (dayOfWeek === 0 && (season === 1 || season === 3 || season === 4)) {
         return addDays(originalDate, 1);
     }
-    
+
     // Tuần Thánh → dời sang Thứ Hai sau Tuần Bát Nhật Phục Sinh
     if (specialDayType === 'HOLY_WEEK') {
         const easterMonday = addDays(litData.easter, 1);
@@ -1893,37 +1893,37 @@ function getTransferDate(originalDate, litData) {
         }
         return easterMonday;
     }
-    
+
     // Bát Nhật Phục Sinh → dời sang Thứ Hai sau Bát Nhật
     if (specialDayType === 'EASTER_OCTAVE') {
         const easterOctaveEnd = addDays(litData.easter, 7);
         return addDays(easterOctaveEnd, 1);
     }
-    
+
     // Bát Nhật Giáng Sinh: các lễ trong Bát Nhật không bị dời
-    
+
     // Không cần dời
     return null;
 }
 
 // Xác định lễ nào bị dời đến ngày này
 function getTransferredFeast(date, litData) {
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
-    
+
     // Duyệt qua tất cả các lễ trọng trong năm để tìm lễ bị dời đến ngày này
     // Chỉ kiểm tra các ngày gần đó (trong vòng 7 ngày) để tối ưu
     for (let offset = -7; offset <= 0; offset++) {
         const checkDate = addDays(date, offset);
         const checkKey = `${checkDate.getMonth() + 1}-${checkDate.getDate()}`;
-        
+
         if (FIXED_DATA_LOOKUP[checkKey]) {
             const saint = FIXED_DATA_LOOKUP[checkKey];
-            
+
             // Chỉ xử lý lễ trọng
             if (saint.rank === 'TRONG') {
                 const transferDate = getTransferDate(checkDate, litData);
-                
+
                 // Nếu lễ này bị dời đến ngày hiện tại
                 if (transferDate && t(transferDate) === dTime) {
                     return {
@@ -1936,11 +1936,11 @@ function getTransferredFeast(date, litData) {
             }
         }
     }
-    
+
     // Kiểm tra các lễ đặc biệt có thể bị dời (đã được xử lý trong getLiturgicalData)
     // Thánh Giuse (19/3) - đã được xử lý trong getLiturgicalData
     // Truyền Tin (25/3) - đã được xử lý trong getLiturgicalData
-    
+
     return null;
 }
 
@@ -1952,20 +1952,20 @@ function getDayInfo(date, litData) {
     if (cached) {
         return cached;
     }
-    
+
     const season = parseInt(getLiturgicalDayCode(date, litData).substring(0, 1));
     const dayOfWeek = date.getDay();
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
-    
-    let result = { 
-        season: "Mùa Thường Niên", 
-        color: "bg-lit-green", 
-        textColor: "text-lit-green", 
-        special: null, 
-        isSolemn: false, 
-        saints: [], 
-        rankCode: 'NGAY_THUONG', 
+
+    let result = {
+        season: "Mùa Thường Niên",
+        color: "bg-lit-green",
+        textColor: "text-lit-green",
+        special: null,
+        isSolemn: false,
+        saints: [],
+        rankCode: 'NGAY_THUONG',
         rankName: '',
         commemorations: [],
         precedenceReason: null,
@@ -1973,10 +1973,10 @@ function getDayInfo(date, litData) {
         _forceSanctoralKey: null
     };
 
-    if(season === 1) { result.season = "Mùa Vọng"; result.color = "bg-lit-purple"; result.textColor = "text-lit-purple"; }
-    else if(season === 2) { result.season = "Mùa Giáng Sinh"; result.color = "bg-lit-white"; result.textColor = "text-lit-gold"; }
-    else if(season === 3) { result.season = "Mùa Chay"; result.color = "bg-lit-purple"; result.textColor = "text-lit-purple"; }
-    else if(season === 4) { result.season = "Mùa Phục Sinh"; result.color = "bg-lit-white"; result.textColor = "text-lit-gold"; }
+    if (season === 1) { result.season = "Mùa Vọng"; result.color = "bg-lit-purple"; result.textColor = "text-lit-purple"; }
+    else if (season === 2) { result.season = "Mùa Giáng Sinh"; result.color = "bg-lit-white"; result.textColor = "text-lit-gold"; }
+    else if (season === 3) { result.season = "Mùa Chay"; result.color = "bg-lit-purple"; result.textColor = "text-lit-purple"; }
+    else if (season === 4) { result.season = "Mùa Phục Sinh"; result.color = "bg-lit-white"; result.textColor = "text-lit-gold"; }
 
     // 17-24/12: vẫn thuộc Mùa Vọng (màu tím), dù dùng mã 2DDMM cho bài đọc ngày thường
     if (date.getMonth() === 11 && date.getDate() >= 17 && date.getDate() <= 24) {
@@ -1996,12 +1996,12 @@ function getDayInfo(date, litData) {
         result.color = "bg-lit-white";
         result.textColor = "text-lit-gold";
     }
-    
+
     // Default Sunday Rank
-    if(dayOfWeek === 0) { result.rankCode = 'CHUA_NHAT'; result.rankName = 'Chúa Nhật'; }
+    if (dayOfWeek === 0) { result.rankCode = 'CHUA_NHAT'; result.rankName = 'Chúa Nhật'; }
 
     // Special Days (Solemnities mostly)
-    
+
     // Xử lý Lễ Tro theo quy luật dời lễ tại Việt Nam
     if (litData.ashWednesdayTransferred) {
         // Lễ Tro bị dời do trùng Tết
@@ -2039,65 +2039,65 @@ function getDayInfo(date, litData) {
         result.rankCode = 'TRONG';
         result.season = "Mùa Phục Sinh";
     }
-    
+
     // === TAM NHẬT VƯỢT QUA (Triduum) - Override màu theo ngày ===
     const holyThursday = addDays(litData.goodFriday, -1);
     const holySaturday = addDays(litData.easter, -1);
-    
-    if (dTime === t(holyThursday)) { 
-        result.special = "Thứ Năm Tuần Thánh (Tiệc Ly)"; 
-        result.color = "bg-lit-white"; 
+
+    if (dTime === t(holyThursday)) {
+        result.special = "Thứ Năm Tuần Thánh (Tiệc Ly)";
+        result.color = "bg-lit-white";
         result.textColor = "text-lit-gold";
-        result.rankCode = 'TRONG'; 
+        result.rankCode = 'TRONG';
         result.season = "Tam Nhật Vượt Qua";
     }
-    if (dTime === t(litData.goodFriday)) { 
-        result.special = "Thứ Sáu Tuần Thánh (Tưởng niệm Cuộc Thương Khó)"; 
+    if (dTime === t(litData.goodFriday)) {
+        result.special = "Thứ Sáu Tuần Thánh (Tưởng niệm Cuộc Thương Khó)";
         result.color = "bg-lit-red";  // ĐỎ - không phải tím
         result.textColor = "text-lit-red";
-        result.rankCode = 'TRONG'; 
+        result.rankCode = 'TRONG';
         result.season = "Tam Nhật Vượt Qua";
     }
-    if (dTime === t(holySaturday)) { 
-        result.special = "Thứ Bảy Tuần Thánh (Canh thức Vượt Qua)"; 
-        result.color = "bg-lit-white"; 
+    if (dTime === t(holySaturday)) {
+        result.special = "Thứ Bảy Tuần Thánh (Canh thức Vượt Qua)";
+        result.color = "bg-lit-white";
         result.textColor = "text-lit-gold";
-        result.rankCode = 'TRONG'; 
+        result.rankCode = 'TRONG';
         result.season = "Tam Nhật Vượt Qua";
     }
-    
+
     if (dTime === t(litData.pentecost)) { result.special = "CHÚA THÁNH THẦN HIỆN XUỐNG"; result.color = "bg-lit-red"; result.textColor = "text-lit-red"; result.rankCode = 'TRONG'; result.season = "Mùa Phục Sinh"; }
-    
+
     // === CÁC LỄ SAU HIỆN XUỐNG ===
-    if (dTime === t(litData.trinity)) { 
-        result.special = "CHÚA BA NGÔI"; 
-        result.color = "bg-lit-white"; 
-        result.textColor = "text-lit-gold"; 
-        result.rankCode = 'TRONG'; 
+    if (dTime === t(litData.trinity)) {
+        result.special = "CHÚA BA NGÔI";
+        result.color = "bg-lit-white";
+        result.textColor = "text-lit-gold";
+        result.rankCode = 'TRONG';
         result.season = "Mùa Thường Niên";
     }
-    if (dTime === t(litData.corpusChristi)) { 
-        result.special = "MÌNH VÀ MÁU THÁNH CHÚA KITÔ"; 
-        result.color = "bg-lit-white"; 
-        result.textColor = "text-lit-gold"; 
-        result.rankCode = 'TRONG'; 
+    if (dTime === t(litData.corpusChristi)) {
+        result.special = "MÌNH VÀ MÁU THÁNH CHÚA KITÔ";
+        result.color = "bg-lit-white";
+        result.textColor = "text-lit-gold";
+        result.rankCode = 'TRONG';
         result.season = "Mùa Thường Niên";
     }
-    if (dTime === t(litData.sacredHeart)) { 
-        result.special = "THÁNH TÂM CHÚA GIÊSU"; 
-        result.color = "bg-lit-white"; 
-        result.textColor = "text-lit-gold"; 
-        result.rankCode = 'TRONG'; 
+    if (dTime === t(litData.sacredHeart)) {
+        result.special = "THÁNH TÂM CHÚA GIÊSU";
+        result.color = "bg-lit-white";
+        result.textColor = "text-lit-gold";
+        result.rankCode = 'TRONG';
         result.season = "Mùa Thường Niên";
     }
-    if (dTime === t(litData.immaculateHeart)) { 
-        result.special = "Trái Tim Vô Nhiễm Mẹ Maria"; 
-        result.color = "bg-lit-white"; 
-        result.textColor = "text-lit-gold"; 
-        result.rankCode = 'NHO'; 
+    if (dTime === t(litData.immaculateHeart)) {
+        result.special = "Trái Tim Vô Nhiễm Mẹ Maria";
+        result.color = "bg-lit-white";
+        result.textColor = "text-lit-gold";
+        result.rankCode = 'NHO';
         result.season = "Mùa Thường Niên";
     }
-    
+
     if (dTime === t(litData.christKing)) {
         result.special = "ĐẠI LỄ CHÚA KITÔ VUA VŨ TRỤ";
         result.color = "bg-lit-white";
@@ -2114,54 +2114,54 @@ function getDayInfo(date, litData) {
         result._forceSanctoralKey = "72411";
     }
     if (dTime === t(litData.rosarySunday)) { result.special = "ĐỨC MẸ MÂN CÔI (Kính Trọng Thể)"; result.color = "bg-lit-white"; result.rankCode = "TRONG"; }
-    if (dTime === t(litData.missionSunday)) { result.special = "Khánh Nhật Truyền Giáo"; result.color = "bg-lit-green"; result.rankCode = "CHUA_NHAT"; } 
-    
-    if (dTime === t(litData.annunciation)) { 
-        result.special = "LỄ TRUYỀN TIN"; 
-        result.color = "bg-lit-white"; 
+    if (dTime === t(litData.missionSunday)) { result.special = "Khánh Nhật Truyền Giáo"; result.color = "bg-lit-green"; result.rankCode = "CHUA_NHAT"; }
+
+    if (dTime === t(litData.annunciation)) {
+        result.special = "LỄ TRUYỀN TIN";
+        result.color = "bg-lit-white";
         result.rankCode = "TRONG";
         result._forceSanctoralReadings = true;
         result._forceSanctoralKey = "72503";
     }
-    if (dTime === t(litData.stJoseph)) { 
-        result.special = "THÁNH GIUSE BẠN TRĂM NĂM ĐỨC MARIA"; 
-        result.color = "bg-lit-white"; 
+    if (dTime === t(litData.stJoseph)) {
+        result.special = "THÁNH GIUSE BẠN TRĂM NĂM ĐỨC MARIA";
+        result.color = "bg-lit-white";
         result.rankCode = "TRONG";
         result._forceSanctoralReadings = true;
         result._forceSanctoralKey = "71903";
     }
-    if (dTime === t(litData.immConception)) { 
-        result.special = "ĐỨC MẸ VÔ NHIỄM NGUYÊN TỘI"; 
-        result.color = "bg-lit-white"; 
+    if (dTime === t(litData.immConception)) {
+        result.special = "ĐỨC MẸ VÔ NHIỄM NGUYÊN TỘI";
+        result.color = "bg-lit-white";
         result.rankCode = "TRONG";
         result._forceSanctoralReadings = true;
         result._forceSanctoralKey = "70812";
     }
-    
+
     // Lễ Hiển Linh (Epiphany) - Chúa Nhật từ ngày 2-8 tháng 1
-    if (dTime === t(litData.epiphany)) { 
-        result.special = "CHÚA NHẬT LỄ HIỂN LINH"; 
-        result.color = "bg-lit-white"; 
+    if (dTime === t(litData.epiphany)) {
+        result.special = "CHÚA NHẬT LỄ HIỂN LINH";
+        result.color = "bg-lit-white";
         result.textColor = "text-lit-gold";
-        result.rankCode = "TRONG"; 
+        result.rankCode = "TRONG";
         result.isSolemn = true;
     }
-    
+
     // Lễ Chúa Giêsu Chịu Phép Rửa - Chúa Nhật sau lễ Hiển Linh (Lễ Kính)
-    if (dTime === t(litData.baptismLord)) { 
-        result.special = "CHÚA GIÊSU CHỊU PHÉP RỬA"; 
-        result.color = "bg-lit-white"; 
+    if (dTime === t(litData.baptismLord)) {
+        result.special = "CHÚA GIÊSU CHỊU PHÉP RỬA";
+        result.color = "bg-lit-white";
         result.textColor = "text-lit-gold";
-        result.rankCode = "KINH"; 
+        result.rankCode = "KINH";
     }
-    
+
     // Các ngày sau lễ Hiển Linh (trước Chúa Giêsu Chịu Phép Rửa)
     // Flag để biết đây là ngày sau Hiển Linh - temporal được ưu tiên hơn optional memorial
     let isAfterEpiphany = false;
     if (litData.epiphany && litData.baptismLord) {
         const epiphanyTime = t(litData.epiphany);
         const baptismTime = t(litData.baptismLord);
-        
+
         if (dTime > epiphanyTime && dTime < baptismTime) {
             const dayOfWeekName = DAYS_FULL_VI[date.getDay()];
             result.special = `${dayOfWeekName} sau lễ Hiển Linh`;
@@ -2189,24 +2189,24 @@ function getDayInfo(date, litData) {
         result.transferred = true;
         result.originalDate = transferredFeast.originalDate;
     }
-    
+
     // Xử lý sanctoral (các thánh) sử dụng Precedence Engine
     const key = `${date.getMonth() + 1}-${date.getDate()}`;
     let sanctoralInfo = null;
-    
+
     // Bỏ qua FIXED khi ngày trùng với lễ di động (Vietnamese Martyrs, Mân Côi) để tránh trùng
     const movableKey = MOVABLE_OVERRIDES_FIXED[key];
     const skipFixedForMovable = movableKey && litData[movableKey] && dTime === t(litData[movableKey]);
-    
+
     // Chỉ xử lý sanctoral nếu không có lễ bị dời và không trùng movable
     if (!transferredFeast && !skipFixedForMovable && FIXED_DATA_LOOKUP[key]) {
         const saint = FIXED_DATA_LOOKUP[key];
-        
+
         // Kiểm tra xem lễ này có bị dời không
         const transferDate = getTransferDate(date, litData);
-        const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
-        const shouldTransfer = transferDate && saint.rank === 'TRONG' && 
-                              (date.getDay() === 0 || getSpecialDayType(date, litData) !== 'ORDINARY');
+        const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
+        const shouldTransfer = transferDate && saint.rank === 'TRONG' &&
+            (date.getDay() === 0 || getSpecialDayType(date, litData) !== 'ORDINARY');
         const month = date.getMonth();
         const day = date.getDate();
         const isSanctoralSuppressed = () => {
@@ -2219,7 +2219,7 @@ function getDayInfo(date, litData) {
             const christmasStart = new Date(date.getFullYear(), 11, 25);
             const christmasOctaveEnd = new Date(date.getFullYear() + 1, 0, 1);
             const inChristmasOctave = dTime >= t(christmasStart) && dTime <= t(christmasOctaveEnd);
-            
+
             // Feasts are suppressed only in Holy Week & Easter Octave
             if (saint.rank === 'KINH') {
                 return inHolyWeek || inEasterOctave;
@@ -2230,14 +2230,14 @@ function getDayInfo(date, litData) {
             }
             return false;
         };
-        
+
         if (!shouldTransfer) {
             const suppressed = isSanctoralSuppressed();
             // Lễ không bị dời, thêm vào saints nếu không bị suppress
             if (!suppressed) {
                 result.saints.push(saint);
             }
-            
+
             // === ĐẶC BIỆT: Ngày sau lễ Hiển Linh ===
             // Nếu là ngày sau Hiển Linh và lễ thánh chỉ là tùy chọn (NHOKB/O), 
             // giữ temporal làm chính, thánh làm phụ
@@ -2256,24 +2256,24 @@ function getDayInfo(date, litData) {
                     textColor: saint.color === 'white' ? 'text-lit-gold' : (saint.color === 'red' ? 'text-lit-red' : result.textColor),
                     saints: [saint]
                 };
-                
+
                 // Sử dụng Precedence Engine để quyết định cử hành chính
                 const precedence = determinePrimaryCelebration(result, sanctoralInfo, date, litData);
-                
+
                 // Áp dụng kết quả từ engine - sử dụng primaryCelebration đã được merge
                 const primaryCelebration = precedence.primaryCelebration;
-            
+
                 // Cập nhật result với thông tin từ primaryCelebration
                 result.special = primaryCelebration.special || result.special;
                 result.rankCode = primaryCelebration.rankCode || result.rankCode;
                 result.color = primaryCelebration.color || result.color;
                 result.textColor = primaryCelebration.textColor || result.textColor;
-                
+
                 // Lưu commemorations nếu có
                 if (precedence.commemorations && precedence.commemorations.length > 0) {
                     result.commemorations = precedence.commemorations;
                 }
-                
+
                 // Lưu thông tin precedence để debug/log
                 result.precedenceReason = precedence.reason;
                 result._winnerKey = precedence._winnerKey; // Lưu winner key để sử dụng sau
@@ -2286,16 +2286,16 @@ function getDayInfo(date, litData) {
 
     // Chúa Nhật: chỉ gán rank CHUA_NHAT khi đang là ngày thường hoặc lễ nhớ
     // (không override các lễ Kính/Lễ Trọng của Chúa)
-    if (dayOfWeek === 0 && (result.rankCode === 'NGAY_THUONG' || result.rankCode === 'NHO' || result.rankCode === 'NHOKB')) { 
-        result.rankCode = 'CHUA_NHAT'; 
-        result.rankName = 'Chúa Nhật'; 
+    if (dayOfWeek === 0 && (result.rankCode === 'NGAY_THUONG' || result.rankCode === 'NHO' || result.rankCode === 'NHOKB')) {
+        result.rankCode = 'CHUA_NHAT';
+        result.rankName = 'Chúa Nhật';
     }
-    
+
     // ===== XỬ LÝ TẾT VIỆT NAM =====
     const tetEvent = getTetEvent(date);
     if (tetEvent) {
         const tetResolution = resolveTetConflict(tetEvent, result, date, litData);
-        
+
         // Đêm Giao Thừa (isEve): KHÔNG ghi đè lên phụng vụ ngày hôm đó
         // Chỉ lưu thông tin để hiển thị trong modal (như lễ vọng)
         if (tetEvent.isEve) {
@@ -2306,7 +2306,7 @@ function getDayInfo(date, litData) {
             // So sánh rank để quyết định cử hành chính
             const currentRank = getRankPriority(result.rankCode);
             const tetRank = tetResolution.rank;
-            
+
             // Tết được cử hành nếu có rank cao hơn hoặc bằng
             if (tetRank <= currentRank || result.rankCode === 'NGAY_THUONG' || result.rankCode === 'CHUA_NHAT') {
                 // Lưu thông tin phụng vụ gốc vào commemorations nếu có
@@ -2317,14 +2317,14 @@ function getDayInfo(date, litData) {
                         special: result.special
                     });
                 }
-                
+
                 // Cập nhật thông tin Tết
                 result.special = tetEvent.name;
                 result.rankCode = tetEvent.rankCode;
                 result.isTet = true;
                 result.tetNote = tetResolution.note;
                 result.tetLunar = tetEvent.lunar;
-                
+
                 // Cập nhật màu sắc
                 if (tetEvent.color === 'red') {
                     result.color = 'bg-lit-red';
@@ -2345,10 +2345,10 @@ function getDayInfo(date, litData) {
             result.tetLunar = tetEvent.lunar;
         }
     }
-    
+
     // Lưu kết quả vào cache trước khi return
     CACHE.set('dayInfo', cacheKey, result);
-    
+
     return result;
 }
 
@@ -2356,14 +2356,14 @@ function getDayInfo(date, litData) {
 // HÀM XÁC ĐỊNH LỄ VỌNG CHO CÁC LỄ TRỌNG
 // ============================================================================
 function getVigilInfo(date, litData) {
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
     const month = date.getMonth();
     const day = date.getDate();
-    
+
     // CHỈ TRẢ VỀ THÔNG TIN LỄ VỌNG KHI ĐANG Ở NGÀY LỄ CHÍNH
     // (không phải ngày lễ vọng)
-    
+
     // 1. Lễ Giáng Sinh (25/12) - lễ vọng là 24/12
     if (month === 11 && day === 25) {
         return {
@@ -2375,7 +2375,7 @@ function getVigilInfo(date, litData) {
             mainFeastCode: "22512"
         };
     }
-    
+
     // 2. Lễ Hiện Xuống - lễ vọng là ngày hôm qua
     if (dTime === t(litData.pentecost)) {
         return {
@@ -2387,7 +2387,7 @@ function getVigilInfo(date, litData) {
             mainFeastCode: "5001"
         };
     }
-    
+
     // 3. Lễ Phục Sinh - lễ vọng là Thứ Bảy Tuần Thánh
     if (dTime === t(litData.easter)) {
         return {
@@ -2399,7 +2399,7 @@ function getVigilInfo(date, litData) {
             mainFeastCode: "4001"
         };
     }
-    
+
     // 4. Lễ Các Thánh (1/11) - lễ vọng là 31/10
     if (month === 10 && day === 1) {
         return {
@@ -2411,7 +2411,7 @@ function getVigilInfo(date, litData) {
             mainFeastCode: "70111"
         };
     }
-    
+
     return null;
 }
 
@@ -2420,23 +2420,24 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
     const season = parseInt(code.substring(0, 1));
     let results = [];
 
-    // 0. Special Feast Codes (các lễ trọng đặc biệt: 2030, 5001, 5002, 5003, 5004, 8441)
+    // 0. Special Feast Codes (các lễ trọng đặc biệt: 2030, 4080, 5001, 5002, 5003, 5004, 8441)
     // Các code này không phải seasonal code thông thường, cần tìm trong READINGS_DATA trước (code chính xác)
     // Sau đó fallback sang READINGS_SUNDAY (code cũ 5410, 5420, 5430, 5440 trong Sunday.js)
-    const specialFeastCodes = ["2030", "5001", "5002", "5003", "5004", "8441"];
+    const specialFeastCodes = ["2030", "4080", "5001", "5002", "5003", "5004", "8441"];
     // Mapping để tìm trong Sunday.js (code cũ)
     const sundayCodeMapping = {
         "2030": "6000",  // Lễ Hiển Linh (trong Sunday.js dùng mã 6000)
+        "4080": "4070",  // Thăng Thiên (trong Sunday.js dùng bài đọc Chúa Nhật VII Phục Sinh)
         "5001": "5410",  // Hiện Xuống
         "5002": "5420",  // Ba Ngôi
         "5003": "5430",  // Mình Máu Thánh
         "5004": "5440"   // Thánh Tâm
     };
-    
+
     if (specialFeastCodes.includes(code)) {
         let specialFeastData = null;
         const sundayCode = sundayCodeMapping[code] || code; // Code trong Sunday.js
-        
+
         // ƯU TIÊN 1: Tìm trong OptionsaintReadings (cho code 8441 - Trái Tim Vô Nhiễm Mẹ)
         // Optionsaint.js có bản văn đầy đủ cho code 8441, nên ưu tiên tìm ở đây trước
         if (code === "8441" && typeof OptionsaintReadings !== 'undefined') {
@@ -2445,9 +2446,10 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                 specialFeastData = OptionsaintReadings[code] || OptionsaintReadings[8441];
             }
         }
-        
-        // ƯU TIÊN 1.4: Riêng lễ 2030 (Hiển Linh) ưu tiên đọc theo Chúa Nhật (Sunday.js/6000)
-        if (!specialFeastData && code === "2030" && typeof READINGS_SUNDAY !== 'undefined') {
+
+        // ƯU TIÊN 1.4: Các lễ trọng có mã tương ứng trong Sunday.js (2030, 5001, 5002, 5003, 5004)
+        // ưu tiên lấy bản văn đầy đủ thay vì chỉ trích dẫn trong READINGS_DATA
+        if (!specialFeastData && ["2030", "4080", "5001", "5002", "5003", "5004"].includes(code) && typeof READINGS_SUNDAY !== 'undefined') {
             const sundayData = READINGS_SUNDAY[sundayCode];
             if (sundayData) {
                 if (sundayData[cycle]) {
@@ -2463,24 +2465,6 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
             }
         }
 
-        // ƯU TIÊN 1.5: Riêng lễ 5004 (Thánh Tâm) ưu tiên đọc theo Chúa Nhật (Sunday.js/5440)
-        // để lấy bản văn đầy đủ thay vì chỉ trích dẫn trong READINGS_DATA
-        if (!specialFeastData && code === "5004" && typeof READINGS_SUNDAY !== 'undefined') {
-            const sundayData = READINGS_SUNDAY[sundayCode];
-            if (sundayData) {
-                if (sundayData[cycle]) {
-                    specialFeastData = sundayData[cycle];
-                } else if (typeof sundayData === 'object' && !sundayData.firstReading) {
-                    const availableYears = Object.keys(sundayData).filter(k => ['A', 'B', 'C'].includes(k));
-                    if (availableYears.length > 0) {
-                        specialFeastData = sundayData[availableYears[0]];
-                    }
-                } else {
-                    specialFeastData = sundayData;
-                }
-            }
-        }
-        
         // ƯU TIÊN 2: Tìm trong READINGS_DATA với code chính xác (2030, 5001, 5002, 5003, 5004, 8441)
         // Đây là nguồn dữ liệu chính xác nhất, được xác định dựa trên bài đọc cụ thể
         // Lưu ý: Với code 8441, đã tìm trong OptionsaintReadings ở trên, chỉ tìm READINGS_DATA nếu chưa có
@@ -2490,7 +2474,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
             // Code 5004 (Thánh Tâm) có year A/B/C cho Chúa Nhật, và có thể có year "0" cho ngày thường
             // Code 5001, 5002, 5003 có year A/B/C cho Chúa Nhật
             let specialReading = null;
-            
+
             if (code === "2030" || code === "8441") {
                 // Code 2030 và 8441: luôn tìm với year "0"
                 specialReading = READINGS_DATA.find(r => r.code == code && r.year === "0");
@@ -2499,16 +2483,16 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                 if (dayOfWeek === 0) {
                     // Chúa Nhật: ưu tiên cycle (A/B/C), fallback về "0" nếu không có
                     specialReading = READINGS_DATA.find(r => r.code == code && r.year === cycle) ||
-                                   READINGS_DATA.find(r => r.code == code && r.year === "0");
+                        READINGS_DATA.find(r => r.code == code && r.year === "0");
                 } else {
                     // Ngày thường: ưu tiên "0" (bài đọc chung), fallback về cycle (A/B/C) nếu không có
                     // Lưu ý: Code 5004 (Thánh Tâm) thường là Thứ Sáu, có thể không có year "0"
                     // Nên fallback về cycle (A/B/C) để lấy bài đọc Chúa Nhật gần nhất
                     specialReading = READINGS_DATA.find(r => r.code == code && r.year === "0") ||
-                                   READINGS_DATA.find(r => r.code == code && r.year === cycle);
+                        READINGS_DATA.find(r => r.code == code && r.year === cycle);
                 }
             }
-            
+
             if (specialReading) {
                 // Convert format từ READINGS_DATA (reading1, psalm, gospel, reading2) 
                 // sang format chuẩn (firstReading, psalms, secondReading, gospel) để tương thích
@@ -2527,7 +2511,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                 };
             }
         }
-        
+
         // ƯU TIÊN 3: Tìm trong READINGS_SUNDAY với code cũ (fallback cho dữ liệu đầy đủ hơn)
         // Sunday.js có dữ liệu đầy đủ với firstReading, psalms, secondReading, gospel, alleluia
         // Lưu ý: Với code 2030, có thể không có trong READINGS_SUNDAY, nên thử tìm với code gốc trước
@@ -2545,7 +2529,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                     specialFeastData = READINGS_SUNDAY[code];
                 }
             }
-            
+
             // Nếu không tìm thấy và có code cũ, thử với code cũ
             if (!specialFeastData && sundayCode !== code && READINGS_SUNDAY[sundayCode]) {
                 if (READINGS_SUNDAY[sundayCode][cycle]) {
@@ -2560,12 +2544,12 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                 }
             }
         }
-        
+
         // ƯU TIÊN 4: Tìm trong READINGS_SPECIAL (cho ngày thường - fallback)
         if (!specialFeastData && typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[code]) {
             specialFeastData = READINGS_SPECIAL[code];
         }
-        
+
         // ƯU TIÊN 5: Fallback cho code 8441 - tìm trong READINGS_SPECIAL (SaintsBible.js)
         // READINGS_SPECIAL có thể có code 8441 với bản văn đầy đủ
         if (!specialFeastData && code === "8441" && typeof READINGS_SPECIAL !== 'undefined') {
@@ -2573,7 +2557,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                 specialFeastData = READINGS_SPECIAL[code] || READINGS_SPECIAL[8441];
             }
         }
-        
+
         // ƯU TIÊN 6: Fallback cho code 8441 - tìm trong readings_year_1.js (code 5446)
         // Bản văn đầy đủ Tin Mừng Lc 2, 41-51 có trong readings_year_1.js với code 5446
         if (!specialFeastData && code === "8441") {
@@ -2583,7 +2567,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                 specialFeastData = READINGS_ORDINARY_Y1["5446"];
             }
         }
-        
+
         if (specialFeastData) {
             results.push({ type: 'seasonal', data: specialFeastData });
             // Đã tìm thấy bài đọc cho code đặc biệt, tiếp tục tìm các nguồn khác (sanctoral, special, etc.)
@@ -2593,7 +2577,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
     // 1. Seasonal/Temporal Reading
     // Lưu ý: Nếu đã tìm thấy trong specialFeastCodes ở trên, không tìm lại ở đây
     const alreadyFound = results.some(r => r.type === 'seasonal' && r.data);
-    
+
     if (!alreadyFound) {
         if (dayOfWeek === 0) {
             // Chúa Nhật: tìm trong READINGS_SUNDAY
@@ -2615,7 +2599,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                         sundayData = READINGS_SUNDAY[code];
                     }
                 }
-                
+
                 // Nếu không tìm thấy và là special feast, thử với code cũ
                 if (!sundayData && specialFeastCodes.includes(code) && sundayCodeMapping[code]) {
                     const oldCode = sundayCodeMapping[code];
@@ -2646,7 +2630,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                     if (r.code != code) return false;
                     return r.year === cycle || r.year === "0";
                 });
-                
+
                 if (readingData) {
                     sundayData = {
                         firstReading: readingData.reading1 ? { excerpt: readingData.reading1 } : null,
@@ -2660,20 +2644,20 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                     };
                 }
             }
-            
+
             if (sundayData) {
                 results.push({ type: 'seasonal', data: sundayData });
             }
         } else {
             let daily = null;
-            if (season === 5) { 
+            if (season === 5) {
                 // Mùa Thường Niên: tìm trong READINGS_ORDINARY_Y1 hoặc Y2
                 if (weekdayCycle === "1" && typeof READINGS_ORDINARY_Y1 !== 'undefined') {
                     daily = READINGS_ORDINARY_Y1[code];
                 } else if (typeof READINGS_ORDINARY_Y2 !== 'undefined') {
                     daily = READINGS_ORDINARY_Y2[code];
                 }
-            } else { 
+            } else {
                 // Các mùa khác: tìm trong READINGS_SEASONAL
                 if (typeof READINGS_SEASONAL !== 'undefined') {
                     daily = READINGS_SEASONAL[code];
@@ -2687,19 +2671,19 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                 if (!daily && typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[code]) {
                     daily = READINGS_SPECIAL[code];
                 }
-                
+
                 // Fallback: Nếu không tìm thấy trong READINGS_SEASONAL, thử tìm trong READINGS_DATA
                 // Đặc biệt cho các code đặc biệt như 6001-6006 (ngày sau lễ Hiển Linh)
                 if (!daily && typeof READINGS_DATA !== 'undefined') {
                     // Kiểm tra xem code có phải là code đặc biệt không (6001-6006, 2DDMM, 2030, etc.)
-                    if (code.toString().startsWith('2') || code.toString().startsWith('6') || code === "2030" || code === "4080" || code === "4089" || 
+                    if (code.toString().startsWith('2') || code.toString().startsWith('6') || code === "2030" || code === "4080" || code === "4089" ||
                         code === "5010" || code === "5340") {
                         const readingData = READINGS_DATA.find(r => {
                             if (r.code != code) return false;
                             // Với code đặc biệt, thử tìm với year "0" trước, sau đó thử với cycle
                             return r.year === "0" || (dayOfWeek === 0 && r.year === cycle);
                         });
-                        
+
                         if (readingData) {
                             // Convert format từ READINGS_DATA sang format chuẩn
                             daily = {
@@ -2724,19 +2708,19 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
     // Quy tắc: Tìm trong READINGS_DATA với code = 7DDMM và year = cycle (A/B/C) hoặc "0"
     if (sanctoralCode) {
         let sanctoralData = null;
-        
+
         // ƯU TIÊN 1: Tìm trong READINGS_DATA (nguồn dữ liệu chính xác nhất)
         // Sanctoral code: 7DDMM (5 chữ số, ví dụ: 71508 cho 15/08, 72411 cho 24/11)
         if (typeof READINGS_DATA !== 'undefined') {
             // Chúa Nhật: tìm với year = cycle (A/B/C)
             // Ngày thường: tìm với year = "0" (bài đọc chung cho tất cả các năm)
             const yearToFind = dayOfWeek === 0 ? cycle : "0";
-            
+
             // Tìm bài đọc với code và year khớp
             const sanctoralReading = READINGS_DATA.find(r => {
                 return r.code == sanctoralCode && r.year === yearToFind;
             });
-            
+
             if (sanctoralReading) {
                 // Convert format từ READINGS_DATA (reading1, psalm, gospel, reading2) 
                 // sang format chuẩn (firstReading, psalms, secondReading, gospel)
@@ -2774,7 +2758,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                 }
             }
         }
-        
+
         // ƯU TIÊN 2: Ưu tiên bản văn đầy đủ trong READINGS_SPECIAL nếu có
         if (typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[sanctoralCode]) {
             const specialFull = READINGS_SPECIAL[sanctoralCode];
@@ -2786,22 +2770,22 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                 sanctoralData = specialFull;
             }
         }
-        
+
         // ƯU TIÊN 3: Fallback sang READINGS_SEASONAL nếu có
         if (!sanctoralData && typeof READINGS_SEASONAL !== 'undefined' && READINGS_SEASONAL[sanctoralCode]) {
             sanctoralData = READINGS_SEASONAL[sanctoralCode];
         }
-        
+
         if (sanctoralData) {
             results.push({ type: 'sanctoral', data: sanctoralData });
         }
     }
-    
+
     // 3. Option Saint Reading (mã 8DDMM) - tìm trong OptionsaintReadings (Optionsaint.js)
     // OptionsaintReadings chứa bài đọc tùy chọn cho các thánh, mã code dạng 8DDMM
     // Ưu tiên tìm với specialCode (8DDMM) trước, sau đó thử với sanctoralCode (7DDMM) nếu cần
     let optionsaintData = null;
-    
+
     // ƯU TIÊN 1: Tìm với code chính (dayCode) nếu là mã đặc biệt (8441) hoặc mã 8DDMM
     // Code 8441 (Trái Tim Vô Nhiễm Mẹ) có bản văn đầy đủ trong OptionsaintReadings
     if (code && typeof OptionsaintReadings !== 'undefined') {
@@ -2810,14 +2794,14 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
             optionsaintData = OptionsaintReadings[code];
         }
     }
-    
+
     // ƯU TIÊN 2: Tìm với specialCode (8DDMM) - mã chính cho Optionsaint
     if (!optionsaintData && specialCode && typeof OptionsaintReadings !== 'undefined') {
         if (OptionsaintReadings[specialCode]) {
             optionsaintData = OptionsaintReadings[specialCode];
         }
     }
-    
+
     // ƯU TIÊN 3: Nếu không tìm thấy với specialCode, thử với sanctoralCode (7DDMM)
     // Một số thánh có thể có bài đọc trong Optionsaint với mã 7DDMM
     if (!optionsaintData && sanctoralCode && typeof OptionsaintReadings !== 'undefined') {
@@ -2827,7 +2811,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
             optionsaintData = OptionsaintReadings[optionsaintCode];
         }
     }
-    
+
     // Nếu tìm thấy trong OptionsaintReadings, thêm vào results
     if (optionsaintData) {
         results.push({ type: 'special', data: optionsaintData });
@@ -2836,7 +2820,7 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
     else if (specialCode && typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[specialCode]) {
         results.push({ type: 'special', data: READINGS_SPECIAL[specialCode] });
     }
-    
+
     // 4. Tết Reading (mã 70001, 70002, 70003 - year: "0")
     if (tetCode) {
         // Tìm trong READINGS_SPECIAL trước (bài đọc đầy đủ)
@@ -2851,12 +2835,12 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
             }
         }
     }
-    
+
     // 5. Lễ Vọng Reading (nếu có)
     if (vigilInfo && vigilInfo.vigilCode) {
         // Tìm bài đọc lễ vọng trong các nguồn
         let vigilData = null;
-        
+
         // Tìm trong READINGS_SEASONAL trước
         if (typeof READINGS_SEASONAL !== 'undefined' && READINGS_SEASONAL[vigilInfo.vigilCode]) {
             vigilData = READINGS_SEASONAL[vigilInfo.vigilCode];
@@ -2879,15 +2863,15 @@ function getFullReadings(code, sanctoralCode, specialCode, dayOfWeek, cycle, wee
                 vigilData = vigilReading;
             }
         }
-        
+
         // Fallback đặc biệt cho Vọng Hiện Xuống (4089) - dùng bài đọc Thứ Bảy Tuần 7 Phục Sinh (4076)
         if (!vigilData && vigilInfo.vigilCode === "4089" && typeof READINGS_SEASONAL !== 'undefined') {
             vigilData = READINGS_SEASONAL["4076"];
         }
-        
+
         if (vigilData) {
-            results.push({ 
-                type: 'vigil', 
+            results.push({
+                type: 'vigil',
                 data: vigilData,
                 vigilInfo: vigilInfo
             });
@@ -2906,32 +2890,32 @@ function findReadingFromAllSources(code, year = null) {
         }
         return { source: 'SUNDAY', data: READINGS_SUNDAY[code] };
     }
-    
+
     // 2. Tìm trong READINGS_SEASONAL (các mùa phụng vụ)
     if (typeof READINGS_SEASONAL !== 'undefined' && READINGS_SEASONAL[code]) {
         return { source: 'SEASONAL', data: READINGS_SEASONAL[code] };
     }
-    
+
     // 3. Tìm trong READINGS_ORDINARY_Y1 (Thường Niên năm lẻ)
     if (typeof READINGS_ORDINARY_Y1 !== 'undefined' && READINGS_ORDINARY_Y1[code]) {
         return { source: 'ORDINARY_Y1', data: READINGS_ORDINARY_Y1[code] };
     }
-    
+
     // 4. Tìm trong READINGS_ORDINARY_Y2 (Thường Niên năm chẵn)
     if (typeof READINGS_ORDINARY_Y2 !== 'undefined' && READINGS_ORDINARY_Y2[code]) {
         return { source: 'ORDINARY_Y2', data: READINGS_ORDINARY_Y2[code] };
     }
-    
+
     // 5. Tìm trong READINGS_SPECIAL (bài đọc các thánh - SaintsBible.js)
     if (typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[code]) {
         return { source: 'SPECIAL', data: READINGS_SPECIAL[code] };
     }
-    
+
     // 6. Tìm trong OptionsaintReadings (bài đọc tùy chọn - Optionsaint.js)
     if (typeof OptionsaintReadings !== 'undefined' && OptionsaintReadings[code]) {
         return { source: 'OPTION_SAINT', data: OptionsaintReadings[code] };
     }
-    
+
     // 7. Tìm trong READINGS_DATA (metadata)
     if (typeof READINGS_DATA !== 'undefined') {
         const found = READINGS_DATA.find(r => {
@@ -2943,7 +2927,7 @@ function findReadingFromAllSources(code, year = null) {
             return { source: 'READINGS_DATA', data: found };
         }
     }
-    
+
     return null;
 }
 
@@ -2957,7 +2941,7 @@ function renderReadingsContent(data, type) {
     noMsg.classList.add('hidden');
 
     let fullHtml = "";
-    
+
     // Màu và nhãn theo loại bài đọc
     const typeConfig = {
         seasonal: { header: '#15803d', bg: '#f0fdf4', label: 'Bài Đọc Theo Mùa Phụng Vụ', icon: '🌿', badge: 'bg-green-100 text-green-800 border-green-300' },
@@ -2968,7 +2952,7 @@ function renderReadingsContent(data, type) {
     };
     const config = typeConfig[type] || typeConfig.seasonal;
     const colors = { header: config.header, bg: config.bg };
-    
+
     // Thêm banner cho biết nguồn bài đọc
     fullHtml += `
         <div class="mb-4 p-3 rounded-lg border ${config.badge} flex items-center gap-2">
@@ -2995,39 +2979,39 @@ function renderReadingsContent(data, type) {
     };
 
     const createBlock = (d, blockType) => {
-        if(!d) return "";
+        if (!d) return "";
         let html = `<div class="reading-block">`;
-        
+
         // Header với icon
         let icon = '📖';
         let headerText = d.title || '';
-        if(blockType === 'reading1') { icon = '📜'; headerText = headerText || 'Bài Đọc I'; }
-        else if(blockType === 'reading2') { icon = '📜'; headerText = headerText || 'Bài Đọc II'; }
-        else if(blockType === 'gospel') { icon = '✝️'; headerText = headerText || 'Tin Mừng'; }
-        
+        if (blockType === 'reading1') { icon = '📜'; headerText = headerText || 'Bài Đọc I'; }
+        else if (blockType === 'reading2') { icon = '📜'; headerText = headerText || 'Bài Đọc II'; }
+        else if (blockType === 'gospel') { icon = '✝️'; headerText = headerText || 'Tin Mừng'; }
+
         html += `<div class="flex items-center gap-2 mb-2">`;
         html += `<span class="text-lg">${icon}</span>`;
         html += `<span class="reading-header" style="color: ${colors.header}; margin-bottom: 0;">${headerText}</span>`;
         html += `</div>`;
-        
-        if(d.excerpt) html += `<span class="reading-citation">${d.excerpt}</span>`;
-        if(d.info) html += `<span class="reading-info">${d.info}</span>`;
-        if(d.content) {
+
+        if (d.excerpt) html += `<span class="reading-citation">${d.excerpt}</span>`;
+        if (d.info) html += `<span class="reading-info">${d.info}</span>`;
+        if (d.content) {
             const formattedContent = d.content
                 .replace(/\r\n/g, '<br/>')
                 .replace(/\n/g, '<br/>');
             html += `<p class="reading-content">${formattedContent}</p>`;
         }
-        if(d.end) html += `<span class="reading-end">${d.end}</span>`;
+        if (d.end) html += `<span class="reading-end">${d.end}</span>`;
         html += `</div>`;
         return html;
     };
-    
+
     const createPsalm = (d) => {
-        if(!d) return "";
+        if (!d) return "";
         const isDarkMode = document.body.classList.contains('dark-mode');
         let bgStyle, headerColor, citationColor, responseBgStyle, responseBorderColor;
-        
+
         if (isDarkMode) {
             bgStyle = "background: linear-gradient(135deg, rgba(217, 119, 6, 0.12) 0%, rgba(217, 119, 6, 0.08) 100%);";
             headerColor = "#fcd34d";
@@ -3041,15 +3025,15 @@ function renderReadingsContent(data, type) {
             responseBgStyle = "background: white;";
             responseBorderColor = "#facc15";
         }
-        
+
         let html = `<div class="reading-block" style="${bgStyle} padding: 16px; border-radius: 8px; margin: 16px 0;">`;
         html += `<div class="flex items-center gap-2 mb-3">`;
         html += `<span class="text-lg">🎵</span>`;
         html += `<span class="reading-header" style="color: ${headerColor}; margin-bottom: 0;">Đáp Ca</span>`;
         html += `</div>`;
-        if(d.excerpt) html += `<span class="reading-citation" style="color: ${citationColor};">${d.excerpt}</span>`;
-        if(d.response) html += `<div class="psalm-response" style="${responseBgStyle} padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid ${responseBorderColor};">${d.response}</div>`;
-        if(d.verses) { 
+        if (d.excerpt) html += `<span class="reading-citation" style="color: ${citationColor};">${d.excerpt}</span>`;
+        if (d.response) html += `<div class="psalm-response" style="${responseBgStyle} padding: 12px; border-radius: 6px; margin: 12px 0; border-left: 4px solid ${responseBorderColor};">${d.response}</div>`;
+        if (d.verses) {
             html += `<div class="space-y-2 mt-3">`;
             d.verses.forEach(v => html += `<span class="psalm-verse">${v}</span>`);
             html += `</div>`;
@@ -3057,12 +3041,12 @@ function renderReadingsContent(data, type) {
         html += `</div>`;
         return html;
     };
-    
+
     const createAlleluia = (d) => {
-        if(!d) return "";
+        if (!d) return "";
         const isDarkMode = document.body.classList.contains('dark-mode');
         let bgStyle, borderColor, verseColor, contentColor;
-        
+
         if (isDarkMode) {
             bgStyle = "background: linear-gradient(135deg, rgba(217, 119, 6, 0.12) 0%, rgba(217, 119, 6, 0.08) 100%);";
             borderColor = "#fcd34d";
@@ -3074,7 +3058,7 @@ function renderReadingsContent(data, type) {
             verseColor = "";
             contentColor = "";
         }
-        
+
         return `
         <div class="alleluia-box" style="${bgStyle} border-left: 4px solid ${borderColor}; padding: 16px; border-radius: 0 8px 8px 0; margin: 16px 0;">
             <div class="flex items-center gap-2 mb-2">
@@ -3127,13 +3111,13 @@ function renderReadingsContent(data, type) {
         el.classList.remove('border-green-300', 'border-amber-300', 'border-purple-300', 'border-red-300');
         el.classList.add('border-transparent');
     });
-    
+
     let activeId = 'btn-seasonal';
     let borderClass = 'border-green-300';
     if (type === 'sanctoral') { activeId = 'btn-sanctoral'; borderClass = 'border-amber-300'; }
     else if (type === 'special') { activeId = 'btn-special'; borderClass = 'border-purple-300'; }
     else if (type === 'tet') { activeId = 'btn-tet'; borderClass = 'border-red-300'; }
-    
+
     const activeEl = document.getElementById(activeId);
     if (activeEl) {
         activeEl.classList.add('active', borderClass);
@@ -3149,17 +3133,17 @@ function updateHeaderTodayInfo(dateOverride) {
     // Dùng hàm core để lấy toàn bộ thông tin phụng vụ
     const dayInfo = getDayLiturgicalInfo(today, litData);
     const info = dayInfo.info;
-    
+
     const dayOfWeek = DAYS_FULL_VI[today.getDay()];
     const cycle = dayInfo.cycle;
     const weekdayCycle = dayInfo.weekdayCycle;
     const detailedWeek = dayInfo.detailedWeek;
-    
+
     // === 1. CỬ HÀNH CHÍNH (Title + Rank + Color) ===
     let celebrationTitle = "";
     let rankBadgeText = "";
     let rankBadgeClass = "";
-    
+
     if (info.special) {
         celebrationTitle = info.special;
         rankBadgeText = getRankDisplayName(info.rankCode);
@@ -3181,7 +3165,7 @@ function updateHeaderTodayInfo(dateOverride) {
             rankBadgeClass = getRankBadgeClass('CN');
         }
     }
-    
+
     // Hiển thị cử hành chính - NỔI BẬT
     const headerCelebration = document.getElementById('headerCelebration');
     if (headerCelebration) {
@@ -3194,7 +3178,7 @@ function updateHeaderTodayInfo(dateOverride) {
         else if (info.color.includes('white')) textColorClass = 'text-amber-700';
         headerCelebration.className = `text-3xl md:text-5xl font-black font-serif leading-tight mb-4 tracking-tight ${textColorClass}`;
     }
-    
+
     // Badge - Bậc lễ
     const headerBadge = document.getElementById('headerRankBadge');
     if (headerBadge) {
@@ -3205,13 +3189,13 @@ function updateHeaderTodayInfo(dateOverride) {
             headerBadge.className = "hidden";
         }
     }
-    
+
     // Color dot - Màu phụng vụ
     const headerColorDot = document.getElementById('headerColorDot');
     if (headerColorDot) {
         headerColorDot.className = `w-4 h-4 rounded-full shadow-md ring-2 ring-white ${info.color}`;
     }
-    
+
     // === 2. TUẦN + Chu kỳ (BỎ MÙA PHỤNG VỤ) ===
     const headerSeasonWeek = document.getElementById('headerSeasonWeek');
     if (headerSeasonWeek) {
@@ -3244,7 +3228,7 @@ function updateHeaderTodayInfo(dateOverride) {
         const headerInfo = document.getElementById('headerTodayInfo');
         if (headerInfo) headerInfo.style.setProperty('--today-accent', accent);
     }
-    
+
     const headerCycle = document.getElementById('headerCycle');
     if (headerCycle) {
         let cycleText = `Năm ${cycle}`;
@@ -3254,41 +3238,41 @@ function updateHeaderTodayInfo(dateOverride) {
         }
         headerCycle.innerText = cycleText;
     }
-    
+
     // === 3. THAM CHIẾU BÀI ĐỌC ===
     // Dùng thông tin từ dayInfo (đã có sẵn từ hàm core)
     const code = dayInfo.dayCode;
     const sanctoralCode = dayInfo.sanctoralCode;
     const specialCode = dayInfo.specialCode;
-    
+
     let seasonalSummary = READINGS_DATA.find(r => {
         if (r.code != code) return false;
         if (today.getDay() === 0) return r.year === cycle;
         return r.year === weekdayCycle || r.year === "0";
     });
     let sanctoralSummary = READINGS_DATA.find(r => r.code == sanctoralCode);
-    
+
     let readingsText = "";
     // Ưu tiên bài đọc theo luật phụng vụ (sanctoral khi cần)
     let primarySummary = seasonalSummary;
     if ((info._forceSanctoralReadings || info._winnerKey === 'SANCTORAL') && sanctoralSummary) {
         primarySummary = sanctoralSummary;
     }
-    
+
     if (primarySummary) {
         let parts = [primarySummary.reading1, primarySummary.psalm, primarySummary.gospel].filter(Boolean);
         readingsText = parts.join(" • ");
     }
-    
+
     const headerReadings = document.getElementById('headerReadings');
     if (headerReadings) {
         headerReadings.innerText = readingsText || "Chạm để xem bài đọc";
     }
-    
+
     // === 4. CỬ HÀNH PHỤ (nếu có) - Ở dưới cùng ===
     const headerSecondary = document.getElementById('headerSecondary');
     const headerSecondaryContent = document.getElementById('headerSecondaryContent');
-    
+
     if (headerSecondary) {
         let secondaryCelebrations = [];
         const secondarySet = new Set();
@@ -3302,7 +3286,7 @@ function updateHeaderTodayInfo(dateOverride) {
             secondarySet.add(normalized);
             secondaryCelebrations.push(name.trim());
         };
-        
+
         // Thu thập thánh/lễ nhớ không phải cử hành chính
         if (info.saints.length > 0) {
             info.saints.forEach((saint, idx) => {
@@ -3313,7 +3297,7 @@ function updateHeaderTodayInfo(dateOverride) {
                 }
             });
         }
-        
+
         // Thu thập commemorations
         if (info.commemorations && info.commemorations.length > 0) {
             info.commemorations.forEach(c => {
@@ -3323,7 +3307,7 @@ function updateHeaderTodayInfo(dateOverride) {
                 }
             });
         }
-        
+
         if (secondaryCelebrations.length > 0 && headerSecondaryContent) {
             headerSecondaryContent.innerText = secondaryCelebrations.join(" • ");
             headerSecondary.classList.remove('hidden');
@@ -3331,15 +3315,15 @@ function updateHeaderTodayInfo(dateOverride) {
             headerSecondary.classList.add('hidden');
         }
     }
-    
+
     // === 5. GHI CHÚ KỶ LUẬT PHỤNG VỤ ===
     const disciplines = getLiturgicalDiscipline(today, litData);
     const headerDiscipline = document.getElementById('headerDiscipline');
     const headerDisciplineContent = document.getElementById('headerDisciplineContent');
-    
+
     if (headerDiscipline && headerDisciplineContent) {
         if (disciplines.length > 0) {
-            let disciplineHtml = disciplines.map(d => 
+            let disciplineHtml = disciplines.map(d =>
                 `<span class="discipline-tag ${d.class}">${d.icon} ${d.label}</span>`
             ).join('');
             headerDisciplineContent.innerHTML = disciplineHtml;
@@ -3348,12 +3332,12 @@ function updateHeaderTodayInfo(dateOverride) {
             headerDiscipline.classList.add('hidden');
         }
     }
-    
+
     // === 6. LỊCH CHẦU THÁNH THỂ (Chúa Nhật) ===
     if (today.getDay() === 0) {
         const sundayNumber = getSundayNumberOfYear(today);
         const weekKey = sundayNumber.toString().padStart(2, '0');
-        
+
         if (typeof eucharisticAdoration !== 'undefined' && eucharisticAdoration[weekKey] && eucharisticAdoration[weekKey].content) {
             // Thêm thông tin Chầu vào headerReadings hoặc tạo phần riêng
             const adorationText = eucharisticAdoration[weekKey].content;
@@ -3372,7 +3356,7 @@ function updateHeaderTodayInfo(dateOverride) {
             }
         }
     }
-    
+
     // Click handler
     document.getElementById('headerTodayInfo').onclick = () => openModal(today, info);
 
@@ -3397,7 +3381,7 @@ function ensureTooltipElement() {
 
 // Helper: xác định có phải ngày lễ vọng không (dùng chung, tránh trùng logic)
 function isVigilDay(date, dayCode, litData) {
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
     const m = date.getMonth();
     const d = date.getDate();
@@ -3440,23 +3424,23 @@ function getVigilEveInfo(date, litData) {
 function getDayLiturgicalInfo(date, litData) {
     // 1. Lấy thông tin phụng vụ cơ bản (từ precedence engine)
     const info = getDayInfo(date, litData);
-    
+
     // 2. Lấy mã ngày phụng vụ
     const dayCode = getLiturgicalDayCode(date, litData);
-    
+
     // 3. Lấy tuần phụng vụ chi tiết
     const detailedWeek = getDetailedLiturgicalWeek(date, litData);
 
     // 4. Kiểm tra lễ vọng (ngày chính và ngày trước đó)
     const vigilInfo = getVigilInfo(date, litData);
     const vigilEveInfo = getVigilEveInfo(date, litData);
-    
+
     // 5. Xác định dayLabel dựa trên bậc lễ (precedence)
     const dayLabelText = getDayLabelFromPrecedence(date, info, dayCode, litData, detailedWeek, vigilEveInfo);
-    
+
     // 6. Lấy thông tin lịch âm
     const lunar = typeof LUNAR_CALENDAR !== 'undefined' ? LUNAR_CALENDAR.getLunarDate(date) : null;
-    
+
     // 7. Lấy các mã phụng vụ khác
     let sanctoralCode = getSanctoralDayCode(date);
     if (info._forceSanctoralReadings && info._forceSanctoralKey) {
@@ -3464,14 +3448,14 @@ function getDayLiturgicalInfo(date, litData) {
     }
     const specialCode = getSpecialFeastCode(date, litData);
     const tetCode = getTetReadingCode(date);
-    
+
     // 8. Lấy chu kỳ phụng vụ
     const cycle = getLiturgicalCycle(date, litData);
     const weekdayCycle = date.getFullYear() % 2 !== 0 ? "1" : "2";
-    
+
     // 9. Xác định có phải ngày lễ vọng không (dùng helper chung)
     const vigDay = isVigilDay(date, dayCode, litData) || hasVigilName(info.special) || Boolean(vigilEveInfo);
-    
+
     // 10. Format dayLabel với HTML (cho renderCalendar)
     let dayLabel = "";
     if (info.transferred && info.special) {
@@ -3483,7 +3467,7 @@ function getDayLiturgicalInfo(date, litData) {
     } else {
         dayLabel = `<span class="ferial-label">${dayLabelText}</span>`;
     }
-    
+
     // Trả về object chứa tất cả thông tin
     return {
         // Thông tin cơ bản
@@ -3492,24 +3476,24 @@ function getDayLiturgicalInfo(date, litData) {
         detailedWeek: detailedWeek,
         dayLabelText: dayLabelText,
         dayLabel: dayLabel, // HTML formatted
-        
+
         // Lịch âm
         lunar: lunar,
-        
+
         // Mã phụng vụ
         sanctoralCode: sanctoralCode,
         specialCode: specialCode,
         tetCode: tetCode,
-        
+
         // Chu kỳ
         cycle: cycle,
         weekdayCycle: weekdayCycle,
-        
+
         // Lễ vọng
         vigilInfo: vigilInfo,
         vigilEveInfo: vigilEveInfo,
         isVigilDay: vigDay,
-        
+
         // Liturgical data
         litData: litData
     };
@@ -3517,7 +3501,7 @@ function getDayLiturgicalInfo(date, litData) {
 
 // Helper function: Xác định dayLabel dựa trên bậc lễ từ precedence engine (dùng chung cho renderCalendar, tooltip, export)
 function getDayLabelFromPrecedence(date, info, dayCode, litData, detailedWeek, vigilEveInfo = null) {
-    const t = d => { const c = new Date(d); c.setHours(0,0,0,0); return c.getTime(); };
+    const t = d => { const c = new Date(d); c.setHours(0, 0, 0, 0); return c.getTime(); };
     const dTime = t(date);
     const holySaturday = addDays(litData.easter, -1);
     const vigDay = isVigilDay(date, dayCode, litData) || Boolean(vigilEveInfo) || hasVigilName(info.special);
@@ -3527,7 +3511,7 @@ function getDayLabelFromPrecedence(date, info, dayCode, litData, detailedWeek, v
         if (name.includes("Lễ Giáng Sinh")) return "CHÚA GIÁNG SINH";
         return name;
     };
-    
+
     // Ưu tiên: Lễ bị dời > Lễ cử hành chính > Sanctoral > Ngày thường
     if (info.transferred && info.special) {
         // Lễ bị dời đến ngày này
@@ -3580,7 +3564,7 @@ function generateTooltipContent(date, info, litData) {
     const activeLitData = litData || getLiturgicalData(date.getFullYear());
     const dayInfo = getDayLiturgicalInfo(date, activeLitData);
     const infoFromCore = dayInfo.info;
-    
+
     // Lấy các thông tin từ dayInfo
     const code = dayInfo.dayCode;
     const sanctoralCode = dayInfo.sanctoralCode;
@@ -3591,7 +3575,7 @@ function generateTooltipContent(date, info, litData) {
     const seasonalCodeForReadings = String(code).startsWith('7')
         ? getLiturgicalDayCode(date, activeLitData, { includeSanctoral: false })
         : code;
-    
+
     // Lấy thông tin bài đọc
     let seasonalSummary = READINGS_DATA.find(r => {
         if (r.code != seasonalCodeForReadings) return false;
@@ -3606,18 +3590,18 @@ function generateTooltipContent(date, info, litData) {
     if ((infoFromCore._forceSanctoralReadings || infoFromCore._winnerKey === 'SANCTORAL') && sanctoralSummary) {
         primarySummary = sanctoralSummary;
     }
-    
+
     const gospel = primarySummary?.gospel || sanctoralSummary?.gospel || specialSummary?.gospel || '';
-    
+
     // Xác định có lựa chọn khác không
     const hasSanctoral = sanctoralSummary && sanctoralSummary !== seasonalSummary;
     const hasSpecial = specialSummary && specialSummary !== seasonalSummary;
     const hasAlternatives = hasSanctoral || hasSpecial;
-    
+
     // Xác định cử hành chính và bậc lễ thấp hơn từ dayInfo (đã được xử lý bởi precedence engine)
     const primaryName = dayInfo.dayLabelText;
     let secondaryName = '';
-    
+
     // Bậc lễ thấp hơn: từ commemorations hoặc saints không được cử hành
     if (infoFromCore.commemorations && infoFromCore.commemorations.length > 0) {
         // Lấy commemoration đầu tiên
@@ -3627,17 +3611,17 @@ function generateTooltipContent(date, info, litData) {
         // Nếu có saints nhưng không phải cử hành chính
         secondaryName = infoFromCore.saints[0].name;
     }
-    
+
     // Xác định chu kỳ - chỉ hiển thị với Mùa Thường Niên và cử hành chính là temporal
     let cycleText = '';
     // Cử hành chính là temporal nếu:
     // - Không phải lễ bị dời (transferred)
     // - Và (_winnerKey không phải "SANCTORAL" hoặc không có _winnerKey)
     // - Và (info.special không phải là tên thánh hoặc info.special === detailedWeek)
-    const isSanctoralPrimary = infoFromCore._winnerKey === "SANCTORAL" || 
-                               (infoFromCore.saints.length > 0 && infoFromCore.special === infoFromCore.saints[0]?.name);
+    const isSanctoralPrimary = infoFromCore._winnerKey === "SANCTORAL" ||
+        (infoFromCore.saints.length > 0 && infoFromCore.special === infoFromCore.saints[0]?.name);
     const isTemporalPrimary = !infoFromCore.transferred && !isSanctoralPrimary;
-    
+
     if (infoFromCore.season === "Mùa Thường Niên" && isTemporalPrimary) {
         if (date.getDay() === 0) {
             // Chúa Nhật: Năm A/B/C
@@ -3647,13 +3631,13 @@ function generateTooltipContent(date, info, litData) {
             cycleText = weekdayCycle === "1" ? "Năm lẻ" : "Năm chẵn";
         }
     }
-    
+
     // Tạo HTML
     let html = '';
-    
+
     // Hàng đầu tiên: Cử hành chính - chữ lớn, đậm, nổi bật
     html += `<div class="tooltip-primary" style="font-size: 1rem; font-weight: 700; color: #1f2937; margin-bottom: 8px; line-height: 1.4;">`;
-    
+
     if (cycleText) {
         // Có chu kỳ: hiển thị với chu kỳ
         html += `${primaryName} - ${cycleText}`;
@@ -3661,9 +3645,9 @@ function generateTooltipContent(date, info, litData) {
         // Không có chu kỳ: chỉ hiển thị tên
         html += primaryName;
     }
-    
+
     html += `</div>`;
-    
+
     // Hàng thứ hai: Bậc lễ thấp hơn (commemoration) - chữ nhỏ hơn
     if (secondaryName) {
         html += `<div class="tooltip-secondary" style="font-size: 0.85rem; font-weight: 400; color: #6b7280; margin-bottom: 12px; line-height: 1.3;">`;
@@ -3672,7 +3656,7 @@ function generateTooltipContent(date, info, litData) {
     } else {
         html += `<div style="margin-bottom: 12px;"></div>`;
     }
-    
+
     // Tin Mừng
     if (gospel) {
         html += `<div class="tooltip-section">`;
@@ -3680,10 +3664,10 @@ function generateTooltipContent(date, info, litData) {
         html += `<div class="tooltip-value tooltip-gospel">${gospel}</div>`;
         html += `</div>`;
     }
-    
+
     // Lễ không cử hành (thay vì "Lựa chọn khác")
     const notCelebratedNames = [];
-    
+
     // Kiểm tra sanctoral không được cử hành
     if (hasSanctoral && sanctoralSummary) {
         // Parse sanctoralCode (format: "7ddmm")
@@ -3692,32 +3676,32 @@ function generateTooltipContent(date, info, litData) {
             const day = parseInt(sanctoralCode.substring(1, 3));
             const month = parseInt(sanctoralCode.substring(3, 5));
             const saintKey = `${month}-${day}`;
-            
+
             if (FIXED_DATA_LOOKUP[saintKey]) {
                 const saint = FIXED_DATA_LOOKUP[saintKey];
                 // Chỉ thêm nếu không phải cử hành chính
                 // Kiểm tra xem có phải là cử hành chính không
-                const isSanctoralPrimary = infoFromCore._winnerKey === "SANCTORAL" || 
-                                         (infoFromCore.special === saint.name) ||
-                                         // Lễ di động ép sanctoral (Tử Đạo VN, Truyền Tin, St Joseph...)
-                                         // → sanctoral code ĐÃ bị đổi, tên có thể khác nhưng vẫn là cử hành chính
-                                         infoFromCore._forceSanctoralReadings ||
-                                         // So sánh mềm: tên cử hành chính chứa trong tên thánh hoặc ngược lại
-                                         (infoFromCore.special && saint.name && 
-                                          (saint.name.includes(infoFromCore.special) || infoFromCore.special.includes(saint.name)));
-                
+                const isSanctoralPrimary = infoFromCore._winnerKey === "SANCTORAL" ||
+                    (infoFromCore.special === saint.name) ||
+                    // Lễ di động ép sanctoral (Tử Đạo VN, Truyền Tin, St Joseph...)
+                    // → sanctoral code ĐÃ bị đổi, tên có thể khác nhưng vẫn là cử hành chính
+                    infoFromCore._forceSanctoralReadings ||
+                    // So sánh mềm: tên cử hành chính chứa trong tên thánh hoặc ngược lại
+                    (infoFromCore.special && saint.name &&
+                        (saint.name.includes(infoFromCore.special) || infoFromCore.special.includes(saint.name)));
+
                 if (!isSanctoralPrimary) {
                     notCelebratedNames.push(saint.name);
                 }
             }
         }
     }
-    
+
     // Kiểm tra special không được cử hành
     if (hasSpecial && specialSummary) {
         // Có thể thêm logic để xác định tên lễ đặc biệt nếu cần
     }
-    
+
     // Hiển thị nếu có lễ không cử hành
     if (notCelebratedNames.length > 0) {
         html += `<div class="tooltip-section">`;
@@ -3725,7 +3709,7 @@ function generateTooltipContent(date, info, litData) {
         html += `<div class="tooltip-value tooltip-alternative">${notCelebratedNames.join(' / ')}</div>`;
         html += `</div>`;
     }
-    
+
     // Hiển thị thông tin Tết nếu có
     if (infoFromCore.isTet && infoFromCore.tetNote) {
         html += `<div class="tooltip-section" style="background-color: #fef2f2; padding: 8px; border-radius: 4px; margin-top: 8px;">`;
@@ -3739,7 +3723,7 @@ function generateTooltipContent(date, info, litData) {
         html += `<div class="tooltip-value" style="font-size: 0.8rem; color: #991b1b;">${infoFromCore.tetNote}</div>`;
         html += `</div>`;
     }
-    
+
     // Hiển thị thông tin dời Lễ Tro nếu có
     if (infoFromCore.ashWednesdayNote) {
         html += `<div class="tooltip-section" style="background-color: #f3e8ff; padding: 8px; border-radius: 4px; margin-top: 8px;">`;
@@ -3747,7 +3731,7 @@ function generateTooltipContent(date, info, litData) {
         html += `<div class="tooltip-value" style="font-size: 0.75rem; color: #5b21b6;">${infoFromCore.ashWednesdayNote}</div>`;
         html += `</div>`;
     }
-    
+
     // Hiển thị lịch Chầu Thánh Thể cho Chúa Nhật
     if (date.getDay() === 0) {
         const sundayNumber = getSundayNumberOfYear(date);
@@ -3759,7 +3743,7 @@ function generateTooltipContent(date, info, litData) {
             html += `</div>`;
         }
     }
-    
+
     return html;
 }
 
@@ -3768,13 +3752,13 @@ function showTooltip(event, date, info, litData) {
     const tooltip = ensureTooltipElement();
     const content = generateTooltipContent(date, info, litData);
     tooltip.innerHTML = content;
-    
+
     // Hiển thị tooltip tạm thời để lấy kích thước
     tooltip.style.visibility = 'hidden';
     tooltip.style.display = 'block';
     tooltip.classList.add('visible');
     const tooltipRect = tooltip.getBoundingClientRect();
-    
+
     // Lấy vị trí con trỏ chuột hoặc touch
     // clientX/clientY là tọa độ tương đối với viewport (màn hình hiển thị)
     let mouseX, mouseY;
@@ -3792,41 +3776,41 @@ function showTooltip(event, date, info, litData) {
         mouseX = rect.left + rect.width / 2;
         mouseY = rect.top + rect.height / 2;
     }
-    
+
     // Kích thước viewport
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    
+
     // Offset để không che mất con trỏ
     const offsetX = 15;
     const offsetY = 15;
-    
+
     // Tính vị trí ban đầu (bên phải và dưới con trỏ)
     let left = mouseX + offsetX;
     let top = mouseY + offsetY;
-    
+
     // Điều chỉnh nếu tooltip ra ngoài màn hình bên phải
     if (left + tooltipRect.width > viewportWidth - 10) {
         // Hiển thị bên trái con trỏ
         left = mouseX - tooltipRect.width - offsetX;
     }
-    
+
     // Điều chỉnh nếu tooltip ra ngoài màn hình bên trái
     if (left < 10) {
         left = 10;
     }
-    
+
     // Điều chỉnh nếu tooltip ra ngoài màn hình bên dưới
     if (top + tooltipRect.height > viewportHeight - 10) {
         // Hiển thị phía trên con trỏ
         top = mouseY - tooltipRect.height - offsetY;
     }
-    
+
     // Điều chỉnh nếu tooltip ra ngoài màn hình phía trên
     if (top < 10) {
         top = 10;
     }
-    
+
     // Áp dụng vị trí - KHÔNG cộng scroll offset vì tooltip dùng position: fixed
     // position: fixed định vị theo viewport, clientX/clientY cũng là viewport coordinates
     tooltip.style.left = `${left}px`;
@@ -3866,12 +3850,12 @@ function cancelLongPress() {
 
 function renderCalendar() {
     const startTime = performance.now();
-    
+
     document.getElementById('currentYearDisplay').innerText = currentYear;
     const grid = document.getElementById('calendarGrid');
     grid.innerHTML = "";
     const litData = getLiturgicalData(currentYear);
-    
+
     // Hiển thị thông báo nếu Lễ Tro bị dời (năm có Tết trùng Lễ Tro)
     if (litData.ashWednesdayTransferred) {
         console.log(`[${currentYear}] Lễ Tro bị dời:`, litData.ashWednesdayTransferNote);
@@ -3888,7 +3872,7 @@ function renderCalendar() {
         daysHeader.className = "days-header grid grid-cols-7 gap-2 mb-2 text-xs font-semibold text-gray-400 text-center uppercase tracking-wide";
         DAYS_VI.forEach(d => {
             const span = document.createElement('span'); span.innerText = d;
-            if(d==='CN') span.className = "text-red-500 font-bold";
+            if (d === 'CN') span.className = "text-red-500 font-bold";
             daysHeader.appendChild(span);
         });
         monthDiv.appendChild(daysHeader);
@@ -3896,7 +3880,7 @@ function renderCalendar() {
         daysGrid.className = "calendar-days-grid grid grid-cols-7 gap-2 flex-grow";
         const firstDayOfMonth = new Date(currentYear, month, 1).getDay();
         const daysInMonth = new Date(currentYear, month + 1, 0).getDate();
-        for(let i=0; i<firstDayOfMonth; i++) daysGrid.appendChild(document.createElement('div'));
+        for (let i = 0; i < firstDayOfMonth; i++) daysGrid.appendChild(document.createElement('div'));
 
         const getSeasonColorClass = (seasonName) => {
             if (seasonName === "Mùa Vọng" || seasonName === "Mùa Chay") return "bg-lit-purple";
@@ -3904,31 +3888,31 @@ function renderCalendar() {
             return "bg-lit-green"; // Mùa Thường Niên
         };
 
-        for(let d=1; d<=daysInMonth; d++) {
+        for (let d = 1; d <= daysInMonth; d++) {
             const date = new Date(currentYear, month, d);
-            
+
             // Dùng hàm core để lấy toàn bộ thông tin phụng vụ
             const dayInfo = getDayLiturgicalInfo(date, litData);
             const info = dayInfo.info;
-            
+
             const dayEl = document.createElement('div');
             const isOptionalMemorial = info.rankCode === 'NHOKB' && info.saints && info.saints.length > 0;
             const colorSource = isOptionalMemorial ? getSeasonColorClass(info.season) : info.color;
             let bgClass = "bg-white hover:bg-gray-50 text-gray-700";
             let borderClass = "border-gray-200";
-            if(colorSource.includes('purple')) { bgClass = "bg-purple-50 text-purple-900"; borderClass = "border-purple-200"; }
-            else if(colorSource.includes('green') && date.getDay()===0) { bgClass = "bg-green-50 text-green-900"; borderClass = "border-green-200"; }
-            else if(colorSource.includes('red')) { bgClass = "bg-red-50 text-red-900"; borderClass = "border-red-200"; }
-            else if(colorSource.includes('white')) { bgClass = "bg-yellow-50 text-yellow-900"; borderClass = "border-yellow-200"; }
+            if (colorSource.includes('purple')) { bgClass = "bg-purple-50 text-purple-900"; borderClass = "border-purple-200"; }
+            else if (colorSource.includes('green') && date.getDay() === 0) { bgClass = "bg-green-50 text-green-900"; borderClass = "border-green-200"; }
+            else if (colorSource.includes('red')) { bgClass = "bg-red-50 text-red-900"; borderClass = "border-red-200"; }
+            else if (colorSource.includes('white')) { bgClass = "bg-yellow-50 text-yellow-900"; borderClass = "border-yellow-200"; }
             // Tạo bản sao để tránh mutation - so sánh timestamp thay vì mutate date
             const dateCopy = new Date(date);
             dateCopy.setHours(0, 0, 0, 0);
             const todayCopy = new Date();
             todayCopy.setHours(0, 0, 0, 0);
             const isToday = (dateCopy.getTime() === todayCopy.getTime());
-            if(isToday) bgClass += " today-highlight";
+            if (isToday) bgClass += " today-highlight";
             dayEl.className = `calendar-day ${bgClass} ${borderClass}`;
-            
+
             // Sử dụng dayLabel từ hàm core (đã được format sẵn)
             let html = `<span class="day-number">${d}</span>`;
             if (isOptionalMemorial) {
@@ -3936,7 +3920,7 @@ function renderCalendar() {
             } else if (dayInfo.dayLabel) {
                 html += `<span class="day-label">${dayInfo.dayLabel}</span>`;
             }
-            
+
             // Hiển thị lễ nhớ/commemorations (tránh lặp tên)
             let secondaryItems = [];
             const secondarySet = new Set();
@@ -3944,9 +3928,9 @@ function renderCalendar() {
             const shortenSecondaryName = (name) => {
                 if (!name) return "";
                 let s = name.replace(/^Thánh\s+/i, 'T. ')
-                            .replace(/^Đức Mẹ\s+/i, 'ĐM. ')
-                            .replace(/\s+/g, ' ')
-                            .trim();
+                    .replace(/^Đức Mẹ\s+/i, 'ĐM. ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
                 const parenMatch = s.match(/\([^)]+\)\s*$/);
                 const paren = parenMatch ? parenMatch[0].trim() : "";
                 let base = s.replace(/\([^)]+\)\s*$/, '').trim();
@@ -3979,18 +3963,18 @@ function renderCalendar() {
                 secondarySet.add(shortName);
                 secondaryItems.push({ text: shortName, opacity, marginTop });
             };
-            
+
             // Lễ nhớ nếu không phải cử hành chính
             if (info.saints && info.saints.length > 0) {
                 const firstSaint = info.saints[0];
-                const isSaintPrimary = info.special === firstSaint.name || 
-                                      (info._winnerKey === 'SANCTORAL' && firstSaint.rank !== 'NHOKB');
-                
+                const isSaintPrimary = info.special === firstSaint.name ||
+                    (info._winnerKey === 'SANCTORAL' && firstSaint.rank !== 'NHOKB');
+
                 if (!isSaintPrimary && (firstSaint.rank === 'NHO' || firstSaint.rank === 'NHOKB')) {
                     addSecondary(firstSaint.name, 0.8, 2);
                 }
             }
-            
+
             // Commemorations
             if (info.commemorations && info.commemorations.length > 0) {
                 info.commemorations.forEach(comm => {
@@ -3998,21 +3982,21 @@ function renderCalendar() {
                     addSecondary(commName, 0.7, 1);
                 });
             }
-            
+
             if (secondaryItems.length > 0) {
                 const extraCount = secondaryItems.length - 1;
                 const first = secondaryItems[0];
                 const lineText = extraCount > 0 ? `${first.text} +${extraCount}` : first.text;
                 html += `<span class="day-label secondary-saint" style="opacity: ${first.opacity}; display: block; margin-top: ${first.marginTop}px;">${lineText}</span>`;
             }
-            
+
             // Hiển thị lịch âm (Âm lịch Việt Nam)
             if (dayInfo.lunar) {
                 const lunar = dayInfo.lunar;
                 const isFirstDay = lunar.day === 1;
                 let lunarClass = "lunar-date";
                 let lunarText = "";
-                
+
                 if (isFirstDay) {
                     // Ngày mùng 1: hiển thị cả tháng
                     lunarClass += " lunar-first-day lunar-full-month";
@@ -4024,14 +4008,14 @@ function renderCalendar() {
                 }
                 html += `<span class="${lunarClass}">${lunarText}</span>`;
             }
-            
+
             // Hiển thị dấu chấm cho lễ trọng (cử hành chính hoặc bị dời)
             if (info.rankCode === "TRONG" || (info.transferred && info.rankCode === "TRONG")) {
                 html += `<div class="saint-dot bg-red-500"></div>`;
             } else if (info.saints.length > 0 && info.saints[0].rank === "TRONG" && !info.transferred) {
                 html += `<div class="saint-dot bg-red-500"></div>`;
             }
-            
+
             dayEl.innerHTML = html;
             dayEl.onclick = () => openModal(date, info);
 
@@ -4049,7 +4033,7 @@ function renderCalendar() {
             if (date.getDay() === 0) {
                 dayEl.classList.add('is-sunday');
             }
-            
+
             // Thêm tooltip events (hover và long-press)
             dayEl.addEventListener('mouseenter', (e) => {
                 showTooltip(e, date, info, litData);
@@ -4065,7 +4049,7 @@ function renderCalendar() {
             dayEl.addEventListener('touchend', (e) => {
                 const wasLongPress = tooltipShownByLongPress;
                 cancelLongPress();
-                
+
                 if (wasLongPress) {
                     // Nếu đã hiển thị bằng long-press, ngăn click event và giữ tooltip
                     e.preventDefault();
@@ -4086,7 +4070,7 @@ function renderCalendar() {
                     hideTooltip();
                 }
             });
-            
+
             daysGrid.appendChild(dayEl);
         }
         // Bổ sung ô trống để tháng luôn đủ 6 hàng (42 ô)
@@ -4097,7 +4081,7 @@ function renderCalendar() {
         monthDiv.appendChild(daysGrid);
         grid.appendChild(monthDiv);
     }
-    
+
     // Log performance
     const endTime = performance.now();
     console.log(`⚡ Render calendar ${currentYear}: ${(endTime - startTime).toFixed(2)}ms`);
@@ -4107,11 +4091,11 @@ function openModal(date, info) {
     const modal = document.getElementById('dayModal');
     const modalYear = date.getFullYear();
     const litData = getLiturgicalData(modalYear);
-    
+
     // Dùng hàm core để lấy toàn bộ thông tin phụng vụ
     // Nếu info đã được truyền vào, vẫn dùng hàm core để đảm bảo tính nhất quán
     const dayInfo = getDayLiturgicalInfo(date, litData);
-    
+
     // Lấy các thông tin từ dayInfo
     const code = dayInfo.dayCode;
     const sanctoralCode = dayInfo.sanctoralCode;
@@ -4122,21 +4106,21 @@ function openModal(date, info) {
     const seasonalCodeForReadings = String(code).startsWith('7')
         ? getLiturgicalDayCode(date, litData, { includeSanctoral: false })
         : code;
-    
+
     // Sử dụng info từ dayInfo (đảm bảo tính nhất quán)
     const infoFromCore = dayInfo.info;
     const dayName = DAYS_FULL_VI[date.getDay()];
-    
+
     // ============================================================================
     // HEADER - Ngày tháng và cử hành chính
     // ============================================================================
-    
+
     // Ngày dương lịch
     const modalDate = document.getElementById('modalDate');
     const modalDayOfWeek = document.getElementById('modalDayOfWeek');
     if (modalDate) modalDate.innerText = `${date.getDate()} tháng ${date.getMonth() + 1}, ${modalYear}`;
     if (modalDayOfWeek) modalDayOfWeek.innerText = dayName;
-    
+
     // Ngày âm lịch
     if (dayInfo.lunar) {
         const lunar = dayInfo.lunar;
@@ -4144,28 +4128,28 @@ function openModal(date, info) {
         const modalLunarDate = document.getElementById('modalLunarDate');
         if (modalLunarDate) modalLunarDate.innerText = `${lunar.day}/${lunar.month}${lunar.leap ? ' nhuận' : ''} (${lunarMonthName})`;
     }
-    
+
     // Màu header theo mùa
     const header = document.getElementById('modalHeader');
     const isDarkMode = document.body.classList.contains('dark-mode');
     if (isDarkMode) {
         // Dark mode: nền tối mềm
-        if(infoFromCore.color.includes('green')) header.style.background = 'linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(16, 185, 129, 0.12) 100%)';
-        else if(infoFromCore.color.includes('purple')) header.style.background = 'linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(139, 92, 246, 0.12) 100%)';
-        else if(infoFromCore.color.includes('red')) header.style.background = 'linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(239, 68, 68, 0.12) 100%)';
+        if (infoFromCore.color.includes('green')) header.style.background = 'linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(16, 185, 129, 0.12) 100%)';
+        else if (infoFromCore.color.includes('purple')) header.style.background = 'linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(139, 92, 246, 0.12) 100%)';
+        else if (infoFromCore.color.includes('red')) header.style.background = 'linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(239, 68, 68, 0.12) 100%)';
         else header.style.background = 'linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(217, 119, 6, 0.12) 100%)';
     } else {
         // Light mode: nền sáng
-        if(infoFromCore.color.includes('green')) header.style.background = 'linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%)';
-        else if(infoFromCore.color.includes('purple')) header.style.background = 'linear-gradient(135deg, #f3e8ff 0%, #faf5ff 100%)';
-        else if(infoFromCore.color.includes('red')) header.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%)';
+        if (infoFromCore.color.includes('green')) header.style.background = 'linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%)';
+        else if (infoFromCore.color.includes('purple')) header.style.background = 'linear-gradient(135deg, #f3e8ff 0%, #faf5ff 100%)';
+        else if (infoFromCore.color.includes('red')) header.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%)';
         else header.style.background = 'linear-gradient(135deg, #fef9c3 0%, #fefce8 100%)';
     }
 
     // === 1. CỬ HÀNH CHÍNH (Title + Rank + Color) ===
     let celebrationTitle = "";
     let rankCode = infoFromCore.rankCode;
-    
+
     if (infoFromCore.special) {
         celebrationTitle = infoFromCore.special;
     } else if (infoFromCore.isTet) {
@@ -4179,10 +4163,10 @@ function openModal(date, info) {
         celebrationTitle = `${dayName} ${detailedWeek}`;
         if (date.getDay() === 0) rankCode = 'CN';
     }
-    
+
     // Kiểm tra lễ vọng từ dayInfo
     const hasVigil = dayInfo.vigilInfo && dayInfo.vigilInfo.hasVigil;
-    
+
     const modalCelebrationTitle = document.getElementById('modalCelebrationTitle');
     const modalCelebrationSubtitle = document.getElementById('modalCelebrationSubtitle');
     // Chỉ set innerText nếu không có lễ vọng (sẽ được cập nhật với innerHTML sau)
@@ -4194,11 +4178,11 @@ function openModal(date, info) {
             modalCelebrationSubtitle.classList.add('hidden');
         }
     }
-    
+
     // Color indicator
     const colorIndicator = document.getElementById('modalColorIndicator');
     colorIndicator.className = `w-4 h-4 rounded-full border-2 border-white shadow ${infoFromCore.color}`;
-    
+
     // Rank badge
     const badgeEl = document.getElementById('modalRankBadge');
     if (rankCode && rankCode !== 'NGAY_THUONG') {
@@ -4217,10 +4201,10 @@ function openModal(date, info) {
     else if (infoFromCore.season === "Mùa Chay") { seasonIcon = "✝️"; seasonClass = "season-lent"; }
     else if (infoFromCore.season === "Mùa Phục Sinh") { seasonIcon = "🕊️"; seasonClass = "season-easter"; }
     else if (infoFromCore.season === "Mùa Thường Niên") { seasonIcon = "🌿"; seasonClass = "season-ordinary"; }
-    
+
     seasonBadge.innerHTML = `${seasonIcon} ${detailedWeek}`;
     seasonBadge.className = `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${seasonClass}`;
-    
+
     const modalCode = document.getElementById('modalCode');
     const modalYearCycle = document.getElementById('modalYearCycle');
     if (modalCode) {
@@ -4228,7 +4212,7 @@ function openModal(date, info) {
         modalCode.classList.add('hidden');
     }
     if (modalYearCycle) modalYearCycle.innerText = `Năm ${cycle}`;
-    
+
     // Weekday cycle (chỉ cho Mùa Thường Niên ngày thường)
     const weekdayCycleEl = document.getElementById('modalWeekdayCycle');
     if (infoFromCore.season === "Mùa Thường Niên" && date.getDay() !== 0) {
@@ -4254,7 +4238,7 @@ function openModal(date, info) {
     const disciplinesForSection = disciplines.filter(d => d.type !== 'obligation');
     if (disciplinesForSection.length > 0) {
         disciplineSection.classList.remove('hidden');
-        disciplineContent.innerHTML = disciplinesForSection.map(d => 
+        disciplineContent.innerHTML = disciplinesForSection.map(d =>
             `<span class="discipline-tag ${d.class}">${d.icon} ${d.label}</span>`
         ).join('');
     } else {
@@ -4277,14 +4261,14 @@ function openModal(date, info) {
     } else {
         tetSection.classList.add('hidden');
     }
-    
+
     // === ASH WEDNESDAY TRANSFER SECTION ===
     const ashSection = document.getElementById('modalAshWednesdaySection');
     const ashContent = document.getElementById('modalAshWednesdayContent');
     if (ashSection && ashContent) {
         if (infoFromCore.ashWednesdayNote) {
             ashSection.classList.remove('hidden');
-            let ashHtml = infoFromCore.isTransferredAshWednesday 
+            let ashHtml = infoFromCore.isTransferredAshWednesday
                 ? `<p class="font-bold text-lg mb-1">Cử hành Lễ Tro (Dời)</p>`
                 : `<p class="font-bold text-lg mb-1">Bắt đầu Mùa Chay</p>`;
             ashHtml += `<p class="text-sm opacity-90">${infoFromCore.ashWednesdayNote}</p>`;
@@ -4309,7 +4293,7 @@ function openModal(date, info) {
         secondarySeen.add(normalized);
         secondaryCelebrations.push(item);
     };
-    
+
     // Thu thập cử hành phụ từ saints và commemorations
     if (infoFromCore.saints.length > 0) {
         infoFromCore.saints.forEach((s, idx) => {
@@ -4331,7 +4315,7 @@ function openModal(date, info) {
             });
         });
     }
-    
+
     if (secondaryCelebrations.length > 0 && secondarySection && secondaryContent) {
         secondarySection.classList.remove('hidden');
         secondaryContent.innerHTML = secondaryCelebrations.map(c => `
@@ -4357,7 +4341,7 @@ function openModal(date, info) {
     const vigilInfo = dayInfo.vigilInfo;
     const vigilEveInfo = dayInfo.vigilEveInfo;
     const vigilInfoForReadings = vigilInfo || vigilEveInfo;
-    
+
     // Tìm summary từ READINGS_DATA
     let seasonalSummary = READINGS_DATA.find(r => {
         if (r.code != seasonalCodeForReadings) return false;
@@ -4369,7 +4353,7 @@ function openModal(date, info) {
     // Dùng tetCode từ dayInfo (đã có sẵn từ hàm core)
     const tetCode = dayInfo.tetCode;
     let tetSummary = tetCode ? READINGS_DATA.find(r => r.code == tetCode && r.year === "0") : null;
-    
+
     // Tìm summary cho lễ vọng (nếu có)
     let vigilSummary = null;
     if (vigilInfoForReadings && vigilInfoForReadings.vigilCode) {
@@ -4452,8 +4436,8 @@ function openModal(date, info) {
             seasonalFullData = { options: christmasOptions };
             if (!seasonalSummary) {
                 seasonalSummary = READINGS_DATA.find(r => r.code == 22512 && r.year === "R") ||
-                                 READINGS_DATA.find(r => r.code == 22512 && r.year === "B") ||
-                                 READINGS_DATA.find(r => r.code == 22512 && r.year === "D");
+                    READINGS_DATA.find(r => r.code == 22512 && r.year === "B") ||
+                    READINGS_DATA.find(r => r.code == 22512 && r.year === "D");
             }
         }
     }
@@ -4518,16 +4502,16 @@ function openModal(date, info) {
             }
         }
     }
-    
+
     // === CẬP NHẬT HIỂN THỊ LỄ VỌNG (nếu có) ===
-    if (vigilInfo && vigilInfo.hasVigil && !isChristmasDay) {
+    if (vigilInfoForReadings && vigilInfoForReadings.hasVigil && !isChristmasDay) {
         const modalCelebrationTitle = document.getElementById('modalCelebrationTitle');
         const modalCelebrationSubtitle = document.getElementById('modalCelebrationSubtitle');
-        
+
         // Lấy tên bài đọc cho lễ chính
-        const mainFeastCode = vigilInfo.mainFeastCode || code;
+        const mainFeastCode = vigilInfoForReadings.mainFeastCode || code;
         let mainFeastReadings = null;
-        
+
         // Tìm trong READINGS_SUNDAY trước (cho Chúa Nhật)
         if (date.getDay() === 0 && typeof READINGS_SUNDAY !== 'undefined' && READINGS_SUNDAY[mainFeastCode]) {
             const mainFeastData = READINGS_SUNDAY[mainFeastCode][cycle] || READINGS_SUNDAY[mainFeastCode];
@@ -4540,7 +4524,7 @@ function openModal(date, info) {
                 };
             }
         }
-        
+
         // Fallback: tìm trong READINGS_DATA
         if (!mainFeastReadings) {
             const mainFeastSummary = READINGS_DATA.find(r => {
@@ -4557,7 +4541,7 @@ function openModal(date, info) {
                 };
             }
         }
-        
+
         // Fallback: lấy từ seasonalFullData nếu có
         if (!mainFeastReadings && seasonalFullData) {
             mainFeastReadings = {
@@ -4567,7 +4551,7 @@ function openModal(date, info) {
                 gospel: seasonalFullData.gospel?.excerpt || seasonalFullData.gospel || '—'
             };
         }
-        
+
         // Lấy tên bài đọc cho lễ vọng
         let vigilReadings = null;
         if (vigilSummary) {
@@ -4585,20 +4569,20 @@ function openModal(date, info) {
                 gospel: vigilFullData.gospel?.excerpt || vigilFullData.gospel || '—'
             };
         }
-        
+
         // Hiển thị lễ chính (không hiển thị bài đọc ở đây, sẽ hiển thị trong tabs)
         if (modalCelebrationTitle) {
-            const mainFeastName = vigilInfo.mainFeastName || celebrationTitle;
+            const mainFeastName = vigilInfoForReadings.mainFeastName || celebrationTitle;
             modalCelebrationTitle.innerHTML = `
                 <div class="font-bold text-lg mb-1">${mainFeastName}</div>
             `;
         }
-        
+
         // Hiển thị lễ vọng (chỉ tên, không hiển thị bài đọc ở đây)
         if (modalCelebrationSubtitle) {
             modalCelebrationSubtitle.classList.remove('hidden');
             modalCelebrationSubtitle.innerHTML = `
-                <div class="font-semibold text-base mb-1 text-purple-700">${vigilInfo.vigilName}</div>
+                <div class="font-semibold text-base mb-1 text-purple-700">${vigilInfoForReadings.vigilName}</div>
                 <div class="text-xs text-gray-500 italic">Bài đọc có thể chọn trong phần "BÀI ĐỌC THÁNH LỄ" bên dưới</div>
             `;
         }
@@ -4612,7 +4596,7 @@ function openModal(date, info) {
     //   - Không hiện thánh cố định ngày hôm đó (bị đè bởi lễ trọng)
     // ============================================================================
     const isVietnameseMartyrs = infoFromCore._forceSanctoralReadings && infoFromCore._forceSanctoralKey === "72411";
-    
+
     // Nếu là Lễ Tử Đạo VN, cần lấy lại bài đọc seasonal gốc (CN TN) vì sanctoralCode đã bị đổi
     let originalSeasonalSummary = seasonalSummary;
     let originalSeasonalFullData = seasonalFullData;
@@ -4637,15 +4621,15 @@ function openModal(date, info) {
         seasonalSummary = originalSeasonalSummary;
         seasonalFullData = originalSeasonalFullData;
     }
-    
+
     // ============================================================================
     // XÁC ĐỊNH NGUỒN BÀI ĐỌC MẶC ĐỊNH DỰA TRÊN BẬC LỄ (Precedence)
     // ============================================================================
-    
+
     // Xác định nguồn bài đọc nên được load mặc định
     let defaultReadingSource = 'seasonal'; // Mặc định là Mùa phụng vụ
     let defaultLabel = 'Mùa Phụng Vụ';
-    
+
     // 1. Tết có ưu tiên cao nhất (nếu đang cử hành Tết)
     if (infoFromCore.isTet && tetFullData) {
         defaultReadingSource = 'tet';
@@ -4656,10 +4640,10 @@ function openModal(date, info) {
         defaultReadingSource = 'sanctoral';
         defaultLabel = infoFromCore.special || (infoFromCore.saints[0]?.name || 'Lễ Trọng');
     }
-    // 3. Lễ Vọng (nếu có bài đọc riêng) - ưu tiên cao, tương tự lễ các thánh
-    else if (vigilInfo && vigilInfo.hasVigil && (vigilSummary || vigilFullData)) {
+    // 3. Lễ Vọng (nếu có bài đọc riêng) - ưu tiên cao trên ngày VỌNG
+    else if (vigilInfoForReadings && vigilInfoForReadings.hasVigil && (vigilSummary || vigilFullData) && vigilEveInfo) {
         defaultReadingSource = 'vigil';
-        defaultLabel = vigilInfo.vigilName || 'Lễ Vọng';
+        defaultLabel = vigilInfoForReadings.vigilName || 'Lễ Vọng';
     }
     // 4. Kiểm tra _winnerKey từ Precedence Engine
     else if (infoFromCore._winnerKey === 'SANCTORAL' && sanctoralFullData) {
@@ -4697,7 +4681,7 @@ function openModal(date, info) {
         };
         const expectedNames = specialNames[code] || [];
         // Kiểm tra xem infoFromCore.special có chứa một trong các tên khớp không
-        const matches = infoFromCore.special && expectedNames.some(name => 
+        const matches = infoFromCore.special && expectedNames.some(name =>
             infoFromCore.special.includes(name) || name.includes(infoFromCore.special)
         );
         if (matches) {
@@ -4719,11 +4703,11 @@ function openModal(date, info) {
         defaultReadingSource = 'seasonal';
         defaultLabel = isChristmasDay ? 'Lễ Giáng Sinh' : 'Ngày 24/12';
     }
-    
+
     // Tạo tabs chọn nguồn bài đọc
     const readingTabs = document.getElementById('modalReadingTabs');
     let tabsHtml = "";
-    
+
     // Tab Seasonal (hoặc Special Feast nếu code là 8441, 5001-5004)
     const isSeasonalActive = defaultReadingSource === 'seasonal';
     // Kiểm tra xem có phải là lễ đặc biệt không (code 8441, 5001-5004)
@@ -4735,7 +4719,7 @@ function openModal(date, info) {
         <i class="fas fa-leaf text-green-600"></i> ${seasonalTabLabel}
         ${isSeasonalActive ? '<span class="ml-1 text-[0.6rem] bg-green-100 text-green-700 px-1.5 rounded">Đang dùng</span>' : ''}
     </button>`;
-    
+
     // Tab Vigil (nếu có lễ vọng với bài đọc riêng)
     if (!limitToSeasonalOptions && vigilInfoForReadings && vigilInfoForReadings.hasVigil && (vigilSummary || vigilFullData)) {
         const isVigilActive = defaultReadingSource === 'vigil';
@@ -4745,7 +4729,7 @@ function openModal(date, info) {
             ${isVigilActive ? '<span class="ml-1 text-[0.6rem] bg-purple-100 text-purple-700 px-1.5 rounded">Đang dùng</span>' : ''}
         </button>`;
     }
-    
+
     // Tab Sanctoral (nếu có) - bao gồm cả lễ nhớ
     if (!limitToSeasonalOptions && (sanctoralSummary || sanctoralFullData)) {
         const isSanctoralActive = defaultReadingSource === 'sanctoral';
@@ -4754,15 +4738,15 @@ function openModal(date, info) {
             ? infoFromCore.special
             : (infoFromCore.saints.length > 0 ? infoFromCore.saints[0].name : 'Lễ kính');
         // Rút ngắn tên nếu quá dài
-        const displayName = saintName.length > 25 ? 
-            (saintName.includes('và') ? saintName.split('và')[0].trim() + '...' : saintName.substring(0, 22) + '...') : 
+        const displayName = saintName.length > 25 ?
+            (saintName.includes('và') ? saintName.split('và')[0].trim() + '...' : saintName.substring(0, 22) + '...') :
             saintName;
         tabsHtml += `<button id="btn-sanctoral" class="reading-tab tab-sanctoral ${isSanctoralActive ? 'active' : ''}">
             <i class="fas fa-cross text-red-600"></i> ${displayName}
             ${isSanctoralActive ? '<span class="ml-1 text-[0.6rem] bg-red-100 text-red-700 px-1.5 rounded">Đang dùng</span>' : ''}
         </button>`;
     }
-    
+
     // Tab Special (nếu có)
     if (!limitToSeasonalOptions && (specialSummary || specialFullData)) {
         const isSpecialActive = defaultReadingSource === 'special';
@@ -4771,7 +4755,7 @@ function openModal(date, info) {
             ${isSpecialActive ? '<span class="ml-1 text-[0.6rem] bg-purple-100 text-purple-700 px-1.5 rounded">Đang dùng</span>' : ''}
         </button>`;
     }
-    
+
     // Tab Tết (nếu có)
     if (!limitToSeasonalOptions && (tetSummary || tetFullData) && infoFromCore.isTet) {
         const isTetActive = defaultReadingSource === 'tet';
@@ -4780,7 +4764,7 @@ function openModal(date, info) {
             ${isTetActive ? '<span class="ml-1 text-[0.6rem] bg-orange-100 text-orange-700 px-1.5 rounded">Đang dùng</span>' : ''}
         </button>`;
     }
-    
+
     readingTabs.innerHTML = tabsHtml;
 
     // Hiển thị tham chiếu bài đọc
@@ -4813,15 +4797,15 @@ function openModal(date, info) {
                     const badge = el.querySelector('span.ml-1');
                     if (badge) badge.remove();
                 });
-                
+
                 // Thêm trạng thái active cho tab được click
                 btn.classList.add('active');
-                
+
                 // Thêm badge "Đang dùng" cho tab được click
                 const colorMap = {
                     'seasonal': 'bg-green-100 text-green-700',
                     'vigil': 'bg-purple-100 text-purple-700',
-                    'sanctoral': 'bg-red-100 text-red-700', 
+                    'sanctoral': 'bg-red-100 text-red-700',
                     'special': 'bg-purple-100 text-purple-700',
                     'tet': 'bg-orange-100 text-orange-700'
                 };
@@ -4829,9 +4813,9 @@ function openModal(date, info) {
                 badgeSpan.className = `ml-1 text-[0.6rem] ${colorMap[type]} px-1.5 rounded`;
                 badgeSpan.textContent = 'Đang dùng';
                 btn.appendChild(badgeSpan);
-                
+
                 updateReadingRefs(summary);
-                
+
                 if (data) {
                     renderReadingsContent(data, type);
                 } else {
@@ -4841,7 +4825,7 @@ function openModal(date, info) {
             };
         }
     };
-    
+
     setupTabClick('btn-seasonal', seasonalFullData, 'seasonal', seasonalSummary, 'Mùa Phụng Vụ');
     if (!limitToSeasonalOptions && vigilInfoForReadings && vigilInfoForReadings.hasVigil && (vigilSummary || vigilFullData)) {
         setupTabClick('btn-vigil', vigilFullData, 'vigil', vigilSummary, vigilInfoForReadings.vigilName || 'Lễ Vọng');
@@ -4854,7 +4838,7 @@ function openModal(date, info) {
 
     // === DEFAULT RENDER - Dựa trên defaultReadingSource đã xác định từ Precedence ===
     console.log(`📖 Nguồn bài đọc mặc định: ${defaultReadingSource} (${defaultLabel})`);
-    
+
     switch (defaultReadingSource) {
         case 'tet':
             if (tetFullData) {
@@ -4926,7 +4910,7 @@ function openModal(date, info) {
             }
             break;
     }
-    
+
     // Fallback: Nếu nguồn mặc định không có dữ liệu, thử nguồn khác
     const contentEl = document.getElementById('modalReadingsContent');
     if (contentEl && contentEl.innerHTML.trim() === '') {
@@ -4953,7 +4937,7 @@ function openModal(date, info) {
             document.getElementById('btn-seasonal')?.classList.add('active');
         }
     }
-    
+
     // === SAINTS SECTION (chi tiết) ===
     const saintContent = document.getElementById('modalSaintContent');
     saintContent.innerHTML = "";
@@ -4971,7 +4955,7 @@ function openModal(date, info) {
     } else {
         document.getElementById('modalSaintSection').classList.add('hidden');
     }
-    
+
     // === EUCHARISTIC ADORATION SECTION ===
     // Lịch Chầu Thánh Thể theo tuần lễ Chúa Nhật trong năm
     const adorationSection = document.getElementById('modalAdorationSection');
@@ -4982,10 +4966,10 @@ function openModal(date, info) {
             // Tính số tuần Chúa Nhật trong năm (từ đầu năm dương lịch)
             const sundayNumber = getSundayNumberOfYear(date);
             const weekKey = sundayNumber.toString().padStart(2, '0');
-            
+
             if (typeof eucharisticAdoration !== 'undefined' && eucharisticAdoration[weekKey] && eucharisticAdoration[weekKey].content) {
                 adorationSection.classList.remove('hidden');
-                
+
                 // Hiển thị thông tin chi tiết hơn
                 const adorationData = eucharisticAdoration[weekKey];
                 let adorationHtml = `<div class="text-amber-900 font-medium">${adorationData.content}</div>`;
@@ -5036,15 +5020,15 @@ function closeModal() {
     document.body.classList.remove('modal-active');
 }
 
-function changeYear(offset) { 
-    currentYear += offset; 
+function changeYear(offset) {
+    currentYear += offset;
     // Xóa cache dayInfo khi đổi năm (liturgicalData và lunarDates vẫn giữ)
     CACHE.dayInfo.clear();
-    renderCalendar(); 
+    renderCalendar();
 }
-function goToToday() { 
-    currentYear = new Date().getFullYear(); 
-    renderCalendar(); 
+function goToToday() {
+    currentYear = new Date().getFullYear();
+    renderCalendar();
     headerFocusDate = null;
     updateHeaderTodayInfo();
 }
@@ -5080,11 +5064,11 @@ const HeaderCollapseManager = {
     expandThreshold: 120, // ngưỡng mở rộng (thấp hơn để tránh nhấp nháy)
     lastScrollTop: 0,
     ticking: false,
-    
+
     init() {
         // Bind scroll event
         window.addEventListener('scroll', this.onScroll.bind(this), { passive: true });
-        
+
         // Bind expand button click
         const expandBtn = document.getElementById('expandTodayBtn');
         if (expandBtn) {
@@ -5095,11 +5079,11 @@ const HeaderCollapseManager = {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         }
-        
+
         // Initial state check
         this.checkScrollPosition();
     },
-    
+
     onScroll() {
         if (!this.ticking) {
             window.requestAnimationFrame(() => {
@@ -5109,60 +5093,60 @@ const HeaderCollapseManager = {
             this.ticking = true;
         }
     },
-    
+
     checkScrollPosition() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
+
         if (scrollTop > this.collapseThreshold && !this.isCollapsed) {
             this.collapse();
         } else if (scrollTop < this.expandThreshold && this.isCollapsed) {
             this.expand();
         }
-        
+
         this.lastScrollTop = scrollTop;
     },
-    
+
     collapse() {
         if (this.isCollapsed) return;
         this.isCollapsed = true;
-        
+
         const headerInfo = document.getElementById('headerTodayInfo');
         const expanded = document.getElementById('headerExpanded');
         const collapsed = document.getElementById('headerCollapsed');
-        
+
         if (!headerInfo || !expanded || !collapsed) return;
-        
+
         // Cập nhật dữ liệu compact
         this.updateCompactView();
-        
+
         // Animate
         headerInfo.classList.add('collapsed');
         headerInfo.dataset.expanded = 'false';
         expanded.classList.add('hiding');
         collapsed.classList.remove('hidden');
-        
+
         // Delay để CSS transition hoạt động
         requestAnimationFrame(() => {
             collapsed.classList.add('showing');
         });
     },
-    
+
     expand() {
         if (!this.isCollapsed) return;
         this.isCollapsed = false;
-        
+
         const headerInfo = document.getElementById('headerTodayInfo');
         const expanded = document.getElementById('headerExpanded');
         const collapsed = document.getElementById('headerCollapsed');
-        
+
         if (!headerInfo || !expanded || !collapsed) return;
-        
+
         // Animate
         headerInfo.classList.remove('collapsed');
         headerInfo.dataset.expanded = 'true';
         collapsed.classList.remove('showing');
         expanded.classList.remove('hiding');
-        
+
         // Hide collapsed after animation
         setTimeout(() => {
             if (!this.isCollapsed) {
@@ -5170,20 +5154,20 @@ const HeaderCollapseManager = {
             }
         }, 350);
     },
-    
+
     updateCompactView() {
         const today = getHeaderBaseDate();
         const litData = getLiturgicalData(today.getFullYear());
-        
+
         // Dùng hàm core để lấy toàn bộ thông tin phụng vụ
         const dayInfo = getDayLiturgicalInfo(today, litData);
         const info = dayInfo.info;
         const cycle = dayInfo.cycle;
         const weekdayCycle = dayInfo.weekdayCycle;
-        
+
         // Get celebration title - dùng dayLabelText từ hàm core
         let celebrationTitle = dayInfo.dayLabelText;
-        
+
         // Get reading summary - dùng dayCode từ dayInfo
         const code = dayInfo.dayCode;
         let seasonalSummary = READINGS_DATA.find(r => {
@@ -5191,7 +5175,7 @@ const HeaderCollapseManager = {
             if (today.getDay() === 0) return r.year === cycle;
             return r.year === weekdayCycle || r.year === "0";
         });
-        
+
         let readingsText = "";
         if (seasonalSummary) {
             // Rút gọn: chỉ hiển thị Tin Mừng
@@ -5200,23 +5184,23 @@ const HeaderCollapseManager = {
                 readingsText = `${seasonalSummary.reading1} • ${seasonalSummary.gospel || ""}`;
             }
         }
-        
+
         // Cycle text
         let cycleText = `Năm ${cycle}`;
         if (info.season === "Mùa Thường Niên" && today.getDay() !== 0) {
             cycleText += ` - ${weekdayCycle === "1" ? "Năm lẻ" : "Năm chẵn"}`;
         }
-        
+
         // Update compact elements
         const colorDotCompact = document.getElementById('headerColorDotCompact');
         const celebrationCompact = document.getElementById('headerCelebrationCompact');
         const cycleCompact = document.getElementById('headerCycleCompact');
         const readingsCompact = document.getElementById('headerReadingsCompact');
-        
+
         if (colorDotCompact) colorDotCompact.className = `w-3 h-3 rounded-full shadow-sm ring-1 ring-white flex-shrink-0 ${info.color}`;
         if (celebrationCompact) celebrationCompact.innerText = celebrationTitle;
         if (cycleCompact) cycleCompact.innerText = cycleText;
-        
+
         // Cho Chúa Nhật: hiển thị lịch Chầu thay vì bài đọc
         if (today.getDay() === 0) {
             const sundayNumber = getSundayNumberOfYear(today);
@@ -5233,14 +5217,14 @@ const HeaderCollapseManager = {
     }
 };
 
-window.onload = function() {
-    updateHeaderTodayInfo(); 
+window.onload = function () {
+    updateHeaderTodayInfo();
     renderCalendar();
     HeaderCollapseManager.init();
     initCalendarFontControls();
     initThemeToggle();
     initHeaderNavButtons();
-    document.onkeydown = function(evt) { 
+    document.onkeydown = function (evt) {
         if (evt.key === 'Escape' || evt.key === 'Esc') {
             closeModal();
             closeExportModal();
@@ -5371,19 +5355,19 @@ function closeExportModal() {
 
 function setExportRange(range) {
     exportRange = range;
-    
+
     // Update button styles
     document.querySelectorAll('.export-range-btn').forEach(btn => {
         btn.classList.remove('active', 'border-blue-500', 'bg-blue-50', 'text-blue-700');
         btn.classList.add('border-gray-200');
     });
-    
+
     const activeBtn = document.getElementById(`exportRange${range.charAt(0).toUpperCase() + range.slice(1)}`);
     if (activeBtn) {
         activeBtn.classList.add('active', 'border-blue-500', 'bg-blue-50', 'text-blue-700');
         activeBtn.classList.remove('border-gray-200');
     }
-    
+
     // Show/hide custom inputs
     const customInputs = document.getElementById('customRangeInputs');
     if (customInputs) {
@@ -5398,7 +5382,7 @@ function setExportRange(range) {
 function getExportDateRange() {
     const today = new Date();
     let fromMonth, toMonth;
-    
+
     switch (exportRange) {
         case 'month':
             fromMonth = today.getMonth() + 1;
@@ -5414,7 +5398,7 @@ function getExportDateRange() {
             toMonth = 12;
             break;
     }
-    
+
     return { fromMonth, toMonth };
 }
 
@@ -5424,7 +5408,7 @@ function generateCalendarData() {
     const includeReadings = document.getElementById('exportIncludeReadings')?.checked || false;
     const includeSaints = document.getElementById('exportIncludeSaints')?.checked || true;
     const includeLunar = document.getElementById('exportIncludeLunar')?.checked || true;
-    
+
     // Metadata
     const exportData = {
         metadata: {
@@ -5442,7 +5426,7 @@ function generateCalendarData() {
         },
         months: []
     };
-    
+
     // Generate data for each month
     for (let month = fromMonth; month <= toMonth; month++) {
         const monthData = {
@@ -5450,16 +5434,16 @@ function generateCalendarData() {
             name: MONTHS_VI[month - 1],
             days: []
         };
-        
+
         const daysInMonth = new Date(currentYear, month, 0).getDate();
-        
+
         for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(currentYear, month - 1, day);
-            
+
             // Dùng hàm core để lấy toàn bộ thông tin phụng vụ
             const dayInfo = getDayLiturgicalInfo(date, litData);
             const info = dayInfo.info;
-            
+
             const dayData = {
                 date: `${currentYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
                 year: currentYear,
@@ -5472,7 +5456,7 @@ function generateCalendarData() {
                 season: info.season,
                 code: dayInfo.dayCode
             };
-            
+
             // Lunar date từ dayInfo
             if (includeLunar && dayInfo.lunar) {
                 dayData.lunar = {
@@ -5482,7 +5466,7 @@ function generateCalendarData() {
                     isLeapMonth: dayInfo.lunar.isLeapMonth || false
                 };
             }
-            
+
             // Saints - Luôn bao gồm tất cả saints (kể cả lễ nhớ), không phụ thuộc vào includeSaints
             // includeSaints chỉ ảnh hưởng đến việc hiển thị trong PDF, nhưng dữ liệu vẫn cần có
             if (info.saints && info.saints.length > 0) {
@@ -5493,7 +5477,7 @@ function generateCalendarData() {
                     type: s.type || (s.rank === 'TRONG' ? 'S' : s.rank === 'KINH' ? 'F' : s.rank === 'NHO' ? 'M' : 'O')
                 }));
             }
-            
+
             // Commemorations - Luôn bao gồm để hiển thị đầy đủ
             if (info.commemorations && info.commemorations.length > 0) {
                 dayData.commemorations = info.commemorations.map(c => {
@@ -5501,19 +5485,19 @@ function generateCalendarData() {
                     return c.name || c.special || '';
                 }).filter(c => c); // Loại bỏ giá trị rỗng
             }
-            
+
             // Reading references
             if (includeReadings) {
                 // Lấy chu kỳ năm phụng vụ từ dayInfo
                 const cycle = dayInfo.cycle;
                 const weekdayCycle = dayInfo.weekdayCycle;
                 const dayOfWeek = date.getDay();
-                
+
                 // Tìm bài đọc từ tất cả nguồn
                 let readingData = null;
                 let readingSource = 'temporal';
                 let usedCode = dayInfo.dayCode;
-                
+
                 // === ƯU TIÊN 1: Kiểm tra bài đọc Tết (nếu đang cử hành Tết) ===
                 if (info.isTet && dayInfo.tetCode) {
                     if (typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[dayInfo.tetCode]) {
@@ -5523,7 +5507,7 @@ function generateCalendarData() {
                         dayData.readingNote = 'Bài đọc Thánh Lễ Tết';
                     }
                 }
-                
+
                 // === ƯU TIÊN 2: Ép bài đọc sanctoral cho các lễ trọng có bài đọc riêng (St Joseph, Truyền Tin, Vô Nhiễm) ===
                 if (!readingData && info._forceSanctoralReadings && dayInfo.sanctoralCode) {
                     if (typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[dayInfo.sanctoralCode]) {
@@ -5550,15 +5534,15 @@ function generateCalendarData() {
                         }
                     }
                 }
-                
+
                 // === ƯU TIÊN 3: Lễ Trọng/Kính các Thánh (sanctoral) ===
                 // Nếu là Lễ Trọng hoặc Lễ Kính và thánh là cử hành chính, tìm bài đọc riêng của thánh (7DDMM)
                 if (!readingData && (info.rankCode === 'TRONG' || info.rankCode === 'KINH')) {
                     // Kiểm tra xem thánh có phải cử hành chính không
-                    const isSanctoralPrimary = info._winnerKey === 'SANCTORAL' || 
-                                             (info.saints.length > 0 && info.special === info.saints[0].name) ||
-                                             (info.saints.length > 0 && ['S', 'F'].includes(info.saints[0].type) && !info.special);
-                    
+                    const isSanctoralPrimary = info._winnerKey === 'SANCTORAL' ||
+                        (info.saints.length > 0 && info.special === info.saints[0].name) ||
+                        (info.saints.length > 0 && ['S', 'F'].includes(info.saints[0].type) && !info.special);
+
                     if (isSanctoralPrimary && dayInfo.sanctoralCode) {
                         if (typeof READINGS_SPECIAL !== 'undefined' && READINGS_SPECIAL[dayInfo.sanctoralCode]) {
                             readingData = READINGS_SPECIAL[dayInfo.sanctoralCode];
@@ -5567,7 +5551,7 @@ function generateCalendarData() {
                         }
                     }
                 }
-                
+
                 // === ƯU TIÊN 4: Sử dụng getFullReadings() để tìm bài đọc từ tất cả nguồn ===
                 // Hàm này đã xử lý đầy đủ các trường hợp đặc biệt (2030, 5001-5004, 8441, etc.)
                 if (!readingData) {
@@ -5582,7 +5566,7 @@ function generateCalendarData() {
                             dayInfo.tetCode,
                             null // vigilInfo
                         );
-                        
+
                         // Tìm bài đọc theo thứ tự ưu tiên
                         const seasonalReading = fullReadings && fullReadings.length > 0 ? fullReadings.find(r => r.type === 'seasonal') : null;
                         const sanctoralReading = fullReadings && fullReadings.length > 0 ? fullReadings.find(r => r.type === 'sanctoral') : null;
@@ -5608,7 +5592,7 @@ function generateCalendarData() {
                         console.warn(`Lỗi khi lấy bài đọc cho ngày ${day}:`, error);
                     }
                 }
-                
+
                 // === ƯU TIÊN 5: Xử lý đặc biệt cho các mã không có trong dữ liệu ===
                 if (!readingData) {
                     // Vọng Hiện Xuống (4089) → dùng bài đọc thứ bảy tuần 7 Phục Sinh (4076)
@@ -5630,7 +5614,7 @@ function generateCalendarData() {
                         }
                     }
                 }
-                
+
                 // === ƯU TIÊN 6: Lễ Nhớ các Thánh (optional memorial) ===
                 // Nếu vẫn không có và là lễ nhớ, thử tìm bài đọc tùy chọn
                 if (!readingData && (info.rankCode === 'NHO' || info.rankCode === 'NHOKB') && dayInfo.sanctoralCode) {
@@ -5656,29 +5640,29 @@ function generateCalendarData() {
                         usedCode = dayInfo.sanctoralCode;
                     }
                 }
-                
+
                 if (readingData) {
                     // Xử lý nhiều format dữ liệu khác nhau
                     // Format 1: firstReading, psalms, secondReading, gospel (có excerpt)
                     // Format 2: reading1, psalm, reading2, gospel (từ READINGS_DATA)
                     // Format 3: BD1_ref, DC_ref, BD2_ref, TM_ref (format cũ)
-                    const reading1 = readingData.firstReading?.excerpt || 
-                                   readingData.reading1 || 
-                                   readingData.BD1_ref || 
-                                   null;
-                    const psalm = readingData.psalms?.excerpt || 
-                                readingData.psalm || 
-                                readingData.DC_ref || 
-                                null;
-                    const reading2 = readingData.secondReading?.excerpt || 
-                                   readingData.reading2 || 
-                                   readingData.BD2_ref || 
-                                   null;
-                    const gospel = readingData.gospel?.excerpt || 
-                                 readingData.gospel || 
-                                 readingData.TM_ref || 
-                                 null;
-                    
+                    const reading1 = readingData.firstReading?.excerpt ||
+                        readingData.reading1 ||
+                        readingData.BD1_ref ||
+                        null;
+                    const psalm = readingData.psalms?.excerpt ||
+                        readingData.psalm ||
+                        readingData.DC_ref ||
+                        null;
+                    const reading2 = readingData.secondReading?.excerpt ||
+                        readingData.reading2 ||
+                        readingData.BD2_ref ||
+                        null;
+                    const gospel = readingData.gospel?.excerpt ||
+                        readingData.gospel ||
+                        readingData.TM_ref ||
+                        null;
+
                     // Chỉ tạo readings object nếu có ít nhất một bài đọc
                     if (reading1 || psalm || reading2 || gospel) {
                         dayData.readings = {
@@ -5694,7 +5678,7 @@ function generateCalendarData() {
                     }
                 }
             }
-            
+
             // Discipline notes
             const disciplineList = getLiturgicalDiscipline(date, litData);
             if (Array.isArray(disciplineList) && disciplineList.length > 0) {
@@ -5708,20 +5692,20 @@ function generateCalendarData() {
                     tags: disciplineList
                 };
             }
-            
+
             monthData.days.push(dayData);
         }
-        
+
         exportData.months.push(monthData);
     }
-    
+
     return exportData;
 }
 
 function exportCalendar(format) {
     const data = generateCalendarData();
     const { fromMonth, toMonth } = getExportDateRange();
-    
+
     let filename;
     if (fromMonth === toMonth) {
         filename = `lich-phung-vu-${currentYear}-thang-${String(fromMonth).padStart(2, '0')}`;
@@ -5730,13 +5714,13 @@ function exportCalendar(format) {
     } else {
         filename = `lich-phung-vu-${currentYear}-thang-${fromMonth}-den-${toMonth}`;
     }
-    
+
     if (format === 'json') {
         exportToJSON(data, filename);
     } else if (format === 'pdf') {
         exportToPDF(data, filename);
     }
-    
+
     closeExportModal();
 }
 
@@ -5744,7 +5728,7 @@ function exportToJSON(data, filename) {
     const jsonStr = JSON.stringify(data, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = `${filename}.json`;
@@ -5752,7 +5736,7 @@ function exportToJSON(data, filename) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     // Show success message
     showExportNotification('JSON đã được tải xuống!', 'success');
 }
@@ -5760,7 +5744,7 @@ function exportToJSON(data, filename) {
 function exportToPDF(data, filename) {
     // Create a printable HTML document
     const printWindow = window.open('', '_blank');
-    
+
     // Color mapping for liturgical colors
     const colorMap = {
         'green': '#16a34a',
@@ -5769,7 +5753,7 @@ function exportToPDF(data, filename) {
         'red': '#dc2626',
         'rose': '#ec4899'
     };
-    
+
     // Color background mapping
     const colorBgMap = {
         'green': '#f0fdf4',
@@ -5778,7 +5762,7 @@ function exportToPDF(data, filename) {
         'red': '#fef2f2',
         'rose': '#fdf2f8'
     };
-    
+
     // Rank labels
     const rankLabels = {
         'TRONG': 'Lễ Trọng',
@@ -5788,14 +5772,14 @@ function exportToPDF(data, filename) {
         'CHUA_NHAT': 'Chúa Nhật',
         'NGAY_THUONG': ''
     };
-    
+
     // Month names in Vietnamese
     const monthNamesVN = [
         'Tháng Giêng', 'Tháng Hai', 'Tháng Ba', 'Tháng Tư',
         'Tháng Năm', 'Tháng Sáu', 'Tháng Bảy', 'Tháng Tám',
         'Tháng Chín', 'Tháng Mười', 'Tháng Mười Một', 'Tháng Mười Hai'
     ];
-    
+
     let htmlContent = `
 <!DOCTYPE html>
 <html lang="vi">
@@ -6081,11 +6065,11 @@ function exportToPDF(data, filename) {
         <div class="legend-item"><div class="legend-color" style="background: #dc2626;"></div> Tử Đạo</div>
     </div>
 `;
-    
+
     // Generate month tables
     data.months.forEach(month => {
         const monthName = monthNamesVN[month.month - 1] || month.name;
-        
+
         htmlContent += `
     <div class="month-section">
         <div class="month-header">${monthName} năm ${data.metadata.year}</div>
@@ -6100,19 +6084,19 @@ function exportToPDF(data, filename) {
             </thead>
             <tbody>
 `;
-        
+
         month.days.forEach(day => {
             const date = new Date(day.date);
             const dayNum = date.getDate();
             const isSunday = date.getDay() === 0;
             const isSolemnity = day.rank === 'TRONG';
             const isFeast = day.rank === 'KINH';
-            
+
             let rowClass = '';
             if (isSolemnity) rowClass = 'row-solemnity';
             else if (isFeast) rowClass = 'row-feast';
             else if (isSunday) rowClass = 'row-sunday';
-            
+
             const colorHex = colorMap[day.color] || '#16a34a';
             const rankLabel = rankLabels[day.rank] || '';
             let rankClass = 'rank-badge ';
@@ -6120,36 +6104,36 @@ function exportToPDF(data, filename) {
             else if (day.rank === 'KINH') rankClass += 'rank-kinh';
             else if (day.rank === 'NHO') rankClass += 'rank-nho';
             else if (day.rank === 'NHOKB') rankClass += 'rank-nhokb';
-            
+
             // Lunar date
             let lunarStr = '';
             if (day.lunar) {
                 const lunarText = `${day.lunar.day}/${day.lunar.month}`;
-                lunarStr = day.lunar.day === 1 
-                    ? `<span class="lunar-new">${lunarText}</span>` 
+                lunarStr = day.lunar.day === 1
+                    ? `<span class="lunar-new">${lunarText}</span>`
                     : lunarText;
             }
-            
+
             // Saints - Hiển thị tất cả lễ nhớ, kể cả khi không phải cử hành chính
             let saintsStr = '';
             if (day.saints && day.saints.length > 0) {
                 // Lọc và hiển thị tất cả saints (bao gồm lễ nhớ)
                 const allSaints = day.saints.map(s => {
-                    const rankLabel = s.rank === 'NHO' ? ' (Lễ Nhớ)' : 
-                                    s.rank === 'NHOKB' ? ' (Lễ Nhớ KB)' : 
-                                    s.rank === 'KINH' ? ' (Lễ Kính)' : 
-                                    s.rank === 'TRONG' ? ' (Lễ Trọng)' : '';
+                    const rankLabel = s.rank === 'NHO' ? ' (Lễ Nhớ)' :
+                        s.rank === 'NHOKB' ? ' (Lễ Nhớ KB)' :
+                            s.rank === 'KINH' ? ' (Lễ Kính)' :
+                                s.rank === 'TRONG' ? ' (Lễ Trọng)' : '';
                     return s.name + rankLabel;
                 }).join('; ');
                 saintsStr = `<div class="saints-line">↳ ${allSaints}</div>`;
             }
-            
+
             // Commemorations - Hiển thị các lễ bị commemorated
             let commemorationsStr = '';
             if (day.commemorations && day.commemorations.length > 0) {
                 commemorationsStr = `<div class="saints-line" style="opacity: 0.8; font-size: 0.9em;">↳ ${day.commemorations.join('; ')}</div>`;
             }
-            
+
             // Discipline
             let disciplineStr = '';
             if (day.discipline) {
@@ -6161,7 +6145,7 @@ function exportToPDF(data, filename) {
                     disciplineStr = `<div class="discipline-line">⚠ ${parts.join(' • ')}</div>`;
                 }
             }
-            
+
             // Readings
             let readingsStr = '';
             if (day.readings && day.readings.references) {
@@ -6171,11 +6155,11 @@ function exportToPDF(data, filename) {
                 if (refs.reading2) readingsStr += `<div class="reading-item"><span class="reading-label">II:</span><span class="reading-ref">${refs.reading2}</span></div>`;
                 if (refs.gospel) readingsStr += `<div class="reading-item"><span class="reading-label">TM:</span><span class="reading-ref">${refs.gospel}</span></div>`;
             }
-            
+
             // Short day name
             const shortDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
             const dayName = shortDays[date.getDay()];
-            
+
             htmlContent += `
                 <tr class="${rowClass}">
                     <td class="col-date">
@@ -6201,14 +6185,14 @@ function exportToPDF(data, filename) {
                 </tr>
 `;
         });
-        
+
         htmlContent += `
             </tbody>
         </table>
     </div>
 `;
     });
-    
+
     htmlContent += `
     <div class="footer">
         ✝ Lịch Phụng Vụ Công Giáo • Xuất ngày ${new Date().toLocaleDateString('vi-VN')} • lichphungvu.com
@@ -6219,10 +6203,10 @@ function exportToPDF(data, filename) {
 </body>
 </html>
 `;
-    
+
     printWindow.document.write(htmlContent);
     printWindow.document.close();
-    
+
     // Show notification
     showExportNotification('Đã mở trang in PDF. Chọn "Lưu dạng PDF" để lưu file.', 'success');
 }
@@ -6231,7 +6215,7 @@ function showExportNotification(message, type = 'info') {
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-xl shadow-lg z-50 flex items-center gap-3 transform transition-all duration-300 translate-y-2 opacity-0`;
-    
+
     if (type === 'success') {
         notification.classList.add('bg-green-500', 'text-white');
         notification.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
@@ -6239,14 +6223,14 @@ function showExportNotification(message, type = 'info') {
         notification.classList.add('bg-blue-500', 'text-white');
         notification.innerHTML = `<i class="fas fa-info-circle"></i> ${message}`;
     }
-    
+
     document.body.appendChild(notification);
-    
+
     // Animate in
     setTimeout(() => {
         notification.classList.remove('translate-y-2', 'opacity-0');
     }, 10);
-    
+
     // Remove after 3s
     setTimeout(() => {
         notification.classList.add('translate-y-2', 'opacity-0');
